@@ -1,23 +1,3 @@
-def replace(iterable, rules):
-	"""Replace some elements of the given iterable.
-
-	Arguments:
-	obj -- the iterable,
-	rules -- a dictionary containing the elements to change.
-	>>> replace('finger', {'f': 'h', 'g': 'd'})
-	hinder
-	"""
-	new = []
-	for el in iterable:
-		if el in rules:
-			new.append(rules[el])
-		else:
-			new.append(el)
-	iter_type = type(iterable)
-	if iter_type is str:
-		return ''.join(new)
-	return iter_type(new)
-
 class Calculator:
 	"""The creation of the Calculator object and the related functionality."""
 
@@ -25,10 +5,30 @@ class Calculator:
 		"""The initialiser of the class."""
 		pass
 
-	def infix_notation(self, string):
-		"""Return 'string' as a list of commands in infix notation."""
-		string = replace(string, {',': '.'})
-		print(string)
+	def split_string(self, string):
+		changes = {'⋅': '*', '×': '*',
+			'÷': ':', '{': '(', '}': ')'}
+		ans = ['']
+		for char in string:
+			if (ans[-1] + char).isalpha() or char.isdigit():
+				ans[-1] += char
+			elif char in '.,':
+				ans[-1] += '.'
+			elif char == ' ':
+				if ans[-1]:
+					ans.append('')
+			else:
+				if char in changes:
+					char = changes[char]
+				if ans[-1]:
+					ans.append(char)
+				else:
+					ans[-1] += char
+				ans.append('')
+		return ans
+
+	def infix_notation(self, ls):
+		"""Return 'ls' as a list of commands in infix notation."""
 
 calc = Calculator()
-calc.infix_notation('test, test, test...')
+print(calc.split_string('{ (1+2,33) * 11s : i1} - sin 1'))
