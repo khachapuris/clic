@@ -23,10 +23,12 @@ class Token:
 	
 	@classmethod
 	def number(cls, number):
+		"""An initialiser for number tokens."""
 		return cls((lambda: number), 0, 10, 0, kind='num')
 	
 	@classmethod
 	def variable(cls, name, known_vars):
+		"""An initialiser for variable and value tokens."""
 		return cls((lambda: known_vars[name]), 0, 10, 0, name=name, kind='var')
 	
 	def __repr__(self):
