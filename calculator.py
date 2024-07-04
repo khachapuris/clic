@@ -51,8 +51,14 @@ class Calculator:
 		changes = {'⋅': '*', '×': '*',
 			'÷': ':', '{': '(', '}': ')'}
 		ans = ['']
+		in_string = False
 		for char in string:
-			if (ans[-1] + char).isalpha() or char.isdigit():
+			if char == '"':
+				in_string = not in_string
+				ans[-1] += char
+			elif in_string:
+				ans[-1] += char
+			elif (ans[-1] + char).isalpha() or char.isdigit():
 				ans[-1] += char
 			elif char in '.,':
 				ans[-1] += '.'
@@ -67,6 +73,8 @@ class Calculator:
 				else:
 					ans[-1] += char
 				ans.append('')
+		if in_string:
+			raise ValueError('unclosed double quotes')
 		return ans
 
 	def transform_operators(self, ls):
@@ -77,6 +85,4 @@ class Calculator:
 		"""Return 'ls' as a list of commands in infix notation."""
 
 calc = Calculator()
-i1 = Token.variable('i1', {'a1': 100})
-print(i1)
-print(i1.calc())
+print(calc.split_string('1 + 2 - "1 + 2" + "12 - 345"'))
