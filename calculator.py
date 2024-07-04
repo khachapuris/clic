@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 class Token:
 	"""The creation of the Token object and the related functionality."""
 	
@@ -22,14 +24,14 @@ class Token:
 		self.kind = kind
 	
 	@classmethod
-	def number(cls, number):
-		"""An initialiser for number tokens."""
-		return cls((lambda: number), 0, 10, 0, kind='num')
+	def obj(cls, kind, obj):
+		"""An initialiser for data storage tokens."""
+		return cls((lambda: obj), 0, 10, 0, kind=kind)
 	
 	@classmethod
-	def variable(cls, name, known_vars):
+	def var(cls, name, defined):
 		"""An initialiser for variable and value tokens."""
-		return cls((lambda: known_vars[name]), 0, 10, 0, name=name, kind='var')
+		return cls((lambda: defined[name]), 0, 10, 0, name=name, kind='var')
 	
 	def __repr__(self):
 		if self.name:
@@ -41,12 +43,25 @@ class Token:
 		return '<TOKEN>'
 
 
+glob_opers = {
+	'+': Token(lambda a, b: a + b, 2, 1, 0, name='<ADD>'),
+	'-': Token(lambda a, b: a - b, 2, 1, 0, name='<SUB>'),
+	'*': Token(lambda a, b: a * b, 2, 2, 0, name='<MUL>'),
+	':': Token(lambda a, b: a / b, 2, 2, 0, name='<DIV>'),
+	'/': Token(lambda a, b: a / b, 2, 0, 0, name='<BAR>'),
+	'^': Token(lambda a, b: a ** b, 2, 3, 1, name='<POW>'),
+	'~': Token(lambda a: -a, 2, 3, 1, name='<NEG>'),
+}
+
+glob_funcs = {}
+
+
 class Calculator:
 	"""The creation of the Calculator object and the related functionality."""
 
 	def __init__(self):
 		"""The initialiser of the class."""
-		pass
+		self.vars = {}
 
 	def split_string(self, string):
 		"""Split the given string by tokens."""
@@ -62,7 +77,7 @@ class Calculator:
 				ans[-1] += char
 			elif (ans[-1] + char).isalpha() or char.isdigit():
 				ans[-1] += char
-			elif char in '.,':
+			elif char in '.,' and (ans[-1] + '0').isdigit():
 				ans[-1] += '.'
 			elif char == ' ':
 				if ans[-1]:
@@ -80,11 +95,26 @@ class Calculator:
 		return ans
 
 	def transform_operators(self, ls):
-		for el in ls:
-			pass
+		ans = []
+		for word in ls:
+			if word.isdigit() or '.' in word:
+				ans.append(Token.obj('num', Decimal(word)))
+			elif word[0] == '"':
+				ans.append(Token.obj('str', word))
+			elif word in glob_opers:
+				ans.append(glob_opers[word])
+			elif word in glob_funcs:
+				ans.append(glob_funcs[word])
+			elif word[0].isalpha():
+				ans.append(Token.var(word, self.vars))
+		return ans
 
 	def infix_notation(self, ls):
 		"""Return 'ls' as a list of commands in infix notation."""
 
 calc = Calculator()
-print(calc.split_string('1 + 2 - "1 + 2" + "12 - 345"'))
+expression = '30.3 - 20,2 * i1'
+expression = calc.split_string(expression)
+print(expression)
+expression = calc.transform_operators(expression)
+print(expression)
