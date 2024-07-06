@@ -1,38 +1,207 @@
 from decimal import Decimal
 
+glob_pi = Decimal('3.1415926535897932384626433833')
+
+
+class Quantity:
+	"""The creation of the Quantity object and the related functionality."""
+
+	class OperationError(ArithmeticError):
+		pass
+
+	def __init__(self, value, units):
+		"""The initialiser for the class.
+
+		Arguments:
+		value -- a number representing the numeric value of a quantity,
+		units -- a dictionary that matches units and their powers.
+		"""
+		self.units = units
+		self.value = value
+
+	@classmethod
+	def usr_init(cls, value, degree=False):
+		"""An initialiser for angle quantities.
+
+		>>> Quantity.angle(5)
+		Q(5, ang)
+		>>> Quantity.angle(1, 'degree')
+		Q(0.0175, ang)
+		"""
+		if degree:
+			return cls(value / Dec(180) * glob_pi, {'ang': 1})
+		return cls(value, {'ang': 1})
+
+	def __str__(self):
+		"""Return a string representation of the quantity's unit part."""
+		ans = ''
+		for u in list(self.units):
+			power = self.units[u]
+			ans += str(u)
+			if power != 1:
+				ans += '^' + str(power)
+			ans += '*'
+		return ans[:-1]
+
+	def getpow(self, unit):
+		"""Return the power in which unit is present in the quantity."""
+		if unit in self.units:
+			return self.units[unit]
+		return 0
+
+	def __mul__(self, other):
+		if isinstance(other, Quantity):
+			units = {}
+			for u in list(self.units | other.units):
+				power = self.getpow(u) + other.getpow(u)
+				if power != 0:
+					units[u] = power
+			value = self.value * other.value
+			if units:
+				return Quantity(value, units)
+			return value
+		return Quantity(self.value * other, self.units)
+
+	def __truediv__(self, other):
+		if isinstance(other, Quantity):
+			units = {}
+			for u in list(self.units | other.units):
+				power = self.getpow(u) - other.getpow(u)
+				if power != 0:
+					units[u] = power
+			value = self.value * other.value
+			if units:
+				return Quantity(value, units)
+			return value
+		return Quantity(self.value * other, self.units)
+
+	def __add__(self, other):
+		if isinstance(other, Quantity):
+			if self.units == other.units:
+				return Quantity(self.value + other.value, self.units)
+		raise Quantity.OperationError('addition of different units')
+
+	def __neg__(self):
+		return Quantity(-self.value, self.units)
+
+	def __sub__(self, other):
+		if isinstance(other, Quantity):
+			if self.units == other.units:
+				return Quantity(self.value - other.value, self.units)
+		raise Quantity.OperationError('subtraction of different units')
+
+	def __rmul__(self, other):
+		return self * other
+
+	def __rtruediv__(self, other):
+		return other * Quantity(Decimal(1), {}) / self
+
+	def __radd__(self, other):
+		raise Quantity.OperationError('addition of different units')
+
+	def __rsub__(self, other):
+		raise Quantity.OperationError('subtraction of different units')
+
+	def __round__(self, num):
+		return Quantity(round(self.value, num), self.units)
+
+	def __pow__(self, other, opt=None):
+		if isinstance(other, (int, Dec)):
+			raise Quantity.OperationError('raising to a (quantity) power')
+		units = {a: self.units[a] * other for a in list(self.units)}
+		return Quantity(self.value ** other, units)
+
+	def __repr__(self):
+		if self.value == 1:
+			return f'Q({str(self)})'
+		return f'Q({str(self.value)}, {str(self)})'
+
+	def cos(self):
+		"""Return the cosine of the angle."""
+		if isinstance(self, Decimal):
+			self = Quantity.angle(self)
+		elif self.units != {'ang': 1}:
+			raise Quantity.OperationError('trigonometry of non-angle quantities')
+		x = self.value
+		decimal.getcontext().prec += 2
+		i, lasts, s, fact, num, sign = 0, 0, 1, 1, 1, 1
+		while s != lasts:
+			lasts = s
+			i += 2
+			fact *= i * (i-1)
+			num *= x * x
+			sign *= -1
+			s += num / fact * sign
+		decimal.getcontext().prec -= 2
+		return +s
+
+	def sin(self):
+		"""Return the sine of the angle."""
+		if isinstance(self, Decimal):
+			self = Quantity.angle(self)
+		elif self.units != {'ang': 1}:
+			raise Quantity.OperationError('trigonometry of non-angle quantities')
+		x = self.value
+		decimal.getcontext().prec += 2
+		i, lasts, s, fact, num, sign = 1, 0, x, 1, x, 1
+		while s != lasts:
+			lasts = s
+			i += 2
+			fact *= i * (i-1)
+			num *= x * x
+			sign *= -1
+			s += num / fact * sign
+		decimal.getcontext().prec -= 2
+		return +s
+
+	def tan(self):
+		"""Return the tangene of the angle."""
+		if type(self) is Dec:
+			self = Quantity.angle(self)
+		return self.sin() / self.cos()
+
+	def ctg(self):
+		"""Return the cotangene of the angle."""
+		if type(self) is Dec:
+			self = Quantity.angle(self)
+		return self.cos() / self.sin()
+
+	def arcsin(x):
+		"""Return an angle with given sine."""
+		return Quantity.angle(Dec(math.asin(x)))
+
+	def arccos(x):
+		"""Return an angle with given cosine."""
+		return Quantity.angle(Dec(math.acos(x)))
+
+	def arctg(x):
+		"""Return an angle with given tangene."""
+		return Quantity.angle(Dec(math.atan(x)))
+
+
 class Token:
 	"""The creation of the Token object and the related functionality."""
-	
-	def __init__(self, calc, arg_num, pref, ltor, name='', kind=''):
+
+	def __init__(self, calc, arg_num, pref, ltor, kind='', name=''):
 		"""The initialiser of the class.
-		
+
 		Arguments:
 		calc -- the token's function,
 		arg_num -- number of arguments of calc,
 		pref -- the token's preference,
 		ltor -- a truthy value, if tokens with the same pref
 		  should be calculated left-to-right, falsy otherwise,
-		name -- the name of the token (optional),
-		kind -- the kind of the token (optional).
+		kind -- the kind of the token (optional),
+		name -- the name of the token (optional).
 		"""
 		self.name = name
 		self.calc = calc
 		self.arg_num = arg_num
 		self.pref = pref
 		self.ltor = ltor
-		self.name = name
 		self.kind = kind
-	
-	@classmethod
-	def obj(cls, kind, obj):
-		"""An initialiser for data storage tokens."""
-		return cls((lambda: obj), 0, 10, 0, kind=kind)
-	
-	@classmethod
-	def var(cls, name, defined):
-		"""An initialiser for variable and value tokens."""
-		return cls((lambda: defined[name]), 0, 10, 0, name=name, kind='var')
-	
+		self.name = name
+
 	def __repr__(self):
 		if self.name:
 			return self.name
@@ -40,20 +209,29 @@ class Token:
 			return str(self.calc())
 		if self.kind:
 			return self.kind
-		return '<TOKEN>'
+		return '<?>'
 
 
 glob_opers = {
-	'+': Token(lambda a, b: a + b, 2, 1, 0, name='<ADD>'),
-	'-': Token(lambda a, b: a - b, 2, 1, 0, name='<SUB>'),
-	'*': Token(lambda a, b: a * b, 2, 2, 0, name='<MUL>'),
-	':': Token(lambda a, b: a / b, 2, 2, 0, name='<DIV>'),
-	'/': Token(lambda a, b: a / b, 2, 0, 0, name='<BAR>'),
-	'^': Token(lambda a, b: a ** b, 2, 3, 1, name='<POW>'),
-	'~': Token(lambda a: -a, 2, 3, 1, name='<NEG>'),
+	'+': Token(lambda a, b: a + b,  2, 1, 0, 'oper', '<ADD>'),
+	'-': Token(lambda a, b: a - b,  2, 1, 0, 'oper', '<SUB>'),
+	'*': Token(lambda a, b: a * b,  2, 2, 0, 'oper', '<MUL>'),
+	':': Token(lambda a, b: a / b,  2, 2, 0, 'oper', '<DIV>'),
+	'/': Token(lambda a, b: a / b,  2, 0, 0, 'oper', '<BAR>'),
+	'^': Token(lambda a, b: a ** b, 2, 3, 1, 'oper', '<POW>'),
+	'~': Token(lambda a: -a,        1, 3, 1, 'oper', '<NEG>')
 }
 
-glob_funcs = {}
+glob_pth = {
+	'(': Token(lambda: None, 0, 10, 0, 'pth', "'('"),
+	')': Token(lambda: None, 0, 10, 0, 'pth', "')'")
+}
+
+glob_funcs = {
+	'sin': Token(lambda a: Quantity.sin(a), 1, 3, 1, 'trig', '<sin>'),
+	'cos': Token(lambda a: Quantity.cos(a), 1, 3, 1, 'trig', '<cos>'),
+	'tan': Token(lambda a: Quantity.tan(a), 1, 3, 1, 'trig', '<tan>'),
+}
 
 
 class Calculator:
@@ -63,8 +241,8 @@ class Calculator:
 		"""The initialiser of the class."""
 		self.vars = {}
 
-	def split_string(self, string):
-		"""Split the given string by tokens."""
+	def list_of_strings(self, string):
+		"""Split the given string expression."""
 		changes = {'⋅': '*', '×': '*',
 			'÷': ':', '{': '(', '}': ')'}
 		ans = ['']
@@ -94,27 +272,42 @@ class Calculator:
 			raise ValueError('unclosed double quotes')
 		return ans
 
-	def transform_operators(self, ls):
+	def list_of_tokens(self, ls):
+		"""Transform a list of strings to a list of Token objects."""
 		ans = []
 		for word in ls:
-			if word.isdigit() or '.' in word:
-				ans.append(Token.obj('num', Decimal(word)))
+			if word[0] in '()':
+				ans.append(glob_pth[word])
 			elif word[0] == '"':
-				ans.append(Token.obj('str', word))
+				ans.append(Token((lambda: word), 0, 10, 0, kind='str'))
+			elif word.isdigit() or '.' in word:
+				ans.append(Token((lambda: word), 0, 10, 0, kind='num'))
 			elif word in glob_opers:
 				ans.append(glob_opers[word])
 			elif word in glob_funcs:
 				ans.append(glob_funcs[word])
 			elif word[0].isalpha():
-				ans.append(Token.var(word, self.vars))
+				get = (lambda: self.vars[word])
+				ans.append(Token(get, 0, 10, 0, kind='var', name=word))
 		return ans
 
 	def infix_notation(self, ls):
-		"""Return 'ls' as a list of commands in infix notation."""
+		"""Add ommited operators to a list of tokens."""
+		last = Token.pth(')')
+		ans = []
+		for token in ls:
+			match token.name, last.kind:
+				case '<SUB>', ('pth', 'oper', 'func', 'trig'):
+					ans.append(glob_opers['~'])
+				case '<ADD>', ('pth', 'oper', 'func', 'trig'):
+					pass
+				case _, _:
+					ans.append(token)
+		return ans
 
-calc = Calculator()
-expression = '30.3 - 20,2 * i1'
-expression = calc.split_string(expression)
+ctor = Calculator()
+expression = '(30.3 - 20,2) * i1'
+expression = ctor.list_of_strings(expression)
 print(expression)
-expression = calc.transform_operators(expression)
+expression = ctor.list_of_tokens(expression)
 print(expression)
