@@ -1,4 +1,6 @@
 from decimal import Decimal
+import math
+import copy
 
 glob_pi = Decimal('3.1415926535897932384626433833')
 
@@ -156,13 +158,13 @@ class Quantity:
 
 	def tan(self):
 		"""Return the tangene of the angle."""
-		if type(self) is Dec:
+		if not isinstance(self, Quantity):
 			self = Quantity.angle(self)
 		return self.sin() / self.cos()
 
-	def ctg(self):
+	def cot(self):
 		"""Return the cotangene of the angle."""
-		if type(self) is Dec:
+		if not isinstance(self, Quantity):
 			self = Quantity.angle(self)
 		return self.cos() / self.sin()
 
@@ -174,7 +176,7 @@ class Quantity:
 		"""Return an angle with given cosine."""
 		return Quantity.angle(Dec(math.acos(x)))
 
-	def arctg(x):
+	def arctan(x):
 		"""Return an angle with given tangene."""
 		return Quantity.angle(Dec(math.atan(x)))
 
@@ -202,6 +204,11 @@ class Token:
 		self.kind = kind
 		self.name = name
 
+	def give(obj):
+		def func():
+			return copy.copy(obj)
+		return func
+
 	def __repr__(self):
 		if self.name:
 			return self.name
@@ -212,25 +219,29 @@ class Token:
 		return '<?>'
 
 
-glob_opers = {
-	'+': Token(lambda a, b: a + b,  2, 1, 0, 'oper', '<ADD>'),
-	'-': Token(lambda a, b: a - b,  2, 1, 0, 'oper', '<SUB>'),
-	'*': Token(lambda a, b: a * b,  2, 2, 0, 'oper', '<MUL>'),
-	':': Token(lambda a, b: a / b,  2, 2, 0, 'oper', '<DIV>'),
-	'/': Token(lambda a, b: a / b,  2, 0, 0, 'oper', '<BAR>'),
-	'^': Token(lambda a, b: a ** b, 2, 3, 1, 'oper', '<POW>'),
-	'~': Token(lambda a: -a,        1, 3, 1, 'oper', '<NEG>')
-}
-
-glob_pth = {
-	'(': Token(lambda: None, 0, 10, 0, 'pth', "'('"),
-	')': Token(lambda: None, 0, 10, 0, 'pth', "')'")
-}
-
 glob_funcs = {
+	'+': Token(lambda a, b: a + b,   2, 1, 0, 'oper', '<ADD>'),
+	'-': Token(lambda a, b: a - b,   2, 1, 0, 'oper', '<SUB>'),
+	'*': Token(lambda a, b: a * b,   2, 2, 0, 'oper', '<MUL>'),
+	':': Token(lambda a, b: a / b,   2, 2, 0, 'oper', '<DIV>'),
+	'/': Token(lambda a, b: a / b,   2, 0, 0, 'oper', '<BAR>'),
+	'^': Token(lambda a, b: a ** b,  2, 3, 1, 'oper', '<POW>'),
+	'neg': Token(lambda a: -a,       1, 3, 1, 'oper', '<NEG>'),
+	'dot': Token(lambda a, b: a * b, 2, 3, 1, 'oper', '<DOT>'),
 	'sin': Token(lambda a: Quantity.sin(a), 1, 3, 1, 'trig', '<sin>'),
 	'cos': Token(lambda a: Quantity.cos(a), 1, 3, 1, 'trig', '<cos>'),
 	'tan': Token(lambda a: Quantity.tan(a), 1, 3, 1, 'trig', '<tan>'),
+}
+
+glob_pth = {
+	'(': Token(lambda: None, 0, 10, 0, "'('", "'('"),
+	')': Token(lambda: None, 0, 10, 0, "')'", "')'")
+}
+
+glob_trigpow = {
+	'sin': Token(lambda a, b: Quantity.sin(a) ** b, 1, 3, 1, 'func', '<sin^>'),
+	'cos': Token(lambda a, b: Quantity.cos(a) ** b, 1, 3, 1, 'func', '<cos^>'),
+	'tan': Token(lambda a, b: Quantity.tan(a) ** b, 1, 3, 1, 'func', '<tan^>'),
 }
 
 
@@ -270,7 +281,9 @@ class Calculator:
 				ans.append('')
 		if in_string:
 			raise ValueError('unclosed double quotes')
-		return ans
+		if ans[-1]:
+			return ans
+		return ans[:-1]
 
 	def list_of_tokens(self, ls):
 		"""Transform a list of strings to a list of Token objects."""
@@ -279,35 +292,50 @@ class Calculator:
 			if word[0] in '()':
 				ans.append(glob_pth[word])
 			elif word[0] == '"':
-				ans.append(Token((lambda: word), 0, 10, 0, kind='str'))
+				ans.append(Token(Token.give(word), 0, 10, 0, kind='str'))
 			elif word.isdigit() or '.' in word:
-				ans.append(Token((lambda: word), 0, 10, 0, kind='num'))
-			elif word in glob_opers:
-				ans.append(glob_opers[word])
+				num = Decimal(word)
+				ans.append(Token(Token.give(num), 0, 10, 0, kind='num'))
 			elif word in glob_funcs:
 				ans.append(glob_funcs[word])
 			elif word[0].isalpha():
-				get = (lambda: self.vars[word])
+				get = Token.give(None)
+				if word in self.vars:
+					get = Token.give(self.vars[word])
 				ans.append(Token(get, 0, 10, 0, kind='var', name=word))
 		return ans
 
 	def infix_notation(self, ls):
 		"""Add ommited operators to a list of tokens."""
-		last = Token.pth(')')
+		last = glob_pth['(']
 		ans = []
 		for token in ls:
-			match token.name, last.kind:
-				case '<SUB>', ('pth', 'oper', 'func', 'trig'):
-					ans.append(glob_opers['~'])
-				case '<ADD>', ('pth', 'oper', 'func', 'trig'):
+			match (last.kind, token.name):
+				case ("'('" | 'oper' | 'func' | 'trig', '<ADD>'):
 					pass
-				case _, _:
+				case ("'('" | 'oper' | 'func' | 'trig', '<SUB>'):
+					ans.append(glob_funcs['neg'])
+				case ('trig', '<POW>'):
+					ans[-1] = glob_trigpow(last.name)
+				case _:
+					match last.kind, token.kind:
+						case ('var', 'var' | "'('" | 'num'):
+							ans.append(glob_funcs['dot'])
+						case ('var' | "')'" | 'num', 'var'):
+							ans.append(glob_funcs['dot'])
+						case ("')'", "'('"):
+							ans.append(glob_funcs['dot'])
 					ans.append(token)
+			if ans:
+				last = ans[-1]
 		return ans
 
 ctor = Calculator()
-expression = '(30.3 - 20,2) * i1'
+expression = '+ 1 + 3 * 15a (-2)'
+print(expression)
 expression = ctor.list_of_strings(expression)
 print(expression)
 expression = ctor.list_of_tokens(expression)
+print(expression)
+expression = ctor.infix_notation(expression)
 print(expression)
