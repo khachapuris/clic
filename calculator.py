@@ -24,7 +24,7 @@ class Quantity:
 		self.value = value
 
 	@classmethod
-	def usr_init(cls, value, degree=False):
+	def angle(cls, value, degree=False):
 		"""An initialiser for angle quantities.
 
 		>>> Quantity.angle(5)
@@ -36,7 +36,7 @@ class Quantity:
 			return cls(value / Dec(180) * glob_pi, {'ang': 1})
 		return cls(value, {'ang': 1})
 
-	def __str__(self):
+	def unit_str(self):
 		"""Return a string representation of the quantity's unit part."""
 		ans = ''
 		for u in list(self.units):
@@ -122,16 +122,24 @@ class Quantity:
 		return Quantity(self.value ** other, units)
 
 	def __repr__(self):
-		"""String representation of quantities."""
+		"""String representation of quantities with additional info."""
 		if self.value == 1:
-			return f'Q({str(self)})'
-		return f'Q({str(self.value)}, {str(self)})'
+			return f'Quantity({self.unit_str()})'
+		return f'Quantity({str(self.value)}, {self.unit_str()})'
+
+	def __str__(self):
+		"""String representation of quantities without additional info."""
+		return f'{str(self.value)} {self.unit_str()}'
+
+	def isangle(self):
+		"""Return True if the quantity is an angle."""
+		return self.units == {'ang': 1}
 
 	@staticmethod
 	def cos(x):
 		"""Return the cosine of the angle."""
 		if isinstance(x, Quantity):
-			if x.units != {'ang': 1}:
+			if not x.isangle():
 				raise Quantity.OperationError('trigonometry of non-angle quantities')
 			x = x.value
 		decimal.getcontext().prec += 2
@@ -150,7 +158,7 @@ class Quantity:
 	def sin(x):
 		"""Return the sine of the angle."""
 		if isinstance(x, Quantity):
-			if x.units != {'ang': 1}:
+			if not x.isangle():
 				raise Quantity.OperationError('trigonometry of non-angle quantities')
 			x = x.value
 		decimal.getcontext().prec += 2
@@ -178,17 +186,17 @@ class Quantity:
 	@staticmethod
 	def arcsin(x):
 		"""Return an angle with given sine."""
-		return Quantity.angle(Dec(math.asin(x)))
+		return Quantity.angle(Decimal(math.asin(x)))
 
 	@staticmethod
 	def arccos(x):
 		"""Return an angle with given cosine."""
-		return Quantity.angle(Dec(math.acos(x)))
+		return Quantity.angle(Decimal(math.acos(x)))
 
 	@staticmethod
 	def arctan(x):
 		"""Return an angle with given tangene."""
-		return Quantity.angle(Dec(math.atan(x)))
+		return Quantity.angle(Decimal(math.atan(x)))
 
 
 class Vector:
@@ -266,7 +274,7 @@ class Vector:
 
 	def __repr__(self):
 		"""String representation of vectors."""
-		return '(' + '; '.join([repr(x) for x in self.ls]) + ')'
+		return '(' + '; '.join([str(x) for x in self.ls]) + ')'
 
 
 class Token:
@@ -292,6 +300,7 @@ class Token:
 		self.kind = kind
 		self.name = name
 
+	@staticmethod
 	def give(obj):
 		"""Return a function that returns obj.
 		
@@ -327,17 +336,27 @@ glob_funcs = {
 	'sin': Token(lambda a: Quantity.sin(a), 1, 3, 1, 'trig', '<sin>'),
 	'cos': Token(lambda a: Quantity.cos(a), 1, 3, 1, 'trig', '<cos>'),
 	'tan': Token(lambda a: Quantity.tan(a), 1, 3, 1, 'trig', '<tan>'),
+	'arcsin': Token(lambda a: Quantity.arcsin(a), 1, 3, 1, 'func', '<arcsin>'),
+	'arccos': Token(lambda a: Quantity.arccos(a), 1, 3, 1, 'func', '<arccos>'),
+	'arctan': Token(lambda a: Quantity.arctan(a), 1, 3, 1, 'func', '<arctan>'),
 }
 
-glob_pth = {
+glob_syntax = {
 	'(': Token(lambda: None, 0, 10, 0, "'('", "'('"),
 	')': Token(lambda: None, 0, 10, 0, "')'", "')'"),
+	'=': Token(lambda: None, 0, 10, 0, "'='", "'='"),
 }
 
 glob_trigpow = {
 	'sin': Token(lambda a, b: Quantity.sin(a) ** b, 1, 3, 1, 'func', '<sin^>'),
 	'cos': Token(lambda a, b: Quantity.cos(a) ** b, 1, 3, 1, 'func', '<cos^>'),
 	'tan': Token(lambda a, b: Quantity.tan(a) ** b, 1, 3, 1, 'func', '<tan^>'),
+}
+
+si_units = {
+	'm': Quantity(Decimal(1), {'m': 1}),
+	's': Quantity(Decimal(1), {'s': 1}),
+	'kg': Quantity(Decimal(1), {'kg': 1}),
 }
 
 
@@ -351,9 +370,9 @@ class Calculator:
 
 	def __init__(self):
 		"""The initialiser of the class."""
-		self.vars = {}
+		self.vars = {} | si_units
 
-	def list_of_strings(self, string):
+	def split(self, string):
 		"""Split the given string expression."""
 		changes = {'⋅': '*', '×': '*',
 			'÷': ':', '{': '(', '}': ')'}
@@ -392,12 +411,12 @@ class Calculator:
 			raise ValueError('unclosed double quotes')
 		return ans
 
-	def list_of_tokens(self, ls):
+	def tokenize(self, ls):
 		"""Transform a list of strings to a list of Token objects."""
 		ans = []
 		for word in ls:
-			if word[0] in '()':
-				ans.append(glob_pth[word])
+			if word[0] in glob_syntax:
+				ans.append(glob_syntax[word])
 			elif word[0] == '"':
 				ans.append(Token(Token.give(word), 0, 10, 0, kind='str'))
 			elif word.isdigit() or '.' in word:
@@ -412,9 +431,9 @@ class Calculator:
 				ans.append(Token(get, 0, 10, 0, kind='var', name=word))
 		return ans
 
-	def infix_notation(self, ls):
+	def complete_infix_notation(self, ls):
 		"""Add ommited operators to a list of tokens."""
-		last = glob_pth['(']
+		last = glob_syntax['(']
 		ans = []
 		for token in ls:
 			match (last.kind, token.name):
@@ -437,7 +456,7 @@ class Calculator:
 				last = ans[-1]
 		return ans
 
-	def postfix_notation(self, ls):
+	def shunting_yard_algorithm(self, ls):
 		"""Transform infix notation to postfix notation."""
 		oper_stack = []
 		output = []
@@ -448,61 +467,74 @@ class Calculator:
 				while oper_stack[-1].name != "'('":
 					output.append(oper_stack.pop())
 				oper_stack.pop()
+			elif token.ltor:
+				while oper_stack and oper_stack[-1].name != "'('" \
+			and token.pref < oper_stack[-1].pref:
+					output.append(oper_stack.pop())
+				oper_stack.append(token)
 			else:
-				if token.ltor:
-					while oper_stack and oper_stack[-1].name != "'('" \
-				and token.pref < oper_stack[-1].pref:
-						output.append(oper_stack.pop())
-					oper_stack.append(token)
-				else:
-					while oper_stack and oper_stack[-1].name != "'('" \
-				and token.pref <= oper_stack[-1].pref:
-						output.append(oper_stack.pop())
-					oper_stack.append(token)
+				while oper_stack and oper_stack[-1].name != "'('" \
+			and token.pref <= oper_stack[-1].pref:
+					output.append(oper_stack.pop())
+				oper_stack.append(token)
 		return output + oper_stack[::-1]
 
-	def ans_calc(self, ls):
-		"""Calculate the answer of current expression."""
+	def perform_operations(self, ls):
+		"""Perform postfix notation operations."""
 		data_stack = []
 		semicolons = 0
 		for token in ls:
-			if token.name == "';'":
-				semicolons += 1
+			if len(data_stack) < token.arg_num:
+				raise Calculator.CompilationError()
+			args = []
+			for _ in range(token.arg_num):
+				args.insert(0, data_stack.pop())
+			ans = token.calc(*args)
+			# TODO: make all answers lists
+			if isinstance(ans, list):
+				data_stack += ans
 			else:
-				if semicolons != 0:
-					if len(data_stack) < semicolons + 1:
-						raise Calculator.CompilationError()
-					g = []
-					for _ in range(semicolons + 1):
-						a = data_stack.pop()
-						g.insert(0, a)
-					data_stack.append(Vector(g))
-					semicolons = 0
-				else:
-					if len(data_stack) < token.arg_num:
-						raise Calculator.CompilationError()
-					args = []
-					for _ in range(token.arg_num):
-						args.insert(0, data_stack.pop())
-					ans = token.calc(*args)
-					# TODO: make all answers lists
-					if isinstance(ans, list):
-						data_stack += ans
-					else:
-						data_stack.append(ans)
+				data_stack.append(ans)
 		return data_stack
 
+	def stack_to_vector(self, stack):
+		"""Transform stack to a vector / single object / None."""
+		if len(stack) == 0:
+			return None
+		elif len(stack) == 1:
+			return stack[0]
+		return Vector(*stack)
 
-ctor = Calculator()
-expression = input()
-print(expression)
-expression = ctor.list_of_strings(expression)
-print(expression)
-expression = ctor.list_of_tokens(expression)
-print(expression)
-expression = ctor.infix_notation(expression)
-print(expression)
-expression = ctor.postfix_notation(expression)
-print(expression)
-expression = ctor.ans_calc(expression)
-print(expression)
+	def object_to_string(self, obj):
+		"""Represent obj as a string."""
+		if obj is None:
+			return '$ none'
+		if isinstance(obj, Quantity) and obj.isangle():
+			return f'{obj.value} radians'
+		return str(obj)
+
+	def calculate(self, exp):
+		"""Calculate a string expression in infix notation."""
+		try:
+			exp = self.split(exp)
+			exp = self.tokenize(exp)
+			exp = self.complete_infix_notation(exp)
+			exp = self.shunting_yard_algorithm(exp)
+			exp = self.perform_operations(exp)
+			exp = self.stack_to_vector(exp)
+			exp = self.object_to_string(exp)
+		except Exception as exc:
+			#raise
+			return '$ ' + str(exc)
+		return exp
+
+
+if __name__ == '__main__':
+	print('Write an expression and press Enter or type "exit" to quit.')
+	ctor = Calculator()
+	while True:
+		exp = input('>>> ')
+		if exp == 'exit':
+			break
+		ans = ctor.calculate(exp)
+		print(ans)
