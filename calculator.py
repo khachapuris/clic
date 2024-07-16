@@ -364,13 +364,13 @@ class Calculator:
 	"""The creation of the Calculator object and the related functionality."""
 
 	class CompilationError(Exception):
-		"""An compilation error class for quantities."""
-		def __str__(self):
-			return 'compilation error'
+		"""An compilation error class for the calculator."""
 
 	def __init__(self):
 		"""The initialiser of the class."""
 		self.vars = {} | si_units
+		self.ans = []
+		self.err = None
 
 	def split(self, string):
 		"""Split the given string expression."""
@@ -380,13 +380,16 @@ class Calculator:
 		space = True
 		in_string = False
 		for char in string:
-			# start/end of a calculator string
-			if char == '"':
-				in_string = not in_string
-				ans[-1] += char
 			# calculator string is a token
-			elif in_string:
+			if in_string:
 				ans[-1] += char
+				# end of a calculator string
+				if char == '"':
+					in_string = not in_string
+			# start of a calculator string
+			elif char == '"':
+				ans.append(char)
+				in_string = not in_string
 			# [space] separates tokens
 			elif char == ' ':
 				space = True
@@ -418,17 +421,18 @@ class Calculator:
 			if word[0] in glob_syntax:
 				ans.append(glob_syntax[word])
 			elif word[0] == '"':
-				ans.append(Token(Token.give(word), 0, 10, 0, kind='str'))
+				get = Token.give(word.strip('"'))
+				ans.append(Token(get, 0, 10, 0, kind='str'))
 			elif word.isdigit() or '.' in word:
 				num = Decimal(word)
 				ans.append(Token(Token.give(num), 0, 10, 0, kind='num'))
 			elif word in glob_funcs:
 				ans.append(glob_funcs[word])
-			elif word[0].isalpha():
-				get = Token.give(None)
-				if word in self.vars:
-					get = Token.give(self.vars[word])
+			elif word in self.vars:
+				get = Token.give(self.vars[word])
 				ans.append(Token(get, 0, 10, 0, kind='var', name=word))
+			else:
+				raise Calculator.CompilationError(f"unknown name: '{word}'")
 		return ans
 
 	def complete_infix_notation(self, ls):
@@ -482,10 +486,9 @@ class Calculator:
 	def perform_operations(self, ls):
 		"""Perform postfix notation operations."""
 		data_stack = []
-		semicolons = 0
 		for token in ls:
 			if len(data_stack) < token.arg_num:
-				raise Calculator.CompilationError()
+				raise Calculator.CompilationError('compilation error')
 			args = []
 			for _ in range(token.arg_num):
 				args.insert(0, data_stack.pop())
@@ -508,33 +511,54 @@ class Calculator:
 	def object_to_string(self, obj):
 		"""Represent obj as a string."""
 		if obj is None:
-			return '$ none'
+			return ''
+		if isinstance(obj, str):
+			return f'"{obj}"'
 		if isinstance(obj, Quantity) and obj.isangle():
 			return f'{obj.value} radians'
 		return str(obj)
 
 	def calculate(self, exp):
-		"""Calculate a string expression in infix notation."""
+		"""Calculate expression exp and store the answer."""
 		try:
 			exp = self.split(exp)
 			exp = self.tokenize(exp)
 			exp = self.complete_infix_notation(exp)
 			exp = self.shunting_yard_algorithm(exp)
 			exp = self.perform_operations(exp)
-			exp = self.stack_to_vector(exp)
-			exp = self.object_to_string(exp)
-		except Exception as exc:
-			#raise
-			return '$ ' + str(exc)
-		return exp
+			self.ans = exp
+			self.err = None
+		except Exception as err:
+			self.err = err
+
+	def get_answer(self):
+		"""Return the answer of the current expression.
+		
+		Output is a tuple:
+		flag -- is the output an error,
+		output -- the error / answer (as a string).
+		"""
+		if self.err:
+			#raise self.err
+			return (True, f'{str(self.err)}')
+		if self.ans:
+			ans = self.ans
+			ans = self.stack_to_vector(ans)
+			ans = self.object_to_string(ans)
+			return (False, ans)
+		return (True, '')
 
 
 if __name__ == '__main__':
-	print('Write an expression and press Enter or type "exit" to quit.')
 	ctor = Calculator()
 	while True:
-		exp = input('>>> ')
-		if exp == 'exit':
+		exp = input('% ')
+		ctor.calculate(exp)
+		flag, ans = ctor.get_answer()
+		if flag and not ans:
 			break
-		ans = ctor.calculate(exp)
-		print(ans)
+		if flag:
+			print(f'! {ans}')
+		else:
+			print(f'= {ans}')
+		print()
