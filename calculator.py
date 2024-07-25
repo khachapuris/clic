@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from decimal import Decimal
 import decimal
 import math
@@ -208,7 +210,7 @@ class Vector:
 
 	def __init__(self, *args):
 		"""The initialiser of the class.
-		
+
 		Arguments:
 		*args -- elements of the vector.
 		"""
@@ -217,7 +219,7 @@ class Vector:
 	@staticmethod
 	def join(a, b):
 		"""Create vectors by joining elements.
-		
+
 		>>> a = Vector.join(1, 2)  # (1; 2)
 		>>> b = Vector.join(a, 3)  # (1; 2; 3)
 		"""
@@ -303,7 +305,7 @@ class Token:
 	@staticmethod
 	def give(obj):
 		"""Return a function that returns obj.
-		
+
 		>>> f = Token.give(1024)
 		>>> f()
 		1024
@@ -368,8 +370,7 @@ class Calculator:
 
 	def __init__(self):
 		"""The initialiser of the class."""
-		self.vars = {} | si_units
-		self.ans = []
+		self.vars = {'ans': None} | si_units
 		self.err = None
 
 	def split(self, string):
@@ -413,6 +414,16 @@ class Calculator:
 		if in_string:
 			raise ValueError('unclosed double quotes')
 		return ans
+
+	def perform_assignment(self, ls):
+		self.err = None
+		if len(ls) > 2 and ls[1] == '=':
+			if not ls[0][0].isalpha():
+				raise Calculator.CompilationError('assignment error')
+			self.link = ls[0]
+			return ls[2:]
+		self.link = 'ans'
+		return ls
 
 	def tokenize(self, ls):
 		"""Transform a list of strings to a list of Token objects."""
@@ -500,13 +511,11 @@ class Calculator:
 				data_stack.append(ans)
 		return data_stack
 
-	def stack_to_vector(self, stack):
-		"""Transform stack to a vector / single object / None."""
-		if len(stack) == 0:
-			return None
-		elif len(stack) == 1:
+	def require_one_answer(self, stack):
+		"""Return the only element of a stack or raise an error."""
+		if len(stack) == 1:
 			return stack[0]
-		return Vector(*stack)
+		raise Calculator.CompilationError('compilation error')
 
 	def object_to_string(self, obj):
 		"""Represent obj as a string."""
@@ -522,18 +531,21 @@ class Calculator:
 		"""Calculate expression exp and store the answer."""
 		try:
 			exp = self.split(exp)
+			exp = self.perform_assignment(exp)
 			exp = self.tokenize(exp)
 			exp = self.complete_infix_notation(exp)
 			exp = self.shunting_yard_algorithm(exp)
 			exp = self.perform_operations(exp)
-			self.ans = exp
+			exp = self.require_one_answer(exp)
+			self.vars |= {'ans': exp}
+			self.vars |= {self.link: exp}
 			self.err = None
 		except Exception as err:
 			self.err = err
 
 	def get_answer(self):
 		"""Return the answer of the current expression.
-		
+
 		Output is a tuple:
 		flag -- is the output an error,
 		output -- the error / answer (as a string).
@@ -541,12 +553,11 @@ class Calculator:
 		if self.err:
 			#raise self.err
 			return (True, f'{str(self.err)}')
-		if self.ans:
-			ans = self.ans
-			ans = self.stack_to_vector(ans)
-			ans = self.object_to_string(ans)
-			return (False, ans)
-		return (True, '')
+		ans = self.vars['ans']
+		if ans is None:
+			return (True, '')
+		ans = self.object_to_string(ans)
+		return (False, ans)
 
 
 if __name__ == '__main__':
@@ -555,7 +566,7 @@ if __name__ == '__main__':
 		exp = input('% ')
 		ctor.calculate(exp)
 		flag, ans = ctor.get_answer()
-		if flag and not ans:
+		if ans is None or exp == '':
 			break
 		if flag:
 			print(f'! {ans}')
