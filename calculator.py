@@ -30,13 +30,13 @@ class Quantity:
 		"""An initialiser for angle quantities.
 
 		>>> Quantity.angle(5)
-		Q(5, ang)
+		Q(5, rad)
 		>>> Quantity.angle(1, 'degree')
-		Q(0.0175, ang)
+		Q(0.0175, rad)
 		"""
 		if degree:
-			return cls(value / Dec(180) * glob_pi, {'ang': 1})
-		return cls(value, {'ang': 1})
+			return cls(value / Dec(180) * glob_pi, {'rad': 1})
+		return cls(value, {'rad': 1})
 
 	def unit_str(self):
 		"""Return a string representation of the quantity's unit part."""
@@ -135,7 +135,7 @@ class Quantity:
 
 	def isangle(self):
 		"""Return True if the quantity is an angle."""
-		return self.units == {'ang': 1}
+		return self.units == {'rad': 1}
 
 	@staticmethod
 	def cos(x):
@@ -356,6 +356,7 @@ glob_trigpow = {
 }
 
 si_units = {
+	'rad': Quantity(Decimal(1), {'rad': 1}),
 	'm': Quantity(Decimal(1), {'m': 1}),
 	's': Quantity(Decimal(1), {'s': 1}),
 	'kg': Quantity(Decimal(1), {'kg': 1}),
@@ -523,8 +524,6 @@ class Calculator:
 			return ''
 		if isinstance(obj, str):
 			return f'"{obj}"'
-		if isinstance(obj, Quantity) and obj.isangle():
-			return f'{obj.value} radians'
 		return str(obj)
 
 	def calculate(self, exp):
