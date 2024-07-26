@@ -9,7 +9,7 @@ glob_pi = Decimal('3.1415926535897932384626433833')
 
 
 class Quantity:
-	"""The creation of the Quantity object and the related functionality."""
+	"""The Quantity object stores phisical quantities."""
 
 	class OperationError(ArithmeticError):
 		"""An operation error class for quantities."""
@@ -284,7 +284,7 @@ class Vector:
 
 
 class Token:
-	"""The creation of the Token object and the related functionality."""
+	"""Token objects are data storage and data transformation elements."""
 
 	def __init__(self, calc, arg_num, pref, ltor, kind='', name=''):
 		"""The initialiser of the class.
@@ -368,7 +368,7 @@ si_units = {
 
 
 class Calculator:
-	"""The creation of the Calculator object and the related functionality."""
+	"""The Calculator object provides methods for calculating expressions."""
 
 	class CompilationError(Exception):
 		"""An compilation error class for the calculator."""
