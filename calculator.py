@@ -274,6 +274,10 @@ class Vector:
 			Vector.join(ans, a / other)
 		return ans
 
+	def __iter__(self):
+		"""Return an iterator over a vector."""
+		return self.ls.__iter__()
+
 	def __repr__(self):
 		"""String representation of vectors."""
 		return '(' + '; '.join([str(x) for x in self.ls]) + ')'
@@ -518,6 +522,33 @@ class Calculator:
 			return stack[0]
 		raise Calculator.CompilationError('compilation error')
 
+	def perform_operations_twice(self, ls):
+		"""Run perform_operations and test the answer."""
+		def test(a1, i1):
+			if a1 == 0 or Decimal(0.5) < i1 / a1 < 2:
+				return a1
+			return Decimal(0)
+
+		def type_test(a1, i1):
+			if isinstance(a1, str):
+				return a1
+			if isinstance(a1, Quantity):
+				return Quantity(test(a1.value, i1.value), a1.units)
+			return test(a1, i1)
+
+		a = self.perform_operations(ls)
+		a = self.require_one_answer(a)
+		decimal.getcontext().prec -= 5
+		i = self.perform_operations(ls)
+		i = self.require_one_answer(i)
+		decimal.getcontext().prec += 5
+		if isinstance(a, Vector):
+			new = Vector
+			for a2, i2 in zip(a, i):
+				Vector.join(new, type_test(a2, i2))
+			return new
+		return type_test(a, i)
+
 	def object_to_string(self, obj):
 		"""Represent obj as a string."""
 		if obj is None:
@@ -534,8 +565,7 @@ class Calculator:
 			exp = self.tokenize(exp)
 			exp = self.complete_infix_notation(exp)
 			exp = self.shunting_yard_algorithm(exp)
-			exp = self.perform_operations(exp)
-			exp = self.require_one_answer(exp)
+			exp = self.perform_operations_twice(exp)
 			self.vars |= {'ans': exp}
 			self.vars |= {self.link: exp}
 			self.err = None
