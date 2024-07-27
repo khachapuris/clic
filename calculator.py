@@ -543,7 +543,7 @@ class Calculator:
 		i = self.require_one_answer(i)
 		decimal.getcontext().prec += 5
 		if isinstance(a, Vector):
-			new = Vector
+			new = Vector()
 			for a2, i2 in zip(a, i):
 				Vector.join(new, type_test(a2, i2))
 			return new
