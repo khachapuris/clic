@@ -406,9 +406,15 @@ class Calculator:
                 ans.append(char)
                 if char.isalnum() or char in '.,':
                     space = False
-            # [digits] and [letters after letters] connect tokens
-            elif (ans[-1] + char).isalpha() or char.isdigit():
+            # [digits] connect tokens
+            elif char.isdigit():
                 ans[-1] += char
+            # [letters after letters] connect tokens
+            elif char.isalpha():
+                if ans[-1].isalpha():
+                    ans[-1] += char
+                else:
+                    ans.append(char)
             # [decsep after digit] connects tokens
             elif char in '.,' and ans[-1].isdigit():
                 ans[-1] += '.'
