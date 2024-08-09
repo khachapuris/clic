@@ -333,15 +333,15 @@ class Token:
 
 
 glob_funcs = {
-    ';': Token(Vector.join,          2, 0, 0, "oper", "<SEM>"),
-    '+': Token(lambda a, b: a + b,   2, 1, 0, 'oper', '<ADD>'),
-    '-': Token(lambda a, b: a - b,   2, 1, 0, 'oper', '<SUB>'),
-    '*': Token(lambda a, b: a * b,   2, 2, 0, 'oper', '<MUL>'),
-    ':': Token(lambda a, b: a / b,   2, 2, 0, 'oper', '<DIV>'),
-    '/': Token(lambda a, b: a / b,   2, 0, 0, 'oper', '<BAR>'),
-    '^': Token(lambda a, b: a ** b,  2, 3, 1, 'oper', '<POW>'),
-    'neg': Token(lambda a: -a,       1, 3, 1, 'oper', '<NEG>'),
-    'dot': Token(lambda a, b: a * b, 2, 3, 1, 'oper', '<DOT>'),
+    ';': Token(Vector.join,         2, 0, 0, 'oper', '<SEM>'),
+    '+': Token(lambda a, b: a + b,  2, 1, 0, 'oper', '<ADD>'),
+    '-': Token(lambda a, b: a - b,  2, 1, 0, 'oper', '<SUB>'),
+    '*': Token(lambda a, b: a * b,  2, 2, 0, 'oper', '<MUL>'),
+    ':': Token(lambda a, b: a / b,  2, 2, 0, 'oper', '<DIV>'),
+    '/': Token(lambda a, b: a / b,  2, 0, 0, 'oper', '<BAR>'),
+    '^': Token(lambda a, b: a ** b, 2, 3, 1, 'oper', '<POW>'),
+    '_neg_': Token(lambda a: -a,        1, 3, 1, 'oper', '<NEG>'),
+    '_dot_': Token(lambda a, b: a * b,  2, 3, 1, 'oper', '<DOT>'),
     'sin': Token(lambda a: Quantity.sin(a), 1, 3, 1, 'trig', '<sin>'),
     'cos': Token(lambda a: Quantity.cos(a), 1, 3, 1, 'trig', '<cos>'),
     'tan': Token(lambda a: Quantity.tan(a), 1, 3, 1, 'trig', '<tan>'),
@@ -434,17 +434,25 @@ class Calculator:
                 ans.append(char)
                 space = True
         if in_string:
-            raise ValueError('unclosed double quotes')
+            raise ValueError('unclosed quotes')
         return ans
 
     def perform_assignment(self, ls):
+        """Change the assignment link according to a list of strings."""
         self.err = None
+        # simple assignment (x = 1)
         if len(ls) > 2 and ls[1] == '=':
             if not ls[0][0].isalpha():
                 raise Calculator.CompilationError('assignment error')
             self.link = ls[0]
             return ls[2:]
         self.link = 'ans'
+        # compound assignment (x += 1)
+        if len(ls) > 2 and ls[2] == '=':
+            if not ls[0] in self.vars:
+                raise Calculator.CompilationError('compound assignment error')
+            self.link = ls[0]
+            return ls[:2] + ls[3:]
         return ls
 
     def tokenize(self, ls):
@@ -477,17 +485,17 @@ class Calculator:
                 case ("'('" | 'oper' | 'func' | 'trig', '<ADD>'):
                     pass
                 case ("'('" | 'oper' | 'func' | 'trig', '<SUB>'):
-                    ans.append(glob_funcs['neg'])
+                    ans.append(glob_funcs['_neg_'])
                 case ('trig', '<POW>'):
                     ans[-1] = glob_trigpow(last.name)
                 case _:
                     match last.kind, token.kind:
                         case ('var', 'var' | "'('" | 'num'):
-                            ans.append(glob_funcs['dot'])
+                            ans.append(glob_funcs['_dot_'])
                         case ('var' | "')'" | 'num', 'var'):
-                            ans.append(glob_funcs['dot'])
+                            ans.append(glob_funcs['_dot_'])
                         case ("')'", "'('"):
-                            ans.append(glob_funcs['dot'])
+                            ans.append(glob_funcs['_dot_'])
                     ans.append(token)
             if ans:
                 last = ans[-1]
