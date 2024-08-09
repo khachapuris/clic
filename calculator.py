@@ -378,7 +378,7 @@ class Calculator:
 
     def __init__(self):
         """The initialiser of the class."""
-        self.vars = {} | si_units
+        self.vars = {'_': Decimal(0)} | si_units
         self.err = None
         self.link = 'ans'
 
@@ -583,7 +583,7 @@ class Calculator:
             exp = self.complete_infix_notation(exp)
             exp = self.shunting_yard_algorithm(exp)
             exp = self.perform_operations_twice(exp)
-            self.vars |= {'realans': exp}
+            self.vars |= {'_': exp}
             self.vars |= {self.link: exp}
             self.err = None
         except Exception as err:
@@ -599,7 +599,7 @@ class Calculator:
         if self.err:
             # raise self.err
             return (True, f'{str(self.err)}')
-        ans = self.vars['realans']
+        ans = self.vars['_']
         if ans is None:
             return (True, '')
         ans = self.object_to_string(ans)
