@@ -3,6 +3,7 @@
 from decimal import Decimal
 import decimal
 import math
+
 import copy
 
 glob_pi = Decimal('3.1415926535897932384626433833')
@@ -385,6 +386,12 @@ class Calculator:
         """Split the given string expression."""
         changes = {'⋅': '*', '×': '*',
                    '÷': ':', '{': '(', '}': ')'}
+        # characters that behave like alphabetical
+        alpha = '_'
+        # desimal separator characters
+        decseps = '.,'
+        # start / end of a calculator string
+        quote = '"'
         ans = []
         space = True
         in_string = False
@@ -393,10 +400,10 @@ class Calculator:
             if in_string:
                 ans[-1] += char
                 # end of a calculator string
-                if char == '"':
+                if char == quote:
                     in_string = not in_string
             # start of a calculator string
-            elif char == '"':
+            elif char == quote:
                 ans.append(char)
                 in_string = not in_string
             # [space] separates tokens
@@ -404,19 +411,20 @@ class Calculator:
                 space = True
             elif space:
                 ans.append(char)
-                if char.isalnum() or char in '.,':
+                # [letters, digits] after [space] start new tokens
+                if char.isalnum() or char in (decseps + alpha):
                     space = False
             # [digits] connect tokens
             elif char.isdigit():
                 ans[-1] += char
             # [letters after letters] connect tokens
-            elif char.isalpha():
-                if ans[-1].isalpha():
+            elif char.isalpha() or char in alpha:
+                if ans[-1][-1].isalpha() or ans[-1][-1] in alpha:
                     ans[-1] += char
                 else:
                     ans.append(char)
             # [decsep after digit] connects tokens
-            elif char in '.,' and ans[-1].isdigit():
+            elif char in decseps and ans[-1].isdigit():
                 ans[-1] += '.'
             # [other symbols] make separate tokens
             else:
