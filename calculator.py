@@ -278,6 +278,9 @@ class Vector:
             Vector.join(ans, a / other)
         return ans
 
+    def __rmul__(self, other):
+        return self * other
+
     def __iter__(self):
         """Return an iterator over a vector."""
         return self.ls.__iter__()
