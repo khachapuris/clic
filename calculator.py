@@ -334,6 +334,7 @@ class Token:
 
 
 glob_funcs = {
+    '!': Token(functions.factorial, 1, 4, 0, 'sign', '<FTR>'),
     ';': Token(Vector.join,         2, 0, 0, 'oper', '<SEM>'),
     '+': Token(lambda a, b: a + b,  2, 1, 0, 'oper', '<ADD>'),
     '-': Token(lambda a, b: a - b,  2, 1, 0, 'oper', '<SUB>'),
@@ -341,7 +342,7 @@ glob_funcs = {
     ':': Token(lambda a, b: a / b,  2, 2, 0, 'oper', '<DIV>'),
     '/': Token(lambda a, b: a / b,  2, 0, 0, 'oper', '<BAR>'),
     '^': Token(lambda a, b: a ** b, 2, 3, 1, 'oper', '<POW>'),
-    '!': Token(functions.factorial, 1, 4, 0, 'sign', '<FTR>'),
+    'mod': Token(lambda a, b: a % b,   2, 2, 0, 'oper', '<MOD>'),
     '_neg_': Token(lambda a: -a,       1, 3, 1, 'oper', '<NEG>'),
     '_dot_': Token(lambda a, b: a * b, 2, 3, 1, 'oper', '<DOT>'),
     'sin': Token(lambda a: Quantity.sin(a), 1, 3, 1, 'trig', '<sin>'),
