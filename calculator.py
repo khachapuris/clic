@@ -2,7 +2,8 @@
 
 from decimal import Decimal
 import decimal
-import math
+from math import asin, acos, atan
+import functions
 
 import copy
 
@@ -191,17 +192,17 @@ class Quantity:
     @staticmethod
     def arcsin(x):
         """Return an angle with given sine."""
-        return Quantity.angle(Decimal(math.asin(x)))
+        return Quantity.angle(Decimal(asin(x)))
 
     @staticmethod
     def arccos(x):
         """Return an angle with given cosine."""
-        return Quantity.angle(Decimal(math.acos(x)))
+        return Quantity.angle(Decimal(acos(x)))
 
     @staticmethod
     def arctan(x):
         """Return an angle with given tangene."""
-        return Quantity.angle(Decimal(math.atan(x)))
+        return Quantity.angle(Decimal(atan(x)))
 
 
 class Vector:
@@ -340,8 +341,9 @@ glob_funcs = {
     ':': Token(lambda a, b: a / b,  2, 2, 0, 'oper', '<DIV>'),
     '/': Token(lambda a, b: a / b,  2, 0, 0, 'oper', '<BAR>'),
     '^': Token(lambda a, b: a ** b, 2, 3, 1, 'oper', '<POW>'),
-    '_neg_': Token(lambda a: -a,        1, 3, 1, 'oper', '<NEG>'),
-    '_dot_': Token(lambda a, b: a * b,  2, 3, 1, 'oper', '<DOT>'),
+    '!': Token(functions.factorial, 1, 4, 0, 'sign', '<FTR>'),
+    '_neg_': Token(lambda a: -a,       1, 3, 1, 'oper', '<NEG>'),
+    '_dot_': Token(lambda a, b: a * b, 2, 3, 1, 'oper', '<DOT>'),
     'sin': Token(lambda a: Quantity.sin(a), 1, 3, 1, 'trig', '<sin>'),
     'cos': Token(lambda a: Quantity.cos(a), 1, 3, 1, 'trig', '<cos>'),
     'tan': Token(lambda a: Quantity.tan(a), 1, 3, 1, 'trig', '<tan>'),
