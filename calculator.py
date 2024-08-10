@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+"""This script provides a backend for fixed-point decimal calculations."""
+
 from decimal import Decimal
 import decimal
 from math import asin, acos, atan
@@ -632,4 +634,4 @@ if __name__ == '__main__':
             print(f'! {ans}')
         else:
             print(f'= {ans}')
-        print()
+        # print()
