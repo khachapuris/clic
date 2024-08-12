@@ -35,9 +35,40 @@ class Display:
         string = ' ' + left + left_gap + center + right_gap + right + ' '
         self.scr.addstr(y, 0, string, curses.A_REVERSE)
 
+    def print_expression(self, y, exp):
+        """Print the expression exp on line y."""
+        ymax, xmax = self.scr.getmaxyx()
+        top, middle, bottom = '', '', ''
+        mode = 'middle'
+        numer, denom = '', ''
+        for char in exp:
+            if char == '{':
+                mode = 'top'
+            elif char == '/':
+                mode = 'bottom'
+            elif char == '}':
+                mode = 'middle'
+                w = max(len(numer), len(denom))
+                top += numer.center(w + 2)
+                middle += ' ' + '-' * w + ' '
+                bottom += denom.center(w + 2)
+                numer, denom = '', ''
+            elif mode == 'top':
+                numer += char
+            elif mode == 'middle':
+                top += ' '
+                middle += char
+                bottom += ' '
+            elif mode == 'bottom':
+                denom += char
+        self.scr.addstr(y - 1, 1, top)
+        self.scr.addstr(y, 1, middle)
+        self.scr.addstr(y + 1, 1, bottom)
+
     def main(self):
         self.println(0, 'some left-aligned text', 'NAME', 'smth else')
         self.println(-3, 'just text', 'help?', 'more text...')
+        self.print_expression(5, '2 +{3 + 12/4}-{2/3 * 3:1}')
         self.scr.getkey()
 
 
