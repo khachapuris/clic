@@ -40,24 +40,43 @@ class Display:
     def mask(self, exp):
         """Return the positions of characters in exp."""
         mask = []
-        a = 0
-        b = 0
-        x = 0
+        # "part" is a numerator / denomenator / text between fractions
+        a = 0  # length of the current part
+        b = 0  # length of the previous part
+        x = 0  # x coordinate of the start of current part
+
         for char in exp:
+
+            # Start a fraction:
             if char == '{':
+                # add the coordinates of each character of current part
                 mask += [(1, x + i) for i in range(a + 1)]
+                # move on to the left
                 x += a + 1
-                a = 0
-            elif char == '/':
+                # start a new part
                 a, b = 0, a
+
+            # Move from the numerator to the denomenator:
+            elif char == '/':
+                # start a new part
+                a, b = 0, a
+
+            # Finish current fraction:
             elif char == '}':
-                w = max(a, b)
+                w = max(a, b)  # the width of the whole fraction
+                # add the coordinates of each character of the fraction
                 mask += [(0, x + (w - b) // 2 + i) for i in range(b + 1)]
                 mask += [(2, x + (w - a) // 2 + i) for i in range(a + 1)]
+                # move on to the left
                 x += w + 1
-                a, b = 0, 0
+                # start a new part
+                a, b = 0, a
+
+            # Add a character to current part
             else:
                 a += 1
+
+        # Finish the last part
         mask += [(1, x + i) for i in range(a)]
         return mask
 
