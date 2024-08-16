@@ -12,9 +12,10 @@ class Display:
         stdscr -- the terminal screen.
         """
         self.scr = stdscr
+        self.pad = curses.newpad(3, 500)
         self.ctor = Calculator()
-        self.exp = '123 + {12345/15 + 1} * {text/function 2}'
-        self.cursor = 10
+        self.exp = '123 + {12345/15 + 1} * {text/function 2}' + ' + 11' * 60
+        self.cursor = 2
 
     @staticmethod
     def divide(a, b):
@@ -80,7 +81,7 @@ class Display:
         mask += [(1, x + i) for i in range(a)]
         return mask
 
-    def print_expression(self, y):
+    def print_expression(self, y, left, right):
         """Print the expression on the screen.
 
         Arguments:
@@ -97,15 +98,20 @@ class Display:
                 char = '-'
             elif char in '/}':
                 char = ' '
-            self.scr.addstr(y, x1 + 1, '-')
-            self.scr.addstr(y + y1 - 1, x1 + 1, char)
+            self.pad.addstr(1, x1, '-')
+            self.pad.addstr(y1, x1, char)
         y1, x1 = mask[self.cursor]
-        self.scr.move(y + y1 - 1, x1 + 1)
+        padstart = 0
+        if x1 > xmax - left - right:
+            padstart = x1 - xmax + left + right
+        self.scr.refresh()
+        self.pad.refresh(0, padstart, y, left, y + 2, xmax - right - 1)
+        self.scr.move(y + y1, x1 - padstart + left)
 
     def main(self):
         self.println(0, 'some left-aligned text', 'NAME', 'smth else')
         self.println(-3, 'just text', 'help?', 'more text...')
-        self.print_expression(5)
+        self.print_expression(5, 2, 2)
         self.scr.getkey()
 
 
