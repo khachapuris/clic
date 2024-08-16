@@ -14,8 +14,8 @@ class Display:
         self.scr = stdscr
         self.pad = curses.newpad(3, 500)
         self.ctor = Calculator()
-        self.exp = '123 + {12345/15 + 1} * {text/function 2}' + ' + 11' * 60
-        self.cursor = 2
+        self.exp = '0123456789' * 20
+        self.cursor = 190
 
     @staticmethod
     def divide(a, b):
@@ -101,12 +101,15 @@ class Display:
             self.pad.addstr(1, x1, '-')
             self.pad.addstr(y1, x1, char)
         y1, x1 = mask[self.cursor]
-        padstart = 0
-        if x1 > xmax - left - right:
-            padstart = x1 - xmax + left + right
+        screen_width = xmax - left - right
         self.scr.refresh()
-        self.pad.refresh(0, padstart, y, left, y + 2, xmax - right - 1)
-        self.scr.move(y + y1, x1 - padstart + left)
+        if x1 > screen_width:
+            padstart = x1 - screen_width + 1
+            self.pad.refresh(0, padstart, y, left, y + 2, xmax - right - 1)
+            self.scr.move(y + y1, xmax - right - 1)
+        else:
+            self.pad.refresh(0, 0, y, left, y + 2, xmax - right - 1)
+            self.scr.move(y + y1, x1 + left)
 
     def main(self):
         self.println(0, 'some left-aligned text', 'NAME', 'smth else')
