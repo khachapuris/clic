@@ -81,28 +81,40 @@ class Display:
         mask += [(1, x + i) for i in range(a)]
         return mask
 
+    def update_pad(self, exp, mask):
+        """Update the expression pad.
+
+        Arguments:
+        exp -- the expression string,
+        mask -- list of character positions in exp.
+        """
+        self.pad.clear()
+        for i in range(len(exp)):
+            y, x = mask[i]
+            char = exp[i]
+            if char == '{':
+                char = '-'
+            elif char in '/}':
+                char = ' '
+            self.pad.addstr(1, x, '-')
+            self.pad.addstr(y, x, char)
+
     def print_expression(self, y, left, right):
         """Print the expression on the screen.
 
         Arguments:
         y -- the y coordinate of the expression's top line,
-          (if negative, counts from the bottom of the screen).
+          (if negative, counts from the bottom of the screen),
+        left -- width of the margin to the left of the expression,
+        right -- width of the margin to the right of the expression.
         """
         ymax, xmax = self.scr.getmaxyx()
         y %= ymax  # support negative values of y
         mask = self.mask(self.exp)
-        for i in range(len(self.exp)):
-            y1, x1 = mask[i]
-            char = self.exp[i]
-            if char == '{':
-                char = '-'
-            elif char in '/}':
-                char = ' '
-            self.pad.addstr(1, x1, '-')
-            self.pad.addstr(y1, x1, char)
+        self.update_pad(self.exp, mask)
+        self.scr.refresh()
         y1, x1 = mask[self.cursor]
         screen_width = xmax - left - right
-        self.scr.refresh()
         if x1 > screen_width:
             padstart = x1 - screen_width + 1
             self.pad.refresh(0, padstart, y, left, y + 2, xmax - right - 1)
