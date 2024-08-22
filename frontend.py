@@ -14,8 +14,8 @@ class Display:
         self.scr = stdscr
         self.pad = curses.newpad(3, 500)
         self.ctor = Calculator()
-        self.exp = '0123456789' * 20
-        self.cursor = 190
+        self.exp = '1 +{3^2 + 4^2/5^2}*{2/3}'
+        self.cursor = 4
 
     @staticmethod
     def divide(a, b):
@@ -92,12 +92,9 @@ class Display:
         for i in range(len(exp)):
             y, x = mask[i]
             char = exp[i]
-            if char == '{':
-                char = '-'
-            elif char in '/}':
-                char = ' '
-            self.pad.addstr(1, x, '-')
-            self.pad.addstr(y, x, char)
+            if char not in '{/}':
+                self.pad.addstr(1, x, '─')
+                self.pad.addstr(y, x, char)
 
     def print_expression(self, y, left, right):
         """Print the expression on the screen.
