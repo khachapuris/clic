@@ -81,7 +81,7 @@ class Quantity:
                 power = self.getpow(u) - other.getpow(u)
                 if power != 0:
                     units[u] = power
-            value = self.value * other.value
+            value = self.value / other.value
             if units:
                 return Quantity(value, units)
             return value
@@ -122,7 +122,7 @@ class Quantity:
 
     def __pow__(self, other, opt=None):
         """Exponentiation of quantities."""
-        if isinstance(other, (int, Decimal)):
+        if not isinstance(other, (int, Decimal)):
             raise Quantity.OperationError('raising to a (quantity) power')
         units = {a: self.units[a] * other for a in list(self.units)}
         return Quantity(self.value ** other, units)
