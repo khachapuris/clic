@@ -8,6 +8,7 @@ from math import asin, acos, atan
 import functions
 
 import copy
+import sys
 
 glob_pi = Decimal('3.1415926535897932384626433833')
 
@@ -384,11 +385,59 @@ class Calculator:
     class CompilationError(Exception):
         """An compilation error class for the calculator."""
 
+    class EmptyOutputError(Exception):
+        """An error to be raised for an empty output."""
+
     def __init__(self):
         """The initialiser of the class."""
-        self.vars = {'_': Decimal(0)} | si_units
         self.err = None
         self.link = 'ans'
+        self.reset_vars()
+        self.basichelp = '''This is clic calculator.
+:q -- quit,
+:h -- display this help,
+please see README.md.'''
+
+    def reset_vars(self):
+        self.vars = {'_': Decimal(0)} | si_units
+
+    def run_command(self, string):
+        """Run command according to the given string expression.
+
+        Arguments:
+        string -- the string expression.
+
+        Returns:
+        ok -- should the calculator continue the computations,
+        exp -- answer / expression.
+        """
+        if not string:
+            return (False, 'none')
+        if not string.startswith(':'):
+            return (True, string)
+        ls = string.split()
+        # quit the calculator
+        if ls[0] == ':q':
+            sys.exit()
+        # display basic help
+        elif ls[0] == ':h':
+            return (False, self.basichelp)
+        # execute expression stored in a variable (default='_')
+        elif ls[0] == ':x':
+            if len(ls) > 1:
+                if ls[1] in list(self.vars):
+                    return (True, self.vars[ls[1]])
+                raise Calculator.CompilationError(f"unknown var: '{ls[1]}'")
+            return (True, self.vars['_'])
+        # delete variable (opposite to assignment)
+        elif ls[0] == ':d':
+            if len(ls) > 1:
+                if ls[1] == '_':
+                    self.vars['_'] = Decimal(0)
+                if ls[1] in list(self.vars):
+                    del self.vars[ls[1]]
+            return (False, 'done')
+        Calculator.CompilationError(f"unknown command: '{ls[0]}'")
 
     def split(self, string):
         """Split the given string expression."""
@@ -593,6 +642,11 @@ class Calculator:
     def calculate(self, exp):
         """Calculate expression exp and store the answer."""
         try:
+            ok, exp = self.run_command(exp)
+            if not ok:
+                self.vars['_'] = exp
+                self.err = None
+                return None
             exp = self.split(exp)
             exp = self.perform_assignment(exp)
             exp = self.tokenize(exp)
@@ -608,7 +662,7 @@ class Calculator:
     def get_answer(self):
         """Return the answer of the current expression.
 
-        Output is a tuple:
+        Returns:
         flag -- is the output an error,
         output -- the error / answer (as a string).
         """
