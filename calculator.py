@@ -296,7 +296,7 @@ class Vector:
 class Token:
     """Token objects are data storage and data transformation elements."""
 
-    def __init__(self, calc, arg_num, pref, ltor, kind='', name=''):
+    def __init__(self, name, calc, arg_num, pref, ltor, kind=''):
         """The initialiser of the class.
 
         Arguments:
@@ -314,7 +314,6 @@ class Token:
         self.pref = pref
         self.ltor = ltor
         self.kind = kind
-        self.name = name
 
     @staticmethod
     def give(obj):
@@ -339,36 +338,43 @@ class Token:
         return '<?>'
 
 
-glob_funcs = {
-    '!': Token(functions.factorial, 1, 4, 0, 'sign', '<FTR>'),
-    ',': Token(Vector.join,         2, 0, 0, 'oper', '<SEP>'),
-    '+': Token(lambda a, b: a + b,  2, 1, 0, 'oper', '<ADD>'),
-    '-': Token(lambda a, b: a - b,  2, 1, 0, 'oper', '<SUB>'),
-    '*': Token(lambda a, b: a * b,  2, 2, 0, 'oper', '<MUL>'),
-    ':': Token(lambda a, b: a / b,  2, 2, 0, 'oper', '<DIV>'),
-    '/': Token(lambda a, b: a / b,  2, 0, 0, 'oper', '<BAR>'),
-    '^': Token(lambda a, b: a ** b, 2, 3, 1, 'oper', '<POW>'),
-    'mod': Token(lambda a, b: a % b,   2, 2, 0, 'oper', '<MOD>'),
-    '_neg_': Token(lambda a: -a,       1, 3, 1, 'oper', '<NEG>'),
-    '_dot_': Token(lambda a, b: a * b, 2, 3, 1, 'oper', '<DOT>'),
-    'sin': Token(lambda a: Quantity.sin(a), 1, 3, 1, 'trig', '<sin>'),
-    'cos': Token(lambda a: Quantity.cos(a), 1, 3, 1, 'trig', '<cos>'),
-    'tan': Token(lambda a: Quantity.tan(a), 1, 3, 1, 'trig', '<tan>'),
-    'arcsin': Token(lambda a: Quantity.arcsin(a), 1, 3, 1, 'func', '<arcsin>'),
-    'arccos': Token(lambda a: Quantity.arccos(a), 1, 3, 1, 'func', '<arccos>'),
-    'arctan': Token(lambda a: Quantity.arctan(a), 1, 3, 1, 'func', '<arctan>'),
-}
+glob_func_list = [
+    Token('!', functions.factorial, 1, 4, 0, 'sign'),
+    Token(',', Vector.join,         2, 0, 0, 'oper'),
+    Token('+', lambda a, b: a + b,  2, 1, 0, 'oper'),
+    Token('-', lambda a, b: a - b,  2, 1, 0, 'oper'),
+    Token('*', lambda a, b: a * b,  2, 2, 0, 'oper'),
+    Token(':', lambda a, b: a / b,  2, 2, 0, 'oper'),
+    Token('/', lambda a, b: a / b,  2, 0, 0, 'oper'),
+    Token('^', lambda a, b: a ** b, 2, 3, 1, 'oper'),
+    Token('mod', lambda a, b: a % b,   2, 2, 0, 'oper'),
+    Token('_neg_', lambda a: -a,       1, 3, 1, 'oper'),
+    Token('_dot_', lambda a, b: a * b, 2, 3, 1, 'oper'),
+    Token('sin',    Quantity.sin,    1, 3, 1, 'trig'),
+    Token('cos',    Quantity.cos,    1, 3, 1, 'trig'),
+    Token('tan',    Quantity.tan,    1, 3, 1, 'trig'),
+    Token('arcsin', Quantity.arcsin, 1, 3, 1, 'func'),
+    Token('arccos', Quantity.arccos, 1, 3, 1, 'func'),
+    Token('arctan', Quantity.arctan, 1, 3, 1, 'func'),
+]
 
-glob_syntax = {
-    '(': Token(lambda: None, 0, 10, 0, "'('", "'('"),
-    ')': Token(lambda: None, 0, 10, 0, "')'", "')'"),
-    '=': Token(lambda: None, 0, 10, 0, "'='", "'='"),
-}
+glob_syntax_list = [
+    Token('(', lambda: None, 0, 10, 0, '('),
+    Token(')', lambda: None, 0, 10, 0, ')'),
+]
+
+glob_funcs = {}
+for func in glob_func_list:
+    glob_funcs.update({func.name: func})
+
+glob_syntax = {}
+for syntax in glob_syntax_list:
+    glob_syntax.update({syntax.name: syntax})
 
 glob_trigpow = {
-    'sin': Token(lambda a, b: Quantity.sin(a) ** b, 1, 3, 1, 'func', '<sin^>'),
-    'cos': Token(lambda a, b: Quantity.cos(a) ** b, 1, 3, 1, 'func', '<cos^>'),
-    'tan': Token(lambda a, b: Quantity.tan(a) ** b, 1, 3, 1, 'func', '<tan^>'),
+    'sin': Token('sin^', lambda a, b: Quantity.sin(a) ** b, 2, 3, 1, 'func'),
+    'cos': Token('cos^', lambda a, b: Quantity.cos(a) ** b, 2, 3, 1, 'func'),
+    'tan': Token('tan^', lambda a, b: Quantity.tan(a) ** b, 2, 3, 1, 'func'),
 }
 
 si_units = {
@@ -507,15 +513,15 @@ class Calculator:
                 ans.append(glob_syntax[word])
             elif word[0] == '"':
                 get = Token.give(word.strip('"'))
-                ans.append(Token(get, 0, 10, 0, kind='str'))
+                ans.append(Token(word, get, 0, 10, 0, 'str'))
             elif word.isdigit() or '.' in word:
                 num = Decimal(word)
-                ans.append(Token(Token.give(num), 0, 10, 0, kind='num'))
+                ans.append(Token(word, Token.give(num), 0, 10, 0, 'num'))
             elif word in glob_funcs:
                 ans.append(glob_funcs[word])
             elif word in self.vars:
                 get = Token.give(self.vars[word])
-                ans.append(Token(get, 0, 10, 0, kind='var', name=word))
+                ans.append(Token(word, get, 0, 10, 0, 'var'))
             else:
                 raise Calculator.CompilationError(f"unknown name: '{word}'")
         return ans
@@ -526,19 +532,19 @@ class Calculator:
         ans = []
         for token in ls:
             match (last.kind, token.name):
-                case ("'('" | 'oper' | 'func' | 'trig', '<ADD>'):
+                case ('(' | 'oper' | 'func' | 'trig', '+'):
                     pass
-                case ("'('" | 'oper' | 'func' | 'trig', '<SUB>'):
+                case ('(' | 'oper' | 'func' | 'trig', '-'):
                     ans.append(glob_funcs['_neg_'])
-                case ('trig', '<POW>'):
-                    ans[-1] = glob_trigpow(last.name)
+                case ('trig', '^'):
+                    ans[-1] = glob_trigpow[last.name]
                 case _:
                     match last.kind, token.kind:
-                        case ('var', 'var' | "'('" | 'num'):
+                        case ('var', 'var' | '(' | 'num'):
                             ans.append(glob_funcs['_dot_'])
-                        case ('var' | "')'" | 'num', 'var'):
+                        case ('var' | ')' | 'num', 'var'):
                             ans.append(glob_funcs['_dot_'])
-                        case ("')'", "'('"):
+                        case (')', '('):
                             ans.append(glob_funcs['_dot_'])
                     ans.append(token)
             if ans:
@@ -550,19 +556,19 @@ class Calculator:
         oper_stack = []
         output = []
         for token in ls:
-            if token.name == "'('":
+            if token.name == '(':
                 oper_stack.append(token)
-            elif token.name == "')'":
-                while oper_stack[-1].name != "'('":
+            elif token.name == ')':
+                while oper_stack[-1].name != '(':
                     output.append(oper_stack.pop())
                 oper_stack.pop()
             elif token.ltor:
-                while oper_stack and oper_stack[-1].name != "'('" \
+                while oper_stack and oper_stack[-1].name != '(' \
                         and token.pref < oper_stack[-1].pref:
                     output.append(oper_stack.pop())
                 oper_stack.append(token)
             else:
-                while oper_stack and oper_stack[-1].name != "'('" \
+                while oper_stack and oper_stack[-1].name != '(' \
                         and token.pref <= oper_stack[-1].pref:
                     output.append(oper_stack.pop())
                 oper_stack.append(token)
@@ -655,7 +661,7 @@ class Calculator:
         output -- the error / answer (as a string).
         """
         if self.err:
-            # raise self.err
+            raise self.err
             return (True, f'{str(self.err)}')
         ans = self.vars['_']
         if ans is None:
