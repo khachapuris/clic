@@ -392,6 +392,7 @@ class Calculator:
         """The initialiser of the class."""
         self.err = None
         self.link = 'ans'
+        self.silent = False
         self.reset_vars()
 
     def reset_vars(self):
@@ -405,13 +406,12 @@ class Calculator:
         string -- the string expression.
 
         Returns:
-        ok -- should the calculator continue the computations,
-        exp -- answer / expression.
+        done -- was the command run or not.
         """
         if not string:
-            return (False, 'none')
+            return True
         if not string.startswith(':'):
-            return (True, string)
+            return False
         ls = string.split()
         # quit the calculator
         if ls[0] == ':q':
@@ -423,7 +423,7 @@ class Calculator:
                     self.vars['_'] = Decimal(0)
                 if ls[1] in list(self.vars):
                     del self.vars[ls[1]]
-            return (False, 'done')
+            return True
         Calculator.CompilationError(f"unknown command: '{ls[0]}'")
 
     def split(self, string):
@@ -629,9 +629,11 @@ class Calculator:
     def calculate(self, exp):
         """Calculate expression exp and store the answer."""
         try:
-            ok, exp = self.run_command(exp)
-            if not ok:
-                self.vars['_'] = exp
+            self.silent = False
+            done = self.run_command(exp)
+            if done:
+                self.silent = True
+                self.vars['_'] = Decimal(0)
                 self.err = None
                 return None
             exp = self.split(exp)
@@ -669,8 +671,8 @@ if __name__ == '__main__':
         exp = input('% ')
         ctor.calculate(exp)
         flag, ans = ctor.get_answer()
-        if ans is None or exp == '':
-            break
+        if ctor.silent:
+            continue
         if flag:
             print(f'! {ans}')
         else:
