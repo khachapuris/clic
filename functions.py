@@ -1,4 +1,5 @@
 from decimal import Decimal
+from token import Token
 
 
 def factorial(x):
@@ -24,3 +25,8 @@ def permutations(n, k):
 def combinations(n, k):
     """Return the number of k-combinations on a set of n elements."""
     return permutations(n, k) / factorial(n, k)
+
+
+functions = [
+    Token('!', factorial, 1, 4, 0, 'sign'),
+]
