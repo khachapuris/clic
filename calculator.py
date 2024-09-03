@@ -393,13 +393,10 @@ class Calculator:
         self.err = None
         self.link = 'ans'
         self.reset_vars()
-        self.basichelp = '''This is clic calculator.
-:q -- quit,
-:h -- display this help,
-please see README.md.'''
 
     def reset_vars(self):
-        self.vars = {'_': Decimal(0)} | si_units
+        helptext = 'This is clic calculator. :q -- quit, please see README.md'
+        self.vars = {'_': Decimal(0), 'help': helptext} | si_units
 
     def run_command(self, string):
         """Run command according to the given string expression.
@@ -419,16 +416,6 @@ please see README.md.'''
         # quit the calculator
         if ls[0] == ':q':
             sys.exit()
-        # display basic help
-        elif ls[0] == ':h':
-            return (False, self.basichelp)
-        # execute expression stored in a variable (default='_')
-        elif ls[0] == ':x':
-            if len(ls) > 1:
-                if ls[1] in list(self.vars):
-                    return (True, self.vars[ls[1]])
-                raise Calculator.CompilationError(f"unknown var: '{ls[1]}'")
-            return (True, self.vars['_'])
         # delete variable (opposite to assignment)
         elif ls[0] == ':d':
             if len(ls) > 1:
