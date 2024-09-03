@@ -290,7 +290,7 @@ class Vector:
 
     def __repr__(self):
         """String representation of vectors."""
-        return '(' + '; '.join([str(x) for x in self.ls]) + ')'
+        return '(' + ', '.join([str(x) for x in self.ls]) + ')'
 
 
 class Token:
@@ -341,7 +341,7 @@ class Token:
 
 glob_funcs = {
     '!': Token(functions.factorial, 1, 4, 0, 'sign', '<FTR>'),
-    ';': Token(Vector.join,         2, 0, 0, 'oper', '<SEM>'),
+    ',': Token(Vector.join,         2, 0, 0, 'oper', '<SEP>'),
     '+': Token(lambda a, b: a + b,  2, 1, 0, 'oper', '<ADD>'),
     '-': Token(lambda a, b: a - b,  2, 1, 0, 'oper', '<SUB>'),
     '*': Token(lambda a, b: a * b,  2, 2, 0, 'oper', '<MUL>'),
@@ -433,7 +433,7 @@ class Calculator:
         # characters that behave like alphabetical
         alpha = '_'
         # desimal separator characters
-        decseps = '.,'
+        decseps = '.'
         # start / end of a calculator string
         quote = '"'
         ans = []
@@ -626,27 +626,26 @@ class Calculator:
             return f'"{obj}"'
         return str(obj)
 
-    def calculate(self, exp):
+    def calculate(self, expr):
         """Calculate expression exp and store the answer."""
-        try:
-            self.silent = False
-            done = self.run_command(exp)
-            if done:
-                self.silent = True
-                self.vars['_'] = Decimal(0)
+        for exp in expr.split(';'):
+            try:
+                self.silent = False
+                done = self.run_command(exp)
+                if done:
+                    self.silent = True
+                    return None
+                exp = self.split(exp)
+                exp = self.perform_assignment(exp)
+                exp = self.tokenize(exp)
+                exp = self.complete_infix_notation(exp)
+                exp = self.shunting_yard_algorithm(exp)
+                exp = self.perform_operations_twice(exp)
+                self.vars |= {'_': exp}
+                self.vars |= {self.link: exp}
                 self.err = None
-                return None
-            exp = self.split(exp)
-            exp = self.perform_assignment(exp)
-            exp = self.tokenize(exp)
-            exp = self.complete_infix_notation(exp)
-            exp = self.shunting_yard_algorithm(exp)
-            exp = self.perform_operations_twice(exp)
-            self.vars |= {'_': exp}
-            self.vars |= {self.link: exp}
-            self.err = None
-        except Exception as err:
-            self.err = err
+            except Exception as err:
+                self.err = err
 
     def get_answer(self):
         """Return the answer of the current expression.
@@ -671,10 +670,10 @@ if __name__ == '__main__':
         exp = input('% ')
         ctor.calculate(exp)
         flag, ans = ctor.get_answer()
-        if ctor.silent:
-            continue
         if flag:
             print(f'! {ans}')
+        elif ctor.silent:
+            continue
         else:
             print(f'= {ans}')
         # print()
