@@ -1,32 +1,34 @@
-from decimal import Decimal
 from token import Token
 
+from decimal import Decimal
+from mathclasses import Quantity, Vector
+import mathfunctions as mf
 
-def factorial(x):
-    """Return the factorial of x."""
-    ans = 1
-    i = 2
-    while i <= x:
-        ans *= i
-        i += 1
-    return Decimal(ans)
+"""This module contains a list of functions/operators for the calculator.
 
-
-def permutations(n, k):
-    """Return the number of k-permutations on a set of n elements."""
-    ans = 1
-    i = 0
-    while i < k:
-        ans *= (n - i)
-        i += 1
-    return Decimal(ans)
-
-
-def combinations(n, k):
-    """Return the number of k-combinations on a set of n elements."""
-    return permutations(n, k) / factorial(n, k)
+To register custom functions add corresponding tokens to the list.
+"""
 
 
 functions = [
-    Token('!', factorial, 1, 4, 0, 'sign'),
+    # these are the default tokens
+    Token(',', Vector.join,         2, 0, 0, 'oper'),
+    Token('+', lambda a, b: a + b,  2, 1, 0, 'oper'),
+    Token('-', lambda a, b: a - b,  2, 1, 0, 'oper'),
+    Token('*', lambda a, b: a * b,  2, 2, 0, 'oper'),
+    Token(':', lambda a, b: a / b,  2, 2, 0, 'oper'),
+    Token('/', lambda a, b: a / b,  2, 0, 0, 'oper'),
+    Token('^', lambda a, b: a ** b, 2, 3, 1, 'oper'),
+    Token('mod', lambda a, b: a % b,   2, 2, 0, 'oper'),
+    Token('_neg_', lambda a: -a,       1, 3, 1, 'oper'),
+    Token('_dot_', lambda a, b: a * b, 2, 3, 1, 'oper'),
+    Token('sin',    Quantity.sin,    1, 3, 1, 'trig'),
+    Token('cos',    Quantity.cos,    1, 3, 1, 'trig'),
+    Token('tan',    Quantity.tan,    1, 3, 1, 'trig'),
+    Token('arcsin', Quantity.arcsin, 1, 3, 1, 'func'),
+    Token('arccos', Quantity.arccos, 1, 3, 1, 'func'),
+    Token('arctan', Quantity.arctan, 1, 3, 1, 'func'),
+
+    # place your custom tokens here
+    Token('!', mf.factorial, 1, 4, 0, 'sign'),
 ]

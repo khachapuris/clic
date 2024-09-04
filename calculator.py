@@ -1,52 +1,16 @@
 #!/usr/bin/env python
 
-"""This script provides a fixed-point decimal Calculator."""
+"""This script provides a Calculator object."""
 
 import sys
 
 import decimal
 from decimal import Decimal
-
 from mathclasses import Quantity, Vector
+
 from token import Token
+from functions import functions as glob_func_list
 
-# Try to import functions.functions, default to an empty list
-custom_func_list = []
-try:
-    from functions import functions as custom_func_list
-    ls = custom_func_list
-    if isinstance(ls, list):
-        for (x, i) in zip(ls, range(len(ls))):
-            if not isinstance(x, Token):
-                print(f'WARNING: functions.functions[{i}] is not a Token')
-                custom_func_list = []
-    else:
-        print('WARNING: functions.functions is not a list')
-        custom_func_list = []
-except ImportError:
-    print('WARNING: functions.functions was not found')
-except Exception:
-    print('WARNING: functions.py module contains an error. Tip: run functions.py to see the traceback')
-
-
-glob_func_list = [
-    Token(',', Vector.join,         2, 0, 0, 'oper'),
-    Token('+', lambda a, b: a + b,  2, 1, 0, 'oper'),
-    Token('-', lambda a, b: a - b,  2, 1, 0, 'oper'),
-    Token('*', lambda a, b: a * b,  2, 2, 0, 'oper'),
-    Token(':', lambda a, b: a / b,  2, 2, 0, 'oper'),
-    Token('/', lambda a, b: a / b,  2, 0, 0, 'oper'),
-    Token('^', lambda a, b: a ** b, 2, 3, 1, 'oper'),
-    Token('mod', lambda a, b: a % b,   2, 2, 0, 'oper'),
-    Token('_neg_', lambda a: -a,       1, 3, 1, 'oper'),
-    Token('_dot_', lambda a, b: a * b, 2, 3, 1, 'oper'),
-    Token('sin',    Quantity.sin,    1, 3, 1, 'trig'),
-    Token('cos',    Quantity.cos,    1, 3, 1, 'trig'),
-    Token('tan',    Quantity.tan,    1, 3, 1, 'trig'),
-    Token('arcsin', Quantity.arcsin, 1, 3, 1, 'func'),
-    Token('arccos', Quantity.arccos, 1, 3, 1, 'func'),
-    Token('arctan', Quantity.arctan, 1, 3, 1, 'func'),
-]
 
 glob_syntax_list = [
     Token('(', lambda: None, 0, 10, 0, '('),
@@ -54,7 +18,7 @@ glob_syntax_list = [
 ]
 
 glob_funcs = {}
-for func in glob_func_list + custom_func_list:
+for func in glob_func_list:
     glob_funcs.update({func.name: func})
 
 glob_syntax = {}
