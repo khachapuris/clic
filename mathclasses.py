@@ -1,8 +1,8 @@
+"""This module provides mathematical classes for fixed-point calulations."""
+
 from decimal import Decimal
 import decimal
 from math import asin, acos, atan
-
-"""This module provides mathematical classes for fixed-point calulations."""
 
 
 glob_pi = Decimal('3.1415926535897932384626433833')

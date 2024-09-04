@@ -1,13 +1,13 @@
+"""This module contains a list of functions/operators for the calculator.
+
+To register custom functions add corresponding tokens to the list.
+"""
+
 from token import Token
 
 from decimal import Decimal
 from mathclasses import Quantity, Vector
 import mathfunctions as mf
-
-"""This module contains a list of functions/operators for the calculator.
-
-To register custom functions add corresponding tokens to the list.
-"""
 
 
 functions = [

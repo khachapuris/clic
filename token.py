@@ -1,6 +1,11 @@
-import copy
+"""This module provides a class for calculator tokens.
 
-"""This module provides the Token class."""
+The tokens represent data stored in the expression, for example
+numbers, variables, operators, and functions. To view / modify
+the list of tokens used in the calculator see functions.py.
+"""
+
+import copy
 
 
 class Token:

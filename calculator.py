@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
-"""This script provides a Calculator object."""
+"""This script contains a calculator for calculating fixed-point expressions.
+
+The script runs the calculator with a minimal prompt and can be used for
+infix notation calculations. It can also be used as a module and provides
+class Calculator. For more details please see README.md.
+"""
 
 import sys
 
