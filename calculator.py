@@ -25,12 +25,6 @@ glob_syntax = {}
 for syntax in glob_syntax_list:
     glob_syntax.update({syntax.name: syntax})
 
-glob_trigpow = {
-    'sin': Token('sin^', lambda a, b: Quantity.sin(a) ** b, 2, 3, 1, 'func'),
-    'cos': Token('cos^', lambda a, b: Quantity.cos(a) ** b, 2, 3, 1, 'func'),
-    'tan': Token('tan^', lambda a, b: Quantity.tan(a) ** b, 2, 3, 1, 'func'),
-}
-
 si_units = {
     'rad': Quantity(Decimal(1), {'rad': 1}),
     'm': Quantity(Decimal(1), {'m': 1}),
@@ -185,13 +179,15 @@ class Calculator:
         last = glob_syntax['(']
         ans = []
         for token in ls:
+            if last.name + ' ' + token.name in list(glob_funcs):
+                ans[-1] = glob_funcs[last.name + ' ' + token.name]
+                last = ans[-1]
+                continue
             match (last.kind, token.name):
-                case ('(' | 'oper' | 'func' | 'trig', '+'):
+                case ('(' | 'oper' | 'func', '+'):
                     pass
-                case ('(' | 'oper' | 'func' | 'trig', '-'):
+                case ('(' | 'oper' | 'func', '-'):
                     ans.append(glob_funcs['_neg_'])
-                case ('trig', '^'):
-                    ans[-1] = glob_trigpow[last.name]
                 case _:
                     match last.kind, token.kind:
                         case ('var', 'var' | '(' | 'num'):
