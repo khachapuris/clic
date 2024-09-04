@@ -15,6 +15,7 @@ from mathclasses import Quantity, Vector
 
 from token import Token
 from functions import functions as glob_func_list
+from units import units as glob_units
 
 
 glob_syntax_list = [
@@ -29,13 +30,6 @@ for func in glob_func_list:
 glob_syntax = {}
 for syntax in glob_syntax_list:
     glob_syntax.update({syntax.name: syntax})
-
-si_units = {
-    'rad': Quantity(Decimal(1), {'rad': 1}),
-    'm': Quantity(Decimal(1), {'m': 1}),
-    's': Quantity(Decimal(1), {'s': 1}),
-    'kg': Quantity(Decimal(1), {'kg': 1}),
-}
 
 
 class Calculator:
@@ -56,7 +50,7 @@ class Calculator:
 
     def reset_vars(self):
         helptext = 'This is clic calculator. :q -- quit, please see README.md'
-        self.vars = {'_': Decimal(0), 'help': helptext} | si_units
+        self.vars = {'_': Decimal(0), 'help': helptext} | glob_units
 
     def run_command(self, string):
         """Run command according to the given string expression.
