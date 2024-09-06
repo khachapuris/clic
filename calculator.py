@@ -81,58 +81,81 @@ class Calculator:
 
     def split(self, string):
         """Split the given string expression."""
-        changes = {'⋅': '*', '×': '*',
-                   '÷': ':', '{': '(', '}': ')'}
+        changes = {'{': '(', '}': ')'}
         # characters that behave like alphabetical
         alpha = '_'
         # desimal separator characters
-        decseps = '.'
+        decsep = '.'
         # start / end of a calculator string
         quote = '"'
-        ans = []
+        # expression separator
+        expsep = ';'
+        ans = [[]]
+
+        def newchar(c):
+            nonlocal ans
+            ans[-1][-1] += c
+
+        def newword(c):
+            nonlocal ans
+            ans[-1].append(c)
+
+        def isalphaplus(c):
+            return c.isalpha() or c in alpha
+
+        def isdigitplus(c):
+            return c.isdigit() or c == decsep
+
         space = True
         in_string = False
         for char in string:
-            # calculator string is a token
-            if in_string:
-                ans[-1] += char
-                # end of a calculator string
-                if char == quote:
-                    in_string = not in_string
-            # start of a calculator string
+            if ans[-1]:
+                last = ans[-1][-1][-1]
+            else:
+                last = ' '
+            # An opening quote
+            if char == quote and not in_string:
+                newword(char)
+                in_string = True
+            # A closing quote
             elif char == quote:
-                ans.append(char)
-                in_string = not in_string
-            # [space] separates tokens
+                newchar(char)
+                in_string = False
+            # Character inside a calculator string
+            elif in_string:
+                newchar(char)
+            # An expression separator
+            elif char == expsep:
+                ans.append([])
+            # A space
             elif char == ' ':
                 space = True
-            elif space:
-                ans.append(char)
-                # [letters, digits] after [space] start new tokens
-                if char.isalnum() or char in (decseps + alpha):
-                    space = False
-            # [digits] connect tokens
-            elif char.isdigit():
-                ans[-1] += char
-            # [letters after letters] connect tokens
-            elif char.isalpha() or char in alpha:
-                if ans[-1][-1].isalpha() or ans[-1][-1] in alpha:
-                    ans[-1] += char
-                else:
-                    ans.append(char)
-            # [decsep after digit] connects tokens
-            elif char in decseps and ans[-1].isdigit():
-                ans[-1] += '.'
-            # [other symbols] make separate tokens
+            # Letter after letter without space in between
+            elif isalphaplus(char) and isalphaplus(last) and not space:
+                newchar(char)
+            # All other letters
+            elif isalphaplus(char):
+                newword(char)
+                space = False
+            # Digit without a space before it
+            elif isdigitplus(char) and not space:
+                newchar(char)
+            # All other digits
+            elif isdigitplus(char):
+                newword(char)
+                space = False
+            # Symbol from changes dictionary
+            elif char in changes:
+                char = changes[char]
+                newword(char)
+                space = True
+            # All other symbols
             else:
-                # replace chars from 'changes' dict
-                if char in changes:
-                    char = changes[char]
-                ans.append(char)
+                newword(char)
                 space = True
         if in_string:
             raise ValueError('unclosed quotes')
-        return ans
+        return ans[0]
 
     def perform_assignment(self, ls):
         """Change the assignment link according to a list of strings."""
