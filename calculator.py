@@ -36,19 +36,21 @@ glob_smbs = {
     'decseps': '.',  # desimal separator characters
     'quote':  '"',   # start / end of a calculator string
     'expsep': ';',   # expression separator
+    'command': ':',  # start of a command
+    'assign': '=',   # assignment operator
 }
 
 
 def isalphaplus(c):
-    return c.isalpha() or c in glob_smbs["alpha"]
+    return c.isalpha() or c in glob_smbs['alpha']
 
 
 def isdigitplus(c):
-    return c.isdigit() or c in glob_smbs["decsep"]
+    return c.isdigit() or c in glob_smbs['decseps']
 
 
 def standard_decsep(c):
-    if c in glob_smbs["decsep"]:
+    if c in glob_smbs['decseps']:
         return '.'
     return c
 
@@ -73,33 +75,6 @@ class Calculator:
         helptext = 'This is clic calculator. :q -- quit, please see README.md'
         self.vars = {'_': Decimal(0), 'help': helptext} | glob_units
 
-    def run_command(self, string):
-        """Run command according to the given string expression.
-
-        Arguments:
-        string -- the string expression.
-
-        Returns:
-        done -- was the command run or not.
-        """
-        if not string:
-            return True
-        if not string.startswith(':'):
-            return False
-        ls = string.split()
-        # quit the calculator
-        if ls[0] == ':q':
-            sys.exit()
-        # delete variable (opposite to assignment)
-        elif ls[0] == ':d':
-            if len(ls) > 1:
-                if ls[1] == '_':
-                    self.vars['_'] = Decimal(0)
-                if ls[1] in list(self.vars):
-                    del self.vars[ls[1]]
-            return True
-        Calculator.CompilationError(f"unknown command: '{ls[0]}'")
-
     def split(self, string):
         """Split the given string expression."""
         replace = {'{': '(', '}': ')'}
@@ -121,26 +96,26 @@ class Calculator:
             else:
                 last = ' '
             # Quote:
-            if char == glob_smbs["quote"]:
-                # Opening quote
+            if char == glob_smbs['quote']:
+                # Opening quote > divide
                 add(char, not in_string)
                 in_string = not in_string
             # Character inside a calculator string
             elif in_string:
                 add(char, False)
             # Expression separator
-            elif char == glob_smbs["expsep"]:
+            elif char == glob_smbs['expsep']:
                 ans.append([])
             # Space
             elif char == ' ':
                 space = True
             # Letter:
             elif isalphaplus(char):
-                # Letter after not letter / letter after space
+                # Letter after not letter / letter after space > divide
                 add(char, not isalphaplus(last) or space)
             # Digit:
             elif isdigitplus(char):
-                # Digit with a space before it
+                # Digit with a space before it > divide
                 add(standard_decsep(char), space)
             # Symbol:
             else:
@@ -151,20 +126,45 @@ class Calculator:
                 space = True
         if in_string:
             raise ValueError('unclosed quotes')
-        return ans[0]
+        return ans
+
+    def run_command(self, ls):
+        """Run command according to the given list of strings.
+
+        Returns:
+        done -- the expression does not need to be calculated.
+        """
+        self.silent = True
+        if not ls:
+            return True
+        if ls[0] != glob_smbs['command'] or len(ls) < 2:
+            self.silent = False
+            return False
+        # quit the calculator
+        if ls[1] == 'q':
+            sys.exit()
+        # delete variable (opposite to assignment)
+        elif ls[1] == 'd':
+            if len(ls) > 2:
+                if ls[2] == '_':
+                    self.vars['_'] = Decimal(0)
+                if ls[2] in list(self.vars):
+                    del self.vars[ls[2]]
+            return True
+        raise Calculator.CompilationError(f"unknown command: '{ls[1]}'")
 
     def perform_assignment(self, ls):
         """Change the assignment link according to a list of strings."""
         self.err = None
         # simple assignment (x = 1)
-        if len(ls) > 2 and ls[1] == '=':
+        if len(ls) > 2 and ls[1] == glob_smbs['assign']:
             if not ls[0][0].isalpha() or ls[0] in (glob_funcs | glob_units):
                 raise Calculator.CompilationError('assignment error')
             self.link = ls[0]
             return ls[2:]
         self.link = 'ans'
         # compound assignment (x += 1)
-        if len(ls) > 2 and ls[2] == '=':
+        if len(ls) > 2 and ls[2] == glob_smbs['assign']:
             if not ls[0] in self.vars:
                 raise Calculator.CompilationError('compound assignment error')
             self.link = ls[0]
@@ -177,8 +177,8 @@ class Calculator:
         for word in ls:
             if word[0] in glob_syntax:
                 ans.append(glob_syntax[word])
-            elif word[0] == glob_smbs["quote"]:
-                get = Token.give(word.strip(glob_smbs["quote"]))
+            elif word[0] == glob_smbs['quote']:
+                get = Token.give(word.strip(glob_smbs['quote']))
                 ans.append(Token(word, get, 0, 10, 0, 'str'))
             elif word.isdigit() or '.' in word:
                 num = Decimal(word)
@@ -302,14 +302,10 @@ class Calculator:
 
     def calculate(self, expr):
         """Calculate expression exp and store the answer."""
-        for exp in expr.split(';'):
-            try:
-                self.silent = False
-                done = self.run_command(exp)
-                if done:
-                    self.silent = True
+        try:
+            for exp in self.split(expr):
+                if self.run_command(exp):
                     return None
-                exp = self.split(exp)
                 exp = self.perform_assignment(exp)
                 exp = self.tokenize(exp)
                 exp = self.complete_infix_notation(exp)
@@ -318,8 +314,8 @@ class Calculator:
                 self.vars |= {'_': exp}
                 self.vars |= {self.link: exp}
                 self.err = None
-            except Exception as err:
-                self.err = err
+        except Exception as err:
+            self.err = err
 
     def get_answer(self):
         """Return the answer of the current expression.
