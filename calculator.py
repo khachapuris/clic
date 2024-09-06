@@ -31,6 +31,27 @@ glob_syntax = {}
 for syntax in glob_syntax_list:
     glob_syntax.update({syntax.name: syntax})
 
+glob_smbs = {
+    'alpha':  '_',   # characters that behave like alphabetical
+    'decseps': '.',  # desimal separator characters
+    'quote':  '"',   # start / end of a calculator string
+    'expsep': ';',   # expression separator
+}
+
+
+def isalphaplus(c):
+    return c.isalpha() or c in glob_smbs["alpha"]
+
+
+def isdigitplus(c):
+    return c.isdigit() or c in glob_smbs["decsep"]
+
+
+def standard_decsep(c):
+    if c in glob_smbs["decsep"]:
+        return '.'
+    return c
+
 
 class Calculator:
     """The Calculator object provides methods for calculating expressions."""
@@ -82,30 +103,17 @@ class Calculator:
     def split(self, string):
         """Split the given string expression."""
         replace = {'{': '(', '}': ')'}
-        smbs = {
-            'alpha':  '_',  # characters that behave like alphabetical
-            'decsep': '.',  # desimal separator characters
-            'quote':  '"',  # start / end of a calculator string
-            'expsep': ';',  # expression separator
-        }
         ans = [[]]
         space = True
         in_string = False
 
-        def newchar(c):
-            nonlocal ans
-            ans[-1][-1] += c
-
-        def newword(c):
+        def add(ch, divide):
             nonlocal ans, space
-            ans[-1].append(c)
-            space = False
-
-        def isalphaplus(c):
-            return c.isalpha() or c in smbs["alpha"]
-
-        def isdigitplus(c):
-            return c.isdigit() or c == smbs["decsep"]
+            if divide:
+                ans[-1].append(ch)
+                space = False
+            else:
+                ans[-1][-1] += ch
 
         for char in string:
             if ans[-1]:
@@ -113,46 +121,33 @@ class Calculator:
             else:
                 last = ' '
             # Quote:
-            if char == smbs["quote"]:
+            if char == glob_smbs["quote"]:
                 # Opening quote
-                if not in_string:
-                    newword(char)
-                    in_string = True
-                # Closing quote
-                else:
-                    newchar(char)
-                    in_string = False
+                add(char, not in_string)
+                in_string = not in_string
             # Character inside a calculator string
             elif in_string:
-                newchar(char)
+                add(char, False)
             # Expression separator
-            elif char == smbs["expsep"]:
+            elif char == glob_smbs["expsep"]:
                 ans.append([])
             # Space
             elif char == ' ':
                 space = True
             # Letter:
             elif isalphaplus(char):
-                # Letter after letter without space in between
-                if isalphaplus(last) and not space:
-                    newchar(char)
-                # All other letters
-                else:
-                    newword(char)
+                # Letter after not letter / letter after space
+                add(char, not isalphaplus(last) or space)
             # Digit:
             elif isdigitplus(char):
                 # Digit with a space before it
-                if space:
-                    newword(char)
-                # All other digits
-                else:
-                    newchar(char)
+                add(standard_decsep(char), space)
             # Symbol:
             else:
                 # Symbol from the replace dictionary
                 if char in replace:
                     char = replace[char]
-                newword(char)
+                add(char, True)
                 space = True
         if in_string:
             raise ValueError('unclosed quotes')
@@ -182,8 +177,8 @@ class Calculator:
         for word in ls:
             if word[0] in glob_syntax:
                 ans.append(glob_syntax[word])
-            elif word[0] == '"':
-                get = Token.give(word.strip('"'))
+            elif word[0] == glob_smbs["quote"]:
+                get = Token.give(word.strip(glob_smbs["quote"]))
                 ans.append(Token(word, get, 0, 10, 0, 'str'))
             elif word.isdigit() or '.' in word:
                 num = Decimal(word)
