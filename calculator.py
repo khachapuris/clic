@@ -81,76 +81,77 @@ class Calculator:
 
     def split(self, string):
         """Split the given string expression."""
-        changes = {'{': '(', '}': ')'}
-        # characters that behave like alphabetical
-        alpha = '_'
-        # desimal separator characters
-        decsep = '.'
-        # start / end of a calculator string
-        quote = '"'
-        # expression separator
-        expsep = ';'
+        replace = {'{': '(', '}': ')'}
+        smbs = {
+            'alpha':  '_',  # characters that behave like alphabetical
+            'decsep': '.',  # desimal separator characters
+            'quote':  '"',  # start / end of a calculator string
+            'expsep': ';',  # expression separator
+        }
         ans = [[]]
+        space = True
+        in_string = False
 
         def newchar(c):
             nonlocal ans
             ans[-1][-1] += c
 
         def newword(c):
-            nonlocal ans
+            nonlocal ans, space
             ans[-1].append(c)
+            space = False
 
         def isalphaplus(c):
-            return c.isalpha() or c in alpha
+            return c.isalpha() or c in smbs["alpha"]
 
         def isdigitplus(c):
-            return c.isdigit() or c == decsep
+            return c.isdigit() or c == smbs["decsep"]
 
-        space = True
-        in_string = False
         for char in string:
             if ans[-1]:
                 last = ans[-1][-1][-1]
             else:
                 last = ' '
-            # An opening quote
-            if char == quote and not in_string:
-                newword(char)
-                in_string = True
-            # A closing quote
-            elif char == quote:
-                newchar(char)
-                in_string = False
+            # Quote:
+            if char == smbs["quote"]:
+                # Opening quote
+                if not in_string:
+                    newword(char)
+                    in_string = True
+                # Closing quote
+                else:
+                    newchar(char)
+                    in_string = False
             # Character inside a calculator string
             elif in_string:
                 newchar(char)
-            # An expression separator
-            elif char == expsep:
+            # Expression separator
+            elif char == smbs["expsep"]:
                 ans.append([])
-            # A space
+            # Space
             elif char == ' ':
                 space = True
-            # Letter after letter without space in between
-            elif isalphaplus(char) and isalphaplus(last) and not space:
-                newchar(char)
-            # All other letters
+            # Letter:
             elif isalphaplus(char):
-                newword(char)
-                space = False
-            # Digit without a space before it
-            elif isdigitplus(char) and not space:
-                newchar(char)
-            # All other digits
+                # Letter after letter without space in between
+                if isalphaplus(last) and not space:
+                    newchar(char)
+                # All other letters
+                else:
+                    newword(char)
+            # Digit:
             elif isdigitplus(char):
-                newword(char)
-                space = False
-            # Symbol from changes dictionary
-            elif char in changes:
-                char = changes[char]
-                newword(char)
-                space = True
-            # All other symbols
+                # Digit with a space before it
+                if space:
+                    newword(char)
+                # All other digits
+                else:
+                    newchar(char)
+            # Symbol:
             else:
+                # Symbol from the replace dictionary
+                if char in replace:
+                    char = replace[char]
                 newword(char)
                 space = True
         if in_string:
