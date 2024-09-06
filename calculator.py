@@ -139,7 +139,7 @@ class Calculator:
         self.err = None
         # simple assignment (x = 1)
         if len(ls) > 2 and ls[1] == '=':
-            if not ls[0][0].isalpha() or ls[0] in (glob_funcs | si_units):
+            if not ls[0][0].isalpha() or ls[0] in (glob_funcs | glob_units):
                 raise Calculator.CompilationError('assignment error')
             self.link = ls[0]
             return ls[2:]
@@ -310,7 +310,7 @@ class Calculator:
         output -- the error / answer (as a string).
         """
         if self.err:
-            raise self.err
+            # raise self.err
             return (True, f'{str(self.err)}')
         ans = self.vars['_']
         if ans is None:
