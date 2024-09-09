@@ -14,6 +14,7 @@ from decimal import Decimal
 from mathclasses import Quantity, Vector
 
 from token import Token
+import symbols as smbs
 from functions import functions as glob_func_list
 from units import units as glob_units
 
@@ -30,29 +31,6 @@ for func in glob_func_list:
 glob_syntax = {}
 for syntax in glob_syntax_list:
     glob_syntax.update({syntax.name: syntax})
-
-glob_smbs = {
-    'alpha':  '_',   # characters that behave like alphabetical
-    'decseps': '.',  # desimal separator characters
-    'quote':  '"',   # start / end of a calculator string
-    'expsep': ';',   # expression separator
-    'command': ':',  # start of a command
-    'assign': '=',   # assignment operator
-}
-
-
-def isalphaplus(c):
-    return c.isalpha() or c in glob_smbs['alpha']
-
-
-def isdigitplus(c):
-    return c.isdigit() or c in glob_smbs['decseps']
-
-
-def standard_decsep(c):
-    if c in glob_smbs['decseps']:
-        return '.'
-    return c
 
 
 class Calculator:
@@ -96,7 +74,7 @@ class Calculator:
             else:
                 last = ' '
             # Quote:
-            if char == glob_smbs['quote']:
+            if char == smbs.classes['quote']:
                 # Opening quote > divide
                 add(char, not in_string)
                 in_string = not in_string
@@ -104,19 +82,19 @@ class Calculator:
             elif in_string:
                 add(char, False)
             # Expression separator
-            elif char == glob_smbs['expsep']:
+            elif char == smbs.classes['expsep']:
                 ans.append([])
             # Space
             elif char == ' ':
                 space = True
             # Letter:
-            elif isalphaplus(char):
+            elif smbs.isalphaplus(char):
                 # Letter after not letter / letter after space > divide
-                add(char, not isalphaplus(last) or space)
+                add(char, not smbs.isalphaplus(last) or space)
             # Digit:
-            elif isdigitplus(char):
+            elif smbs.isdigitplus(char):
                 # Digit with a space before it > divide
-                add(standard_decsep(char), space)
+                add(smbs.standard_decsep(char), space)
             # Symbol:
             else:
                 # Symbol from the replace dictionary
@@ -137,7 +115,7 @@ class Calculator:
         self.silent = True
         if not ls:
             return True
-        if ls[0] != glob_smbs['command'] or len(ls) < 2:
+        if ls[0] != smbs.classes['command'] or len(ls) < 2:
             self.silent = False
             return False
         # quit the calculator
@@ -157,14 +135,14 @@ class Calculator:
         """Change the assignment link according to a list of strings."""
         self.err = None
         # simple assignment (x = 1)
-        if len(ls) > 2 and ls[1] == glob_smbs['assign']:
+        if len(ls) > 2 and ls[1] == smbs.classes['assign']:
             if not ls[0][0].isalpha() or ls[0] in (glob_funcs | glob_units):
                 raise Calculator.CompilationError('assignment error')
             self.link = ls[0]
             return ls[2:]
         self.link = 'ans'
         # compound assignment (x += 1)
-        if len(ls) > 2 and ls[2] == glob_smbs['assign']:
+        if len(ls) > 2 and ls[2] == smbs.classes['assign']:
             if not ls[0] in self.vars:
                 raise Calculator.CompilationError('compound assignment error')
             self.link = ls[0]
@@ -177,8 +155,8 @@ class Calculator:
         for word in ls:
             if word[0] in glob_syntax:
                 ans.append(glob_syntax[word])
-            elif word[0] == glob_smbs['quote']:
-                get = Token.give(word.strip(glob_smbs['quote']))
+            elif word[0] == smbs.classes['quote']:
+                get = Token.give(word.strip(smbs.classes['quote']))
                 ans.append(Token(word, get, 0, 10, 0, 'str'))
             elif word.isdigit() or '.' in word:
                 num = Decimal(word)
