@@ -60,13 +60,18 @@ class Calculator:
         space = True
         in_string = False
 
-        def add(ch, divide):
+        def new_word_if(divide, c):
+            """Add a new word / character to ans.
+
+            If divide is True, add a new word c to ans;
+            otherwise append c to the last word.
+            """
             nonlocal ans, space
             if divide:
-                ans[-1].append(ch)
+                ans[-1].append(c)
                 space = False
             else:
-                ans[-1][-1] += ch
+                ans[-1][-1] += c
 
         for char in string:
             if ans[-1]:
@@ -75,12 +80,13 @@ class Calculator:
                 last = ' '
             # Quote:
             if char == smbs.classes['quote']:
-                # Opening quote > divide
-                add(char, not in_string)
+                # Is it an opening quote
+                condition = not in_string
+                new_word_if(condition, char)
                 in_string = not in_string
             # Character inside a calculator string
             elif in_string:
-                add(char, False)
+                new_word_if(False, char)
             # Expression separator
             elif char == smbs.classes['expsep']:
                 ans.append([])
@@ -89,18 +95,17 @@ class Calculator:
                 space = True
             # Letter:
             elif smbs.isalphaplus(char):
-                # Letter after not letter / letter after space > divide
-                add(char, not smbs.isalphaplus(last) or space)
+                # Does it go after a non-letter / some space
+                condition = not smbs.isalphaplus(last) or space
+                new_word_if(condition, char)
             # Digit:
             elif smbs.isdigitplus(char):
-                # Digit with a space before it > divide
-                add(smbs.standard_decsep(char), space)
+                new_word_if(space, smbs.standard_decsep(char))
             # Symbol:
             else:
-                # Symbol from the replace dictionary
                 if char in replace:
                     char = replace[char]
-                add(char, True)
+                new_word_if(True, char)
                 space = True
         if in_string:
             raise ValueError('unclosed quotes')
