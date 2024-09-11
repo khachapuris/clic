@@ -17,7 +17,8 @@ functions = [
     Token('*', lambda a, b: a * b,  2, 2, 0, 'oper'),
     Token(':', lambda a, b: a / b,  2, 2, 0, 'oper'),
     Token('^', lambda a, b: a ** b, 2, 3, 1, 'oper'),
-    Token('_neg_', lambda a: -a,       1, 3, 1, 'oper'),
+    Token(' -', lambda a: -a,       1, 3, 1, 'oper'),
+    Token(' +', lambda a: +a,       1, 3, 1, 'oper'),
     Token('_dot_', lambda a, b: a * b, 2, 3, 1, 'oper'),
 
     # Default tokens
