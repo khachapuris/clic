@@ -45,13 +45,14 @@ class Calculator:
     def __init__(self):
         """The initialiser of the class."""
         self.err = None
-        self.link = 'ans'
+        self.link = smbs.sv['ans']
         self.silent = False
         self.reset_vars()
 
     def reset_vars(self):
-        helptext = 'This is clic calculator. /q -- quit, please see README.md'
-        self.vars = {smbs.svn['sysans']: Decimal(0), 'help': helptext}
+        helptext = 'This is clic calculator. '
+        helptext += smbs.cc['command'] + 'q -- quit, please see README.md'
+        self.vars = {smbs.sv['sysans']: Decimal(0), 'help': helptext}
         self.vars |= glob_units
 
     def split(self, string):
@@ -80,7 +81,7 @@ class Calculator:
             else:
                 last = ' '
             # Quote:
-            if char == smbs.ccc['quote']:
+            if char == smbs.cc['quote']:
                 # Is it an opening quote
                 condition = not in_string
                 new_word_if(condition, char)
@@ -89,7 +90,7 @@ class Calculator:
             elif in_string:
                 new_word_if(False, char)
             # Expression separator
-            elif char == smbs.ccc['expsep']:
+            elif char == smbs.cc['expsep']:
                 ans.append([])
             # Space
             elif char == ' ':
@@ -121,7 +122,7 @@ class Calculator:
         self.silent = True
         if not ls:
             return True
-        if ls[0] != smbs.ccc['command'] or len(ls) < 2:
+        if ls[0] != smbs.cc['command'] or len(ls) < 2:
             self.silent = False
             return False
         # quit the calculator
@@ -130,8 +131,8 @@ class Calculator:
         # delete variable (opposite to assignment)
         elif ls[1] == 'd':
             if len(ls) > 2:
-                if ls[2] == smbs.svn['sysans']:
-                    self.vars[smbs.svn['sysans']] = Decimal(0)
+                if ls[2] == smbs.sv['sysans']:
+                    self.vars[smbs.sv['sysans']] = Decimal(0)
                 if ls[2] in list(self.vars):
                     del self.vars[ls[2]]
             return True
@@ -141,14 +142,14 @@ class Calculator:
         """Change the assignment link according to a list of strings."""
         self.err = None
         # simple assignment (x = 1)
-        if len(ls) > 2 and ls[1] == smbs.ccc['assign']:
+        if len(ls) > 2 and ls[1] == smbs.cc['assign']:
             if not ls[0][0].isalpha() or ls[0] in (glob_funcs | glob_units):
                 raise Calculator.CompilationError('assignment error')
             self.link = ls[0]
             return ls[2:]
-        self.link = 'ans'
+        self.link = smbs.sv['ans']
         # compound assignment (x += 1)
-        if len(ls) > 2 and ls[2] == smbs.ccc['assign']:
+        if len(ls) > 2 and ls[2] == smbs.cc['assign']:
             if not ls[0] in self.vars:
                 raise Calculator.CompilationError('compound assignment error')
             self.link = ls[0]
@@ -161,8 +162,8 @@ class Calculator:
         for word in ls:
             if word[0] in glob_syntax:
                 ans.append(glob_syntax[word])
-            elif word[0] == smbs.ccc['quote']:
-                get = Token.give(word.strip(smbs.ccc['quote']))
+            elif word[0] == smbs.cc['quote']:
+                get = Token.give(word.strip(smbs.cc['quote']))
                 ans.append(Token(word, get, 0, 10, 0, 'str'))
             elif word.isdigit() or '.' in word:
                 num = Decimal(word)
@@ -193,11 +194,11 @@ class Calculator:
                     else:
                         ans += [token]
                 case ('var', 'var' | '(' | 'num'):
-                    ans += [glob_funcs[smbs.svn['implicit']], token]
+                    ans += [glob_funcs[smbs.sv['implicit']], token]
                 case ('var' | ')' | 'num', 'var'):
-                    ans += [glob_funcs[smbs.svn['sysans']], token]
+                    ans += [glob_funcs[smbs.sv['implicit']], token]
                 case (')', '('):
-                    ans += [glob_funcs[smbs.svn['sysans']], token]
+                    ans += [glob_funcs[smbs.sv['implicit']], token]
                 case _:
                     ans += [token]
             last = ans[-1]
@@ -295,7 +296,7 @@ class Calculator:
                 exp = self.complete_infix_notation(exp)
                 exp = self.shunting_yard_algorithm(exp)
                 exp = self.perform_operations_twice(exp)
-                self.vars |= {smbs.svn['sysans']: exp}
+                self.vars |= {smbs.sv['sysans']: exp}
                 self.vars |= {self.link: exp}
                 self.err = None
         except Exception as err:
@@ -311,7 +312,7 @@ class Calculator:
         if self.err:
             # raise self.err
             return (True, f'{str(self.err)}')
-        ans = self.vars[smbs.svn['sysans']]
+        ans = self.vars[smbs.sv['sysans']]
         if ans is None:
             return (True, '')
         ans = self.object_to_string(ans)

@@ -5,9 +5,10 @@ To register custom functions add corresponding tokens to the list.
 
 from token import Token
 
-from decimal import Decimal
 from mathclasses import Quantity, Vector
 import mathfunctions as mf
+
+import symbols as smbs
 
 
 functions = [
@@ -17,9 +18,9 @@ functions = [
     Token('*', lambda a, b: a * b,  2, 2, 0, 'oper'),
     Token(':', lambda a, b: a / b,  2, 2, 0, 'oper'),
     Token('^', lambda a, b: a ** b, 2, 3, 1, 'oper'),
-    Token(' -', lambda a: -a,       1, 3, 1, 'oper'),
-    Token(' +', lambda a: +a,       1, 3, 1, 'oper'),
-    Token('_dot_', lambda a, b: a * b, 2, 3, 1, 'oper'),
+    Token(' -', lambda a: -a,       1, 3, 1, 'func'),
+    Token(' +', lambda a: +a,       1, 3, 1, 'func'),
+    Token(smbs.sv['implicit'], lambda a, b: a * b, 2, 3, 1, 'oper'),
 
     # Default tokens
     Token('!', mf.factorial,         1, 4, 0, 'sign'),
