@@ -143,17 +143,21 @@ class Calculator:
         self.err = None
         # simple assignment (x = 1)
         if len(ls) > 2 and ls[1] == smbs.cc['assign']:
-            if not ls[0][0].isalpha() or ls[0] in (glob_funcs | glob_units):
+            name = ls[0]
+            if not smbs.isalphaplus(name[0]) \
+                    or name in (glob_funcs | glob_units) \
+                    or name == smbs.sv['sysans']:
                 raise Calculator.CompilationError('assignment error')
-            self.link = ls[0]
+            self.link = name
             return ls[2:]
-        self.link = smbs.sv['ans']
         # compound assignment (x += 1)
         if len(ls) > 2 and ls[2] == smbs.cc['assign']:
-            if not ls[0] in self.vars:
+            name = ls[0]
+            if name not in self.vars:
                 raise Calculator.CompilationError('compound assignment error')
-            self.link = ls[0]
+            self.link = name
             return ls[:2] + ls[3:]
+        self.link = smbs.sv['ans']
         return ls
 
     def tokenize(self, ls):
@@ -165,7 +169,7 @@ class Calculator:
             elif word[0] == smbs.cc['quote']:
                 get = Token.give(word.strip(smbs.cc['quote']))
                 ans.append(Token(word, get, 0, 10, 0, 'str'))
-            elif word.isdigit() or '.' in word:
+            elif smbs.isdigitplus(word, plus='.'):
                 num = Decimal(word)
                 ans.append(Token(word, Token.give(num), 0, 10, 0, 'num'))
             elif word in glob_funcs:
