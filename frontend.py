@@ -41,6 +41,7 @@ class Display:
     def mask(self, exp):
         """Return the positions of characters in exp."""
         mask = []
+        bars = []
         # "part" is a numerator / denomenator / text between fractions
         a = 0  # length of the current part
         b = 0  # length of the previous part
@@ -68,6 +69,7 @@ class Display:
                 # add the coordinates of each character of the fraction
                 mask += [(0, x + (w - b) // 2 + i) for i in range(b + 1)]
                 mask += [(2, x + (w - a) // 2 + i) for i in range(a + 1)]
+                bars += [(x, w)]
                 # move on to the left
                 x += w + 1
                 # start a new part
@@ -79,9 +81,9 @@ class Display:
 
         # Finish the last part
         mask += [(1, x + i) for i in range(a)]
-        return mask
+        return mask, bars
 
-    def update_pad(self, exp, mask):
+    def update_pad(self, exp, mask, bars):
         """Update the expression pad.
 
         Arguments:
@@ -93,8 +95,10 @@ class Display:
             y, x = mask[i]
             char = exp[i]
             if char not in '{/}':
-                self.pad.addstr(1, x, '─')
                 self.pad.addstr(y, x, char)
+        for i in range(len(bars)):
+            bar = bars[i]
+            self.pad.addstr(1, bar[0], '─' * bar[1])
 
     def print_expression(self, y, left, right):
         """Print the expression on the screen.
@@ -107,8 +111,8 @@ class Display:
         """
         ymax, xmax = self.scr.getmaxyx()
         y %= ymax  # support negative values of y
-        mask = self.mask(self.exp)
-        self.update_pad(self.exp, mask)
+        mask, bars = self.mask(self.exp)
+        self.update_pad(self.exp, mask, bars)
         self.scr.refresh()
         y1, x1 = mask[self.cursor]
         screen_width = xmax - left - right
