@@ -1,381 +1,36 @@
 #!/usr/bin/env python
 
-"""This script provides a backend for fixed-point decimal calculations."""
+"""This script contains a calculator for calculating fixed-point expressions.
 
-from decimal import Decimal
+The script runs the calculator with a minimal prompt and can be used for
+infix notation calculations. It can also be used as a module and provides
+class Calculator. For more details please see README.md.
+"""
+
+import sys
+
 import decimal
-from math import asin, acos, atan
-import functions
+from decimal import Decimal
+from mathclasses import Quantity, Vector
 
-import copy
-
-glob_pi = Decimal('3.1415926535897932384626433833')
-
-
-class Quantity:
-    """The Quantity object stores phisical quantities."""
-
-    class OperationError(ArithmeticError):
-        """An operation error class for quantities."""
-        pass
-
-    def __init__(self, value, units):
-        """The initialiser for the class.
-
-        Arguments:
-        value -- a number representing the numeric value of a quantity,
-        units -- a dictionary that matches units and their powers.
-        """
-        self.units = units
-        self.value = value
-
-    @classmethod
-    def angle(cls, value, degree=False):
-        """An initialiser for angle quantities.
-
-        >>> Quantity.angle(5)
-        Q(5, rad)
-        >>> Quantity.angle(1, 'degree')
-        Q(0.0175, rad)
-        """
-        if degree:
-            return cls(value / Decimal(180) * glob_pi, {'rad': 1})
-        return cls(value, {'rad': 1})
-
-    def unit_str(self):
-        """Return a string representation of the quantity's unit part."""
-        ans = ''
-        for u in list(self.units):
-            power = self.units[u]
-            ans += str(u)
-            if power != 1:
-                ans += '^' + str(power)
-            ans += '*'
-        return ans[:-1]
-
-    def getpow(self, unit):
-        """Return the power in which unit is present in the quantity."""
-        if unit in self.units:
-            return self.units[unit]
-        return 0
-
-    def __mul__(self, other):
-        """Multiplication of quantities."""
-        if isinstance(other, Quantity):
-            units = {}
-            for u in list(self.units | other.units):
-                power = self.getpow(u) + other.getpow(u)
-                if power != 0:
-                    units[u] = power
-            value = self.value * other.value
-            if units:
-                return Quantity(value, units)
-            return value
-        return Quantity(self.value * other, self.units)
-
-    def __truediv__(self, other):
-        """Division of quantities."""
-        if isinstance(other, Quantity):
-            units = {}
-            for u in list(self.units | other.units):
-                power = self.getpow(u) - other.getpow(u)
-                if power != 0:
-                    units[u] = power
-            value = self.value * other.value
-            if units:
-                return Quantity(value, units)
-            return value
-        return Quantity(self.value * other, self.units)
-
-    def __add__(self, other):
-        """Addition of quantities."""
-        if isinstance(other, Quantity):
-            if self.units == other.units:
-                return Quantity(self.value + other.value, self.units)
-        raise Quantity.OperationError('addition of different units')
-
-    def __neg__(self):
-        """Negatition of quantities."""
-        return Quantity(-self.value, self.units)
-
-    def __sub__(self, other):
-        """Subtraction of quantities."""
-        if isinstance(other, Quantity):
-            if self.units == other.units:
-                return Quantity(self.value - other.value, self.units)
-        raise Quantity.OperationError('subtraction of different units')
-
-    def __rmul__(self, other):
-        return self * other
-
-    def __rtruediv__(self, other):
-        return other * Quantity(Decimal(1), {}) / self
-
-    def __radd__(self, other):
-        raise Quantity.OperationError('addition of different units')
-
-    def __rsub__(self, other):
-        raise Quantity.OperationError('subtraction of different units')
-
-    def __round__(self, num):
-        return Quantity(round(self.value, num), self.units)
-
-    def __pow__(self, other, opt=None):
-        """Exponentiation of quantities."""
-        if isinstance(other, (int, Decimal)):
-            raise Quantity.OperationError('raising to a (quantity) power')
-        units = {a: self.units[a] * other for a in list(self.units)}
-        return Quantity(self.value ** other, units)
-
-    def __repr__(self):
-        """String representation of quantities with additional info."""
-        if self.value == 1:
-            return f'Quantity({self.unit_str()})'
-        return f'Quantity({str(self.value)}, {self.unit_str()})'
-
-    def __str__(self):
-        """String representation of quantities without additional info."""
-        return f'{str(self.value)} {self.unit_str()}'
-
-    def isangle(self):
-        """Return True if the quantity is an angle."""
-        return self.units == {'rad': 1}
-
-    @staticmethod
-    def cos(x):
-        """Return the cosine of the angle."""
-        if isinstance(x, Quantity):
-            if not x.isangle():
-                OperErr = Quantity.OperationError
-                raise OperErr('trigonometry of non-angle quantities')
-            x = x.value
-        decimal.getcontext().prec += 2
-        i, lasts, s, fact, num, sign = 0, 0, 1, 1, 1, 1
-        while s != lasts:
-            lasts = s
-            i += 2
-            fact *= i * (i-1)
-            num *= x * x
-            sign *= -1
-            s += num / fact * sign
-        decimal.getcontext().prec -= 2
-        return +s
-
-    @staticmethod
-    def sin(x):
-        """Return the sine of the angle."""
-        if isinstance(x, Quantity):
-            if not x.isangle():
-                OperErr = Quantity.OperationError
-                raise OperErr('trigonometry of non-angle quantities')
-            x = x.value
-        decimal.getcontext().prec += 2
-        i, lasts, s, fact, num, sign = 1, 0, x, 1, x, 1
-        while s != lasts:
-            lasts = s
-            i += 2
-            fact *= i * (i-1)
-            num *= x * x
-            sign *= -1
-            s += num / fact * sign
-        decimal.getcontext().prec -= 2
-        return +s
-
-    @staticmethod
-    def tan(x):
-        """Return the tangene of the angle."""
-        return Quantity.sin(x) / Quantity.cos(x)
-
-    @staticmethod
-    def cot(x):
-        """Return the cotangene of the angle."""
-        return Quantity.cos(x) / Quantity.sin(x)
-
-    @staticmethod
-    def arcsin(x):
-        """Return an angle with given sine."""
-        return Quantity.angle(Decimal(asin(x)))
-
-    @staticmethod
-    def arccos(x):
-        """Return an angle with given cosine."""
-        return Quantity.angle(Decimal(acos(x)))
-
-    @staticmethod
-    def arctan(x):
-        """Return an angle with given tangene."""
-        return Quantity.angle(Decimal(atan(x)))
+from token import Token
+import symbols as smbs
+from functions import functions as glob_func_list
+from units import units as glob_units
 
 
-class Vector:
-    """The creation of the Vector object and the related functionality."""
+glob_syntax_list = [
+    Token('(', lambda: None, 0, 10, 0, '('),
+    Token(')', lambda: None, 0, 10, 0, ')'),
+]
 
-    class OperationError(ArithmeticError):
-        """An operation error class for vectors."""
-        pass
+glob_funcs = {}
+for func in glob_func_list:
+    glob_funcs.update({func.name: func})
 
-    def __init__(self, *args):
-        """The initialiser of the class.
-
-        Arguments:
-        *args -- elements of the vector.
-        """
-        self.ls = list(args)
-
-    @staticmethod
-    def join(a, b):
-        """Create vectors by joining elements.
-
-        >>> a = Vector.join(1, 2)  # (1; 2)
-        >>> b = Vector.join(a, 3)  # (1; 2; 3)
-        """
-        if isinstance(a, Vector):
-            a.ls.append(b)
-            return a
-        return Vector(a, b)
-
-    def __add__(self, other):
-        """Addition of vectors."""
-        if isinstance(other, Vector) and len(other.ls) == len(self.ls):
-            ans = Vector()
-            for a, b in zip(self.ls, other.ls):
-                Vector.join(ans, a + b)
-            return ans
-        raise Vector.OperationError('addition of different sizes')
-
-    def __sub__(self, other):
-        """Subtraction of vectors."""
-        if isinstance(other, Vector) and len(other.ls) == len(self.ls):
-            ans = Vector()
-            for a, b in zip(self.ls, other.ls):
-                Vector.join(ans, a - b)
-            return ans
-        raise Vector.OperationError('subtraction of different sizes')
-
-    def __mul__(self, other):
-        """Multiplication of vectors."""
-        if isinstance(other, Vector):
-            if len(other.ls) == len(self.ls):
-                ans = 0
-                for a, b in zip(self.ls, other.ls):
-                    ans += a * b
-                return ans
-            raise Vector.OperationError('multiplication of different sizes')
-        ans = Vector()
-        for a in self.ls:
-            Vector.join(ans, a * other)
-        return ans
-
-    def __truediv__(self, other):
-        """Division of vectors."""
-        if isinstance(other, Vector):
-            if len(other.ls) == len(self.ls):
-                ans = 0
-                for a, b in zip(self.ls, other.ls):
-                    ans += a / b
-                return ans
-            raise Vector.OperationError('division of different sizes')
-        ans = Vector()
-        for a in self.ls:
-            Vector.join(ans, a / other)
-        return ans
-
-    def __rmul__(self, other):
-        return self * other
-
-    def __iter__(self):
-        """Return an iterator over a vector."""
-        return self.ls.__iter__()
-
-    def __repr__(self):
-        """String representation of vectors."""
-        return '(' + '; '.join([str(x) for x in self.ls]) + ')'
-
-
-class Token:
-    """Token objects are data storage and data transformation elements."""
-
-    def __init__(self, calc, arg_num, pref, ltor, kind='', name=''):
-        """The initialiser of the class.
-
-        Arguments:
-        calc -- the token's function,
-        arg_num -- number of arguments of calc,
-        pref -- the token's preference,
-        ltor -- a truthy value, if tokens with the same pref
-          should be calculated left-to-right, falsy otherwise,
-        kind -- the kind of the token (optional),
-        name -- the name of the token (optional).
-        """
-        self.name = name
-        self.calc = calc
-        self.arg_num = arg_num
-        self.pref = pref
-        self.ltor = ltor
-        self.kind = kind
-        self.name = name
-
-    @staticmethod
-    def give(obj):
-        """Return a function that returns obj.
-
-        >>> f = Token.give(1024)
-        >>> f()
-        1024
-        """
-        def func():
-            return copy.copy(obj)
-        return func
-
-    def __repr__(self):
-        """String representation of tokens."""
-        if self.name:
-            return self.name
-        if self.arg_num == 0:
-            return str(self.calc())
-        if self.kind:
-            return self.kind
-        return '<?>'
-
-
-glob_funcs = {
-    '!': Token(functions.factorial, 1, 4, 0, 'sign', '<FTR>'),
-    ';': Token(Vector.join,         2, 0, 0, 'oper', '<SEM>'),
-    '+': Token(lambda a, b: a + b,  2, 1, 0, 'oper', '<ADD>'),
-    '-': Token(lambda a, b: a - b,  2, 1, 0, 'oper', '<SUB>'),
-    '*': Token(lambda a, b: a * b,  2, 2, 0, 'oper', '<MUL>'),
-    ':': Token(lambda a, b: a / b,  2, 2, 0, 'oper', '<DIV>'),
-    '/': Token(lambda a, b: a / b,  2, 0, 0, 'oper', '<BAR>'),
-    '^': Token(lambda a, b: a ** b, 2, 3, 1, 'oper', '<POW>'),
-    'mod': Token(lambda a, b: a % b,   2, 2, 0, 'oper', '<MOD>'),
-    '_neg_': Token(lambda a: -a,       1, 3, 1, 'oper', '<NEG>'),
-    '_dot_': Token(lambda a, b: a * b, 2, 3, 1, 'oper', '<DOT>'),
-    'sin': Token(lambda a: Quantity.sin(a), 1, 3, 1, 'trig', '<sin>'),
-    'cos': Token(lambda a: Quantity.cos(a), 1, 3, 1, 'trig', '<cos>'),
-    'tan': Token(lambda a: Quantity.tan(a), 1, 3, 1, 'trig', '<tan>'),
-    'arcsin': Token(lambda a: Quantity.arcsin(a), 1, 3, 1, 'func', '<arcsin>'),
-    'arccos': Token(lambda a: Quantity.arccos(a), 1, 3, 1, 'func', '<arccos>'),
-    'arctan': Token(lambda a: Quantity.arctan(a), 1, 3, 1, 'func', '<arctan>'),
-}
-
-glob_syntax = {
-    '(': Token(lambda: None, 0, 10, 0, "'('", "'('"),
-    ')': Token(lambda: None, 0, 10, 0, "')'", "')'"),
-    '=': Token(lambda: None, 0, 10, 0, "'='", "'='"),
-}
-
-glob_trigpow = {
-    'sin': Token(lambda a, b: Quantity.sin(a) ** b, 1, 3, 1, 'func', '<sin^>'),
-    'cos': Token(lambda a, b: Quantity.cos(a) ** b, 1, 3, 1, 'func', '<cos^>'),
-    'tan': Token(lambda a, b: Quantity.tan(a) ** b, 1, 3, 1, 'func', '<tan^>'),
-}
-
-si_units = {
-    'rad': Quantity(Decimal(1), {'rad': 1}),
-    'm': Quantity(Decimal(1), {'m': 1}),
-    's': Quantity(Decimal(1), {'s': 1}),
-    'kg': Quantity(Decimal(1), {'kg': 1}),
-}
+glob_syntax = {}
+for syntax in glob_syntax_list:
+    glob_syntax.update({syntax.name: syntax})
 
 
 class Calculator:
@@ -384,83 +39,125 @@ class Calculator:
     class CompilationError(Exception):
         """An compilation error class for the calculator."""
 
+    class EmptyOutputError(Exception):
+        """An error to be raised for an empty output."""
+
     def __init__(self):
         """The initialiser of the class."""
-        self.vars = {'_': Decimal(0)} | si_units
         self.err = None
-        self.link = 'ans'
+        self.link = smbs.sv['ans']
+        self.silent = False
+        self.reset_vars()
+
+    def reset_vars(self):
+        helptext = 'This is clic calculator. '
+        helptext += smbs.cc['command'] + 'q -- quit, please see README.md'
+        self.vars = {smbs.sv['sysans']: Decimal(0), 'help': helptext}
+        self.vars |= glob_units
 
     def split(self, string):
         """Split the given string expression."""
-        changes = {'⋅': '*', '×': '*',
-                   '÷': ':', '{': '(', '}': ')'}
-        # characters that behave like alphabetical
-        alpha = '_'
-        # desimal separator characters
-        decseps = '.,'
-        # start / end of a calculator string
-        quote = '"'
-        ans = []
+        replace = {'{': '(', '}': ')'}
+        ans = [[]]
         space = True
         in_string = False
+
+        def new_word_if(divide, c):
+            """Add a new word / character to ans.
+
+            If divide is True, add a new word c to ans;
+            otherwise append c to the last word.
+            """
+            nonlocal ans, space
+            if divide:
+                ans[-1].append(c)
+                space = False
+            else:
+                ans[-1][-1] += c
+
         for char in string:
-            # calculator string is a token
-            if in_string:
-                ans[-1] += char
-                # end of a calculator string
-                if char == quote:
-                    in_string = not in_string
-            # start of a calculator string
-            elif char == quote:
-                ans.append(char)
+            if ans[-1]:
+                last = ans[-1][-1][-1]
+            else:
+                last = ' '
+            # Quote:
+            if char == smbs.cc['quote']:
+                # Is it an opening quote
+                condition = not in_string
+                new_word_if(condition, char)
                 in_string = not in_string
-            # [space] separates tokens
+            # Character inside a calculator string
+            elif in_string:
+                new_word_if(False, char)
+            # Expression separator
+            elif char == smbs.cc['expsep']:
+                ans.append([])
+            # Space
             elif char == ' ':
                 space = True
-            elif space:
-                ans.append(char)
-                # [letters, digits] after [space] start new tokens
-                if char.isalnum() or char in (decseps + alpha):
-                    space = False
-            # [digits] connect tokens
-            elif char.isdigit():
-                ans[-1] += char
-            # [letters after letters] connect tokens
-            elif char.isalpha() or char in alpha:
-                if ans[-1][-1].isalpha() or ans[-1][-1] in alpha:
-                    ans[-1] += char
-                else:
-                    ans.append(char)
-            # [decsep after digit] connects tokens
-            elif char in decseps and ans[-1].isdigit():
-                ans[-1] += '.'
-            # [other symbols] make separate tokens
+            # Letter:
+            elif smbs.isalphaplus(char):
+                # Does it go after a non-letter / some space
+                condition = not smbs.isalphaplus(last) or space
+                new_word_if(condition, char)
+            # Digit:
+            elif smbs.isdigitplus(char):
+                new_word_if(space, smbs.standard_decsep(char))
+            # Symbol:
             else:
-                # replace chars from 'changes' dict
-                if char in changes:
-                    char = changes[char]
-                ans.append(char)
+                if char in replace:
+                    char = replace[char]
+                new_word_if(True, char)
                 space = True
         if in_string:
             raise ValueError('unclosed quotes')
         return ans
 
+    def run_command(self, ls):
+        """Run command according to the given list of strings.
+
+        Returns:
+        done -- the expression does not need to be calculated.
+        """
+        self.silent = True
+        if not ls:
+            return True
+        if ls[0] != smbs.cc['command'] or len(ls) < 2:
+            self.silent = False
+            return False
+        # quit the calculator
+        if ls[1] == 'q':
+            sys.exit()
+        # delete variable (opposite to assignment)
+        elif ls[1] == 'd':
+            if len(ls) > 2:
+                if ls[2] == smbs.sv['sysans']:
+                    self.vars[smbs.sv['sysans']] = Decimal(0)
+                if ls[2] in list(self.vars):
+                    del self.vars[ls[2]]
+            return True
+        raise Calculator.CompilationError(f"unknown command: '{ls[1]}'")
+
     def perform_assignment(self, ls):
         """Change the assignment link according to a list of strings."""
         self.err = None
         # simple assignment (x = 1)
-        if len(ls) > 2 and ls[1] == '=':
-            if not ls[0][0].isalpha() or ls[0] in (glob_funcs | si_units):
+        if len(ls) > 2 and ls[1] == smbs.cc['assign']:
+            name = ls[0]
+            if not smbs.isalphaplus(name[0]) \
+                    or name in (glob_funcs | glob_units) \
+                    or name == smbs.sv['sysans']:
                 raise Calculator.CompilationError('assignment error')
-            self.link = ls[0]
+            self.link = name
             return ls[2:]
-        self.link = 'ans'
         # compound assignment (x += 1)
-        if len(ls) > 2 and ls[2] == '=':
-            if not ls[0] in self.vars:
+        if len(ls) > 2 and ls[2] == smbs.cc['assign']:
+            name = ls[0]
+            if name not in self.vars:
                 raise Calculator.CompilationError('compound assignment error')
-            self.link = ls[0]
+            self.link = name
             return ls[:2] + ls[3:]
+        self.link = smbs.sv['ans']
         return ls
 
     def tokenize(self, ls):
@@ -469,17 +166,17 @@ class Calculator:
         for word in ls:
             if word[0] in glob_syntax:
                 ans.append(glob_syntax[word])
-            elif word[0] == '"':
-                get = Token.give(word.strip('"'))
-                ans.append(Token(get, 0, 10, 0, kind='str'))
-            elif word.isdigit() or '.' in word:
+            elif word[0] == smbs.cc['quote']:
+                get = Token.give(word.strip(smbs.cc['quote']))
+                ans.append(Token(word, get, 0, 10, 0, 'str'))
+            elif smbs.isdigitplus(word[0], plus='.'):
                 num = Decimal(word)
-                ans.append(Token(Token.give(num), 0, 10, 0, kind='num'))
+                ans.append(Token(word, Token.give(num), 0, 10, 0, 'num'))
             elif word in glob_funcs:
                 ans.append(glob_funcs[word])
             elif word in self.vars:
                 get = Token.give(self.vars[word])
-                ans.append(Token(get, 0, 10, 0, kind='var', name=word))
+                ans.append(Token(word, get, 0, 10, 0, 'var'))
             else:
                 raise Calculator.CompilationError(f"unknown name: '{word}'")
         return ans
@@ -489,24 +186,24 @@ class Calculator:
         last = glob_syntax['(']
         ans = []
         for token in ls:
-            match (last.kind, token.name):
-                case ("'('" | 'oper' | 'func' | 'trig', '<ADD>'):
-                    pass
-                case ("'('" | 'oper' | 'func' | 'trig', '<SUB>'):
-                    ans.append(glob_funcs['_neg_'])
-                case ('trig', '<POW>'):
-                    ans[-1] = glob_trigpow(last.name)
-                case _:
-                    match last.kind, token.kind:
-                        case ('var', 'var' | "'('" | 'num'):
-                            ans.append(glob_funcs['_dot_'])
-                        case ('var' | "')'" | 'num', 'var'):
-                            ans.append(glob_funcs['_dot_'])
-                        case ("')'", "'('"):
-                            ans.append(glob_funcs['_dot_'])
-                    ans.append(token)
-            if ans:
+            if last.name + ' ' + token.name in list(glob_funcs):
+                ans[-1] = glob_funcs[last.name + ' ' + token.name]
                 last = ans[-1]
+                continue
+            match (last.kind, token.kind):
+                case ('(' | 'oper' | 'func', 'oper'):
+                    alt = ' ' + token.name
+                    if alt in glob_funcs:
+                        ans += [glob_funcs[alt]]
+                    else:
+                        ans += [token]
+                case ('num', 'num'):
+                    ans += [token]
+                case ('var' | ')' | 'num', 'var' | '(' | 'num'):
+                    ans += [glob_funcs[smbs.sv['implicit']], token]
+                case _:
+                    ans += [token]
+            last = ans[-1]
         return ans
 
     def shunting_yard_algorithm(self, ls):
@@ -514,19 +211,19 @@ class Calculator:
         oper_stack = []
         output = []
         for token in ls:
-            if token.name == "'('":
+            if token.name == '(':
                 oper_stack.append(token)
-            elif token.name == "')'":
-                while oper_stack[-1].name != "'('":
+            elif token.name == ')':
+                while oper_stack[-1].name != '(':
                     output.append(oper_stack.pop())
                 oper_stack.pop()
             elif token.ltor:
-                while oper_stack and oper_stack[-1].name != "'('" \
+                while oper_stack and oper_stack[-1].name != '(' \
                         and token.pref < oper_stack[-1].pref:
                     output.append(oper_stack.pop())
                 oper_stack.append(token)
             else:
-                while oper_stack and oper_stack[-1].name != "'('" \
+                while oper_stack and oper_stack[-1].name != '(' \
                         and token.pref <= oper_stack[-1].pref:
                     output.append(oper_stack.pop())
                 oper_stack.append(token)
@@ -590,32 +287,34 @@ class Calculator:
             return f'"{obj}"'
         return str(obj)
 
-    def calculate(self, exp):
+    def calculate(self, expr):
         """Calculate expression exp and store the answer."""
         try:
-            exp = self.split(exp)
-            exp = self.perform_assignment(exp)
-            exp = self.tokenize(exp)
-            exp = self.complete_infix_notation(exp)
-            exp = self.shunting_yard_algorithm(exp)
-            exp = self.perform_operations_twice(exp)
-            self.vars |= {'_': exp}
-            self.vars |= {self.link: exp}
-            self.err = None
+            for exp in self.split(expr):
+                if self.run_command(exp):
+                    return None
+                exp = self.perform_assignment(exp)
+                exp = self.tokenize(exp)
+                exp = self.complete_infix_notation(exp)
+                exp = self.shunting_yard_algorithm(exp)
+                exp = self.perform_operations_twice(exp)
+                self.vars |= {smbs.sv['sysans']: exp}
+                self.vars |= {self.link: exp}
+                self.err = None
         except Exception as err:
             self.err = err
 
     def get_answer(self):
         """Return the answer of the current expression.
 
-        Output is a tuple:
+        Returns:
         flag -- is the output an error,
         output -- the error / answer (as a string).
         """
         if self.err:
             # raise self.err
             return (True, f'{str(self.err)}')
-        ans = self.vars['_']
+        ans = self.vars[smbs.sv['sysans']]
         if ans is None:
             return (True, '')
         ans = self.object_to_string(ans)
@@ -628,10 +327,10 @@ if __name__ == '__main__':
         exp = input('% ')
         ctor.calculate(exp)
         flag, ans = ctor.get_answer()
-        if ans is None or exp == '':
-            break
         if flag:
             print(f'! {ans}')
+        elif ctor.silent:
+            continue
         else:
             print(f'= {ans}')
         # print()
