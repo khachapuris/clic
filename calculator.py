@@ -169,7 +169,7 @@ class Calculator:
             elif word[0] == smbs.cc['quote']:
                 get = Token.give(word.strip(smbs.cc['quote']))
                 ans.append(Token(word, get, 0, 10, 0, 'str'))
-            elif smbs.isdigitplus(word, plus='.'):
+            elif smbs.isdigitplus(word[0], plus='.'):
                 num = Decimal(word)
                 ans.append(Token(word, Token.give(num), 0, 10, 0, 'num'))
             elif word in glob_funcs:
