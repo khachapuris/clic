@@ -17,9 +17,9 @@ functions = [
     Token('-', lambda a, b: a - b,  2, 1, 0, 'oper'),
     Token('*', lambda a, b: a * b,  2, 2, 0, 'oper'),
     Token(':', lambda a, b: a / b,  2, 2, 0, 'oper'),
-    Token('^', lambda a, b: a ** b, 2, 3, 1, 'oper'),
-    Token(' -', lambda a: -a,       1, 3, 1, 'func'),
-    Token(' +', lambda a: +a,       1, 3, 1, 'func'),
+    Token('^', lambda a, b: a ** b, 2, 4, 1, 'oper'),
+    Token(' -', lambda a: -a,       1, 4, 1, 'func'),
+    Token(' +', lambda a: +a,       1, 4, 1, 'func'),
     Token(smbs.sv['implicit'], lambda a, b: a * b, 2, 3, 1, 'oper'),
 
     # Default tokens
