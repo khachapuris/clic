@@ -1,5 +1,6 @@
 from calculator import Calculator
 import curses
+import symbols as smbs
 
 
 class Display:
@@ -14,7 +15,7 @@ class Display:
         self.scr = stdscr
         self.pad = curses.newpad(3, 500)
         self.ctor = Calculator()
-        self.exp = '1 +{3^2 + 4^2/5^2}*{2/3}'
+        self.exp = '"Comment: {, /, and }"; 1 +{3^2 + 4^2/5^2}*{2/3}'
         self.cursor = 4
 
     @staticmethod
@@ -43,44 +44,61 @@ class Display:
         mask = []
         bars = []
         # "part" is a numerator / denomenator / text between fractions
-        a = 0  # length of the current part
-        b = 0  # length of the previous part
-        x = 0  # x coordinate of the start of current part
+        curr = 0  # current part length
+        last = 0  # previous part length
+        x = 0  # x coordinate of current part start
+        in_string = False
+
+        def add_chars(line, start, length):
+            """Add character positions to the mask.
+
+            Arguments:
+            line -- the y coordinate of the characters,
+            start -- the start of the character sequence,
+            length -- the number of characters to add.
+            """
+            nonlocal mask
+            # Ordinary characters
+            mask += [(line, start + i, 1) for i in range(length)]
+            # Control character
+            mask += [(line, start + length, 0)]
+
+        def new_part():
+            """Start a new part."""
+            nonlocal curr
+            nonlocal last
+            last, curr = curr, 0
 
         for char in exp:
-
-            # Start a fraction:
-            if char == '{':
-                # add the coordinates of each character of current part
-                mask += [(1, x + i) for i in range(a + 1)]
-                # move on to the left
-                x += a + 1
-                # start a new part
-                a, b = 0, a
-
-            # Move from the numerator to the denomenator:
+            # Quote
+            if char == smbs.cc['quote']:
+                in_string = not in_string
+                curr += 1
+            # Calculator string
+            elif in_string:
+                curr += 1
+            # Fraction start
+            elif char == '{':
+                add_chars(1, x, curr)
+                x += curr + 1
+                new_part()
+            # Fraction bar
             elif char == '/':
-                # start a new part
-                a, b = 0, a
-
-            # Finish current fraction:
+                new_part()
+            # Fraction end
             elif char == '}':
-                w = max(a, b)  # the width of the whole fraction
-                # add the coordinates of each character of the fraction
-                mask += [(0, x + (w - b) // 2 + i) for i in range(b + 1)]
-                mask += [(2, x + (w - a) // 2 + i) for i in range(a + 1)]
+                w = max(curr, last)  # the width of the whole fraction
+                add_chars(0, x + (w - last) // 2, last)
+                add_chars(2, x + (w - curr) // 2, curr)
                 bars += [(x, w)]
-                # move on to the left
                 x += w + 1
-                # start a new part
-                a, b = 0, a
-
-            # Add a character to current part
+                new_part()
+            # Other characters
             else:
-                a += 1
+                curr += 1
 
         # Finish the last part
-        mask += [(1, x + i) for i in range(a)]
+        add_chars(1, x, curr)
         return mask, bars
 
     def update_pad(self, exp, mask, bars):
@@ -92,9 +110,9 @@ class Display:
         """
         self.pad.clear()
         for i in range(len(exp)):
-            y, x = mask[i]
+            y, x, printable = mask[i]
             char = exp[i]
-            if char not in '{/}':
+            if printable:
                 self.pad.addstr(y, x, char)
         for i in range(len(bars)):
             bar = bars[i]
@@ -114,7 +132,7 @@ class Display:
         mask, bars = self.mask(self.exp)
         self.update_pad(self.exp, mask, bars)
         self.scr.refresh()
-        y1, x1 = mask[self.cursor]
+        y1, x1, printable = mask[self.cursor]
         screen_width = xmax - left - right
         if x1 > screen_width:
             padstart = x1 - screen_width + 1
