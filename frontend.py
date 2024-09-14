@@ -1,6 +1,8 @@
 from calculator import Calculator
-import curses
 import symbols as smbs
+
+import curses
+import sys
 
 
 class Display:
@@ -15,7 +17,7 @@ class Display:
         self.scr = stdscr
         self.pad = curses.newpad(3, 500)
         self.ctor = Calculator()
-        self.exp = '"Comment: {, /, and }"; 1 +{3^2 + 4^2/5^2}*{2/3}'
+        self.exp = '"Comment: {, /, and }"; 1 +{3^2 + 4^2/5^2}*{2/3}-12'
         self.cursor = 4
 
     @staticmethod
@@ -23,7 +25,7 @@ class Display:
         """Return the results of remainder division of a by b."""
         return a // b, a % b
 
-    def println(self, y, left, center, right):
+    def println(self, y, left='', center='', right=''):
         """Print a line on the screen.
 
         Arguments:
@@ -142,11 +144,31 @@ class Display:
             self.pad.refresh(0, 0, y, left, y + 2, xmax - right - 1)
             self.scr.move(y + y1, x1 + left)
 
+    def process_input(self, key):
+        c = self.cursor
+        if key == 'KEY_BACKSPACE':
+            if self.cursor:
+                self.exp = self.exp[:c-1] + self.exp[c:]
+                self.cursor -= 1
+        elif key == 'KEY_LEFT':
+            if self.cursor:
+                self.cursor -= 1
+        elif key == 'KEY_RIGHT':
+            if self.cursor < len(self.exp):
+                self.cursor += 1
+        elif key == '\n':
+            sys.exit()
+        elif len(key) == 1:
+            self.exp = self.exp[:c] + key + self.exp[c:]
+            self.cursor += 1
+
     def main(self):
-        self.println(0, 'some left-aligned text', 'NAME', 'smth else')
-        self.println(-3, 'just text', 'help?', 'more text...')
-        self.print_expression(5, 2, 2)
-        self.scr.getkey()
+        while True:
+            self.println(0, center='clic')
+            self.println(-3, left='Welcome to clic!')
+            self.print_expression(5, 2, 2)
+            inp = self.scr.getkey()
+            self.process_input(inp)
 
 
 if __name__ == '__main__':
