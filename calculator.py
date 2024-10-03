@@ -322,6 +322,7 @@ class Calculator:
 
 
 if __name__ == '__main__':
+    import readline
     ctor = Calculator()
     while True:
         exp = input('% ')
