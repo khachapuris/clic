@@ -17,8 +17,9 @@ class Display:
         self.scr = stdscr
         self.pad = curses.newpad(3, 500)
         self.ctor = Calculator()
-        self.exp = '"Comment: {, /, and }"; 1 +{3^2 + 4^2/5^2}*{2/3}-12'
+        self.exp = '{123/456}'
         self.cursor = 4
+        self.update_mask_bars(self.exp)
 
     @staticmethod
     def divide(a, b):
@@ -41,29 +42,28 @@ class Display:
         string = ' ' + left + left_gap + center + right_gap + right + ' '
         self.scr.addstr(y, 0, string, curses.A_REVERSE)
 
-    def mask(self, exp):
-        """Return the positions of characters in exp."""
-        mask = []
-        bars = []
+    def update_mask_bars(self, exp):
+        """Update the mask and bars according to exp."""
+        self.mask = []
+        self.bars = []
         # "part" is a numerator / denomenator / text between fractions
         curr = 0  # current part length
         last = 0  # previous part length
         x = 0  # x coordinate of current part start
         in_string = False
 
-        def add_chars(line, start, length):
+        def add_part(line, start, length):
             """Add character positions to the mask.
 
             Arguments:
-            line -- the y coordinate of the characters,
-            start -- the start of the character sequence,
-            length -- the number of characters to add.
+            line -- the y coordinate of the part,
+            start -- x coordinate of the part start,
+            length -- the length of the part.
             """
-            nonlocal mask
             # Ordinary characters
-            mask += [(line, start + i, 1) for i in range(length)]
+            self.mask += [(line, start + i, 1) for i in range(length)]
             # Control character
-            mask += [(line, start + length, 0)]
+            self.mask += [(line, start + length, 0)]
 
         def new_part():
             """Start a new part."""
@@ -81,7 +81,7 @@ class Display:
                 curr += 1
             # Fraction start
             elif char == '{':
-                add_chars(1, x, curr)
+                add_part(1, x, curr)
                 x += curr + 1
                 new_part()
             # Fraction bar
@@ -90,20 +90,18 @@ class Display:
             # Fraction end
             elif char == '}':
                 w = max(curr, last)  # the width of the whole fraction
-                add_chars(0, x + (w - last) // 2, last)
-                add_chars(2, x + (w - curr) // 2, curr)
-                bars += [(x, w)]
+                add_part(0, x + (w - last) // 2, last)
+                add_part(2, x + (w - curr) // 2, curr)
+                self.bars += [(x, w)]
                 x += w + 1
                 new_part()
             # Other characters
             else:
                 curr += 1
+        # Add the last part
+        add_part(1, x, curr)
 
-        # Finish the last part
-        add_chars(1, x, curr)
-        return mask, bars
-
-    def update_pad(self, exp, mask, bars):
+    def update_pad(self, exp):
         """Update the expression pad.
 
         Arguments:
@@ -112,15 +110,15 @@ class Display:
         """
         self.pad.clear()
         for i in range(len(exp)):
-            y, x, printable = mask[i]
+            y, x, printable = self.mask[i]
             char = exp[i]
             if printable:
                 self.pad.addstr(y, x, char)
-        for i in range(len(bars)):
-            bar = bars[i]
+        for i in range(len(self.bars)):
+            bar = self.bars[i]
             self.pad.addstr(1, bar[0], '─' * bar[1])
 
-    def print_expression(self, y, left, right):
+    def print_exp(self, y, left, right):
         """Print the expression on the screen.
 
         Arguments:
@@ -131,10 +129,8 @@ class Display:
         """
         ymax, xmax = self.scr.getmaxyx()
         y %= ymax  # support negative values of y
-        mask, bars = self.mask(self.exp)
-        self.update_pad(self.exp, mask, bars)
         self.scr.refresh()
-        y1, x1, printable = mask[self.cursor]
+        y1, x1, printable = self.mask[self.cursor]
         screen_width = xmax - left - right
         if x1 > screen_width:
             padstart = x1 - screen_width + 1
@@ -146,9 +142,18 @@ class Display:
 
     def process_input(self, key):
         c = self.cursor
+
+        def printable(i):
+            if i > len(self.exp):
+                return 9
+            return self.mask[i][2]
+
         if key == 'KEY_BACKSPACE':
             if self.cursor:
-                self.exp = self.exp[:c-1] + self.exp[c:]
+                if printable(c-1) + printable(c) + printable(c+1) == 0:
+                    self.exp = self.exp[:c-1] + self.exp[c+2:]
+                if printable(c-1):
+                    self.exp = self.exp[:c-1] + self.exp[c:]
                 self.cursor -= 1
         elif key == 'KEY_LEFT':
             if self.cursor:
@@ -164,9 +169,11 @@ class Display:
 
     def main(self):
         while True:
+            self.update_mask_bars(self.exp)
             self.println(0, center='clic')
-            self.println(-3, left='Welcome to clic!')
-            self.print_expression(5, 2, 2)
+            self.println(-3, left='Welcome to clic calculator!')
+            self.update_pad(self.exp)
+            self.print_exp(5, 2, 2)
             inp = self.scr.getkey()
             self.process_input(inp)
 
