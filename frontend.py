@@ -17,8 +17,8 @@ class Display:
         self.scr = stdscr
         self.pad = curses.newpad(3, 500)
         self.ctor = Calculator()
-        self.exp = '{123/456}'
-        self.cursor = 4
+        self.exp = '{/}'
+        self.cursor = 0
         self.update_mask_bars(self.exp)
 
     @staticmethod
@@ -92,6 +92,9 @@ class Display:
                 w = max(curr, last)  # the width of the whole fraction
                 add_part(0, x + (w - last) // 2, last)
                 add_part(2, x + (w - curr) // 2, curr)
+                # Empty fractions
+                if w == 0:
+                    w = 1
                 self.bars += [(x, w)]
                 x += w + 1
                 new_part()
@@ -150,9 +153,9 @@ class Display:
 
         if key == 'KEY_BACKSPACE':
             if self.cursor:
-                if printable(c-1) + printable(c) + printable(c+1) == 0:
+                if printable(c-2) + printable(c-1) + printable(c) == 0:
                     self.exp = self.exp[:c-1] + self.exp[c+2:]
-                if printable(c-1):
+                elif printable(c-1):
                     self.exp = self.exp[:c-1] + self.exp[c:]
                 self.cursor -= 1
         elif key == 'KEY_LEFT':
