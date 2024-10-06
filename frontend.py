@@ -44,6 +44,7 @@ class Display:
 
     def update_mask_bars(self, exp):
         """Update the mask and bars according to exp."""
+        # NOTE: the mask has one character more than the expression
         self.mask = []
         self.bars = []
         # "part" is a numerator / denomenator / text between fractions
@@ -115,8 +116,8 @@ class Display:
         for i in range(len(exp)):
             y, x, printable = self.mask[i]
             char = exp[i]
-            if printable:
-                self.pad.addstr(y, x, char)
+            # if printable:
+            self.pad.addstr(y, x, char)
         for i in range(len(self.bars)):
             bar = self.bars[i]
             self.pad.addstr(1, bar[0], '─' * bar[1])
@@ -147,13 +148,13 @@ class Display:
         c = self.cursor
 
         def printable(i):
-            if i > len(self.exp):
+            if i >= len(self.exp):
                 return 9
             return self.mask[i][2]
 
         if key == 'KEY_BACKSPACE':
             if self.cursor:
-                if printable(c-2) + printable(c-1) + printable(c) == 0:
+                if printable(c-1) + printable(c) + printable(c+1) == 0:
                     self.exp = self.exp[:c-1] + self.exp[c+2:]
                 elif printable(c-1):
                     self.exp = self.exp[:c-1] + self.exp[c:]
@@ -164,6 +165,9 @@ class Display:
         elif key == 'KEY_RIGHT':
             if self.cursor < len(self.exp):
                 self.cursor += 1
+        elif key == '/':
+            self.exp = self.exp[:c] + '{/}' + self.exp[c:]
+            self.cursor += 1
         elif key == '\n':
             sys.exit()
         elif len(key) == 1:
