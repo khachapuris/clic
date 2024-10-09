@@ -42,6 +42,19 @@ class Display:
         string = ' ' + left + left_gap + center + right_gap + right + ' '
         self.scr.addstr(y, 0, string, curses.A_REVERSE)
 
+    def add_part(self, line, start, length):
+        """Add character positions to the mask.
+
+        Arguments:
+        line -- the y coordinate of the part,
+        start -- x coordinate of the part start,
+        length -- the length of the part.
+        """
+        # Ordinary characters
+        self.mask += [(line, start + i, 1) for i in range(length)]
+        # Control character
+        self.mask += [(line, start + length, 0)]
+
     def update_mask_bars(self, exp):
         """Update the mask and bars according to exp."""
         # NOTE: the mask has one character more than the expression
@@ -67,18 +80,10 @@ class Display:
             else:
                 parts[3] += 1
 
-        def add_part(line, start, length):
-            """Add character positions to the mask.
-
-            Arguments:
-            line -- the y coordinate of the part,
-            start -- x coordinate of the part start,
-            length -- the length of the part.
-            """
-            # Ordinary characters
-            self.mask += [(line, start + i, 1) for i in range(length)]
-            # Control character
-            self.mask += [(line, start + length, 0)]
+        def append_undefined(place):
+            """Append the undefined part into place."""
+            parts[place] += parts[3]
+            parts[3] = 0
 
         for char in exp:
             # Quote
@@ -93,16 +98,15 @@ class Display:
                 pthsis += 1
             # Fraction bar
             elif char == '/' and pthsis == 1:
-                parts[0] += parts[3]
-                parts[3] = 0
+                append_undefined(0)
                 curr = 2
             # Fraction end
             elif char == ')' and pthsis == 1 and curr == 2:
-                add_part(1, x, parts[1])
+                self.add_part(1, x, parts[1])
                 x += parts[1] + 1
                 w = max(parts[0], parts[2])  # the width of the whole fraction
-                add_part(0, x + (w - parts[0]) // 2, parts[0])
-                add_part(2, x + (w - parts[2]) // 2, parts[2])
+                self.add_part(0, x + (w - parts[0]) // 2, parts[0])
+                self.add_part(2, x + (w - parts[2]) // 2, parts[2])
                 # Empty fractions
                 if w == 0:
                     w = 1
@@ -115,13 +119,12 @@ class Display:
                 pthsis -= 1
                 parts[3] += 2
                 if pthsis == 0 or curr == 2:
-                    parts[curr] += parts[3]
-                    parts[3] = 0
+                    append_undefined(curr)
             # Other characters
             else:
                 increment()
         # Add the last part
-        add_part(1, x, parts[1] + parts[3])
+        self.add_part(1, x, parts[1] + parts[3] + 1)
 
     def update_pad(self, exp):
         """Update the expression pad.
