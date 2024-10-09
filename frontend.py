@@ -17,7 +17,7 @@ class Display:
         self.scr = stdscr
         self.pad = curses.newpad(3, 500)
         self.ctor = Calculator()
-        self.exp = '{/}'
+        self.exp = '(1200000/280)-(23/456)+ (10 - 2)'
         self.cursor = 0
         self.update_mask_bars(self.exp)
 
@@ -47,11 +47,21 @@ class Display:
         # NOTE: the mask has one character more than the expression
         self.mask = []
         self.bars = []
-        # "part" is a numerator / denomenator / text between fractions
-        curr = 0  # current part length
-        last = 0  # previous part length
+        # "part" is an expression fragment placed on the same level
+        parts = [0, 0, 0, 0]
+        curr = 1
+        undefined = False
         x = 0  # x coordinate of current part start
         in_string = False
+        pthsis = 0
+
+        def increment():
+            """Increment current part length."""
+            nonlocal parts
+            if undefined:
+                parts[3] += 1
+            else:
+                parts[curr] += 1
 
         def add_part(line, start, length):
             """Add character positions to the mask.
@@ -66,44 +76,52 @@ class Display:
             # Control character
             self.mask += [(line, start + length, 0)]
 
-        def new_part():
-            """Start a new part."""
-            nonlocal curr
-            nonlocal last
-            last, curr = curr, 0
-
         for char in exp:
             # Quote
             if char == smbs.cc['quote']:
                 in_string = not in_string
-                curr += 1
+                parts[curr] += 1
             # Calculator string
             elif in_string:
-                curr += 1
-            # Fraction start
-            elif char == '{':
-                add_part(1, x, curr)
-                x += curr + 1
-                new_part()
+                increment()
+            # Possible start of a fraction
+            elif char == '(' and curr == 1:
+                undefined = True
+                parts[curr] += parts[3]
+                parts[3] = 0
+                pthsis += 1
+            # Opening parenthesis
+            elif char == '(':
+                pthsis += 1
             # Fraction bar
-            elif char == '/':
-                new_part()
+            elif char == '/' and undefined:
+                undefined = False
+                parts[0] += parts[3]
+                parts[3] = 0
+                curr = 2
             # Fraction end
-            elif char == '}':
-                w = max(curr, last)  # the width of the whole fraction
-                add_part(0, x + (w - last) // 2, last)
-                add_part(2, x + (w - curr) // 2, curr)
+            elif char == ')' and curr == 2 and pthsis == 1:
+                add_part(1, x, parts[1])
+                x += parts[1] + 1
+                w = max(parts[0], parts[2])  # the width of the whole fraction
+                add_part(0, x + (w - parts[0]) // 2, parts[0])
+                add_part(2, x + (w - parts[2]) // 2, parts[2])
                 # Empty fractions
                 if w == 0:
                     w = 1
                 self.bars += [(x, w)]
                 x += w + 1
-                new_part()
+                parts = [0, 0, 0, 0]
+                pthsis = 0
+                curr = 1
+            elif char == ')':
+                pthsis -= 1
+                parts[curr] += 2
             # Other characters
             else:
-                curr += 1
+                increment()
         # Add the last part
-        add_part(1, x, curr)
+        add_part(1, x, parts[1] + 10)
 
     def update_pad(self, exp):
         """Update the expression pad.
@@ -116,8 +134,8 @@ class Display:
         for i in range(len(exp)):
             y, x, printable = self.mask[i]
             char = exp[i]
-            # if printable:
-            self.pad.addstr(y, x, char)
+            if printable:
+                self.pad.addstr(y, x, char)
         for i in range(len(self.bars)):
             bar = self.bars[i]
             self.pad.addstr(1, bar[0], '─' * bar[1])
@@ -166,7 +184,7 @@ class Display:
             if self.cursor < len(self.exp):
                 self.cursor += 1
         elif key == '/':
-            self.exp = self.exp[:c] + '{/}' + self.exp[c:]
+            self.exp = self.exp[:c] + '(/)' + self.exp[c:]
             self.cursor += 1
         elif key == '\n':
             sys.exit()
