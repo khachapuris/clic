@@ -17,7 +17,7 @@ class Display:
         self.scr = stdscr
         self.pad = curses.newpad(3, 500)
         self.ctor = Calculator()
-        self.exp = '(1200000/280)-(23/456)+ (10 - 2)'
+        self.exp = '(pre)more(hello(hi)/goodbye(bye))post(smth)'
         self.cursor = 0
         self.update_mask_bars(self.exp)
 
@@ -50,7 +50,6 @@ class Display:
         # "part" is an expression fragment placed on the same level
         parts = [0, 0, 0, 0]
         curr = 1
-        undefined = False
         x = 0  # x coordinate of current part start
         in_string = False
         pthsis = 0
@@ -58,10 +57,15 @@ class Display:
         def increment():
             """Increment current part length."""
             nonlocal parts
-            if undefined:
-                parts[3] += 1
+            if pthsis == 0:
+                parts[1] += 1
+            elif pthsis == 1:
+                if curr == 2:
+                    parts[2] += 1
+                else:
+                    parts[3] += 1
             else:
-                parts[curr] += 1
+                parts[3] += 1
 
         def add_part(line, start, length):
             """Add character positions to the mask.
@@ -80,27 +84,20 @@ class Display:
             # Quote
             if char == smbs.cc['quote']:
                 in_string = not in_string
-                parts[curr] += 1
+                increment()
             # Calculator string
             elif in_string:
                 increment()
-            # Possible start of a fraction
-            elif char == '(' and curr == 1:
-                undefined = True
-                parts[curr] += parts[3]
-                parts[3] = 0
-                pthsis += 1
             # Opening parenthesis
             elif char == '(':
                 pthsis += 1
             # Fraction bar
-            elif char == '/' and undefined:
-                undefined = False
+            elif char == '/' and pthsis == 1:
                 parts[0] += parts[3]
                 parts[3] = 0
                 curr = 2
             # Fraction end
-            elif char == ')' and curr == 2 and pthsis == 1:
+            elif char == ')' and pthsis == 1 and curr == 2:
                 add_part(1, x, parts[1])
                 x += parts[1] + 1
                 w = max(parts[0], parts[2])  # the width of the whole fraction
@@ -116,12 +113,15 @@ class Display:
                 curr = 1
             elif char == ')':
                 pthsis -= 1
-                parts[curr] += 2
+                parts[3] += 2
+                if pthsis == 0 or curr == 2:
+                    parts[curr] += parts[3]
+                    parts[3] = 0
             # Other characters
             else:
                 increment()
         # Add the last part
-        add_part(1, x, parts[1] + 10)
+        add_part(1, x, parts[1] + parts[3])
 
     def update_pad(self, exp):
         """Update the expression pad.
@@ -136,6 +136,7 @@ class Display:
             char = exp[i]
             if printable:
                 self.pad.addstr(y, x, char)
+            self.pad.addstr(y, x, char)
         for i in range(len(self.bars)):
             bar = self.bars[i]
             self.pad.addstr(1, bar[0], '─' * bar[1])
