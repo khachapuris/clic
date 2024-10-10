@@ -57,14 +57,13 @@ class Display:
 
     def update_mask_bars(self, exp):
         """Update the mask and bars according to exp."""
-        # NOTE: the mask has one character more than the expression
         self.mask = []
         self.bars = []
         # "part" is an expression fragment placed on the same level
-        parts = [0, 0, 0, 0]
-        curr = 1
+        parts = [0, -1, 0, 0]
         x = 0  # x coordinate of current part start
         in_string = False
+        in_fraction = False
         pthsis = 0
 
         def increment():
@@ -73,7 +72,7 @@ class Display:
             if pthsis == 0:
                 parts[1] += 1
             elif pthsis == 1:
-                if curr == 2:
+                if in_fraction:
                     parts[2] += 1
                 else:
                     parts[3] += 1
@@ -95,36 +94,42 @@ class Display:
                 increment()
             # Opening parenthesis
             elif char == '(':
+                increment()
                 pthsis += 1
             # Fraction bar
             elif char == '/' and pthsis == 1:
                 append_undefined(0)
-                curr = 2
+                in_fraction = True
             # Fraction end
-            elif char == ')' and pthsis == 1 and curr == 2:
+            elif char == ')' and pthsis == 1 and in_fraction:
+                # Print middle part before fraction
                 self.add_part(1, x, parts[1])
                 x += parts[1] + 1
+                # Print fraction
                 w = max(parts[0], parts[2])  # the width of the whole fraction
                 self.add_part(0, x + (w - parts[0]) // 2, parts[0])
                 self.add_part(2, x + (w - parts[2]) // 2, parts[2])
-                # Empty fractions
-                if w == 0:
+                if w == 0:  # empty fractions
                     w = 1
                 self.bars += [(x, w)]
+                # Initialize parameters
                 x += w + 1
-                parts = [0, 0, 0, 0]
+                parts = [0, -1, 0, 0]
+                in_fraction = False
                 pthsis = 0
-                curr = 1
+            # Closing parenthesis
             elif char == ')':
+                increment()
                 pthsis -= 1
-                parts[3] += 2
-                if pthsis == 0 or curr == 2:
-                    append_undefined(curr)
+                if pthsis == 0:
+                    append_undefined(1)
+                elif pthsis == 1 and in_fraction:
+                    append_undefined(2)
             # Other characters
             else:
                 increment()
         # Add the last part
-        self.add_part(1, x, parts[1] + parts[3] + 1)
+        self.add_part(1, x, sum(parts) + 1)
 
     def update_pad(self, exp):
         """Update the expression pad.
