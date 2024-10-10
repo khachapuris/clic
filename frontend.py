@@ -197,11 +197,23 @@ class Display:
         elif key == '\n':
             if not printable(c):
                 self.cursor += 1
-            elif not self.showans:
+            elif not printable(c + 1):
+                self.cursor += 2
+            elif self.showans:
+                self.exp = ''
+                self.cursor = 0
+                self.showans = False
+            else:
                 self.showans = True
                 self.ctor.calculate(self.exp)
         elif key == '\\':
             sys.exit()
+        elif key == '(':
+            self.exp = self.exp[:c] + '()' + self.exp[c:]
+            self.cursor += 1
+        elif key == '"':
+            self.exp = self.exp[:c] + '""' + self.exp[c:]
+            self.cursor += 1
         elif len(key) == 1:
             self.exp = self.exp[:c] + key + self.exp[c:]
             self.cursor += 1
