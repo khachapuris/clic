@@ -2,6 +2,7 @@ from calculator import Calculator
 import symbols as smbs
 
 import curses
+import curses.ascii as cascii
 import sys
 
 
@@ -17,8 +18,9 @@ class Display:
         self.scr = stdscr
         self.pad = curses.newpad(3, 500)
         self.ctor = Calculator()
-        self.exp = '(pre)more(hello(hi)/goodbye(bye))post(smth)'
+        self.exp = ''
         self.cursor = 0
+        self.showans = False
         self.update_mask_bars(self.exp)
 
     @staticmethod
@@ -132,7 +134,10 @@ class Display:
             char = exp[i]
             if printable:
                 self.pad.addstr(y, x, char)
-            self.pad.addstr(y, x, char)
+            # self.pad.addstr(y, x, char)  # DEBUG
+        if self.showans:
+            y, x, printable = self.mask[-1]
+            self.pad.addstr(y, x, ' = ' + self.ctor.get_answer()[1])
         for i in range(len(self.bars)):
             bar = self.bars[i]
             self.pad.addstr(1, bar[0], '─' * bar[1])
@@ -158,6 +163,10 @@ class Display:
         else:
             self.pad.refresh(0, 0, y, left, y + 2, xmax - right - 1)
             self.scr.move(y + y1, x1 + left)
+        if self.showans:
+            curses.curs_set(0)
+        else:
+            curses.curs_set(2)
 
     def process_input(self, key):
         c = self.cursor
@@ -168,7 +177,9 @@ class Display:
             return self.mask[i][2]
 
         if key == 'KEY_BACKSPACE':
-            if self.cursor:
+            if self.showans:
+                self.showans = False
+            elif self.cursor:
                 if printable(c-1) + printable(c) + printable(c+1) == 0:
                     self.exp = self.exp[:c-1] + self.exp[c+2:]
                 elif printable(c-1):
@@ -184,6 +195,12 @@ class Display:
             self.exp = self.exp[:c] + '(/)' + self.exp[c:]
             self.cursor += 1
         elif key == '\n':
+            if not printable(c):
+                self.cursor += 1
+            elif not self.showans:
+                self.showans = True
+                self.ctor.calculate(self.exp)
+        elif key == '\\':
             sys.exit()
         elif len(key) == 1:
             self.exp = self.exp[:c] + key + self.exp[c:]
