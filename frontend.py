@@ -60,24 +60,11 @@ class Display:
         self.mask = []
         self.bars = []
         # "part" is an expression fragment placed on the same level
-        parts = [0, -1, 0, 0]
+        parts = [-1, -1, -1, 0]
         x = 0  # x coordinate of current part start
         in_string = False
         in_fraction = False
         pthsis = 0
-
-        def increment():
-            """Increment current part length."""
-            nonlocal parts
-            if pthsis == 0:
-                parts[1] += 1
-            elif pthsis == 1:
-                if in_fraction:
-                    parts[2] += 1
-                else:
-                    parts[3] += 1
-            else:
-                parts[3] += 1
 
         def append_undefined(place):
             """Append the undefined part into place."""
@@ -85,16 +72,21 @@ class Display:
             parts[3] = 0
 
         for char in exp:
+            # Increment current part length
+            if pthsis == 0:
+                parts[1] += 1
+            elif pthsis == 1 and in_fraction:
+                parts[2] += 1
+            else:
+                parts[3] += 1
             # Quote
             if char == smbs.cc['quote']:
                 in_string = not in_string
-                increment()
             # Calculator string
             elif in_string:
-                increment()
+                pass
             # Opening parenthesis
             elif char == '(':
-                increment()
                 pthsis += 1
             # Fraction bar
             elif char == '/' and pthsis == 1:
@@ -114,22 +106,18 @@ class Display:
                 self.bars += [(x, w)]
                 # Initialize parameters
                 x += w + 1
-                parts = [0, -1, 0, 0]
+                parts = [-1, -1, -1, 0]
                 in_fraction = False
                 pthsis = 0
             # Closing parenthesis
             elif char == ')':
-                increment()
                 pthsis -= 1
                 if pthsis == 0:
                     append_undefined(1)
                 elif pthsis == 1 and in_fraction:
                     append_undefined(2)
-            # Other characters
-            else:
-                increment()
         # Add the last part
-        self.add_part(1, x, sum(parts) + 1)
+        self.add_part(1, x, sum(parts) + 3)
 
     def update_pad(self, exp):
         """Update the expression pad.
