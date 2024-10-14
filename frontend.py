@@ -23,6 +23,18 @@ class Display:
         self.showans = False
         self.update_mask_bars(self.exp)
 
+    def format_exp(self):
+        smb_str = '(/)'
+        smb_num = 0
+        ans = ''
+        for char in self.exp:
+            if char == '\\':
+                ans += smb_str[smb_num]
+                smb_num = (smb_num + 1) % 3
+                continue
+            ans += char
+        return ans
+
     @staticmethod
     def divide(a, b):
         """Return the results of remainder division of a by b."""
@@ -62,40 +74,15 @@ class Display:
         self.mask = []
         self.bars = []
         # "part" is an expression fragment placed on the same level
-        parts = [-1, -1, -1, 0]
+        parts = [-1, -1, -1]
         x = 0  # x coordinate of current part start
-        in_string = False
-        in_fraction = False
-        pthsis = 0
-
-        def append_undefined(place):
-            """Append the undefined part into place."""
-            parts[place] += parts[3]
-            parts[3] = 0
+        curr_part = 1
 
         for char in exp:
             # Increment current part length
-            if pthsis == 0:
-                parts[1] += 1
-            elif pthsis == 1 and in_fraction:
-                parts[2] += 1
-            else:
-                parts[3] += 1
-            # Quote
-            if char == smbs.cc['quote']:
-                in_string = not in_string
-            # Calculator string
-            elif in_string:
-                pass
-            # Opening parenthesis
-            elif char == '(':
-                pthsis += 1
-            # Fraction bar
-            elif char == '/' and pthsis == 1:
-                append_undefined(0)
-                in_fraction = True
-            # Fraction end
-            elif char == ')' and pthsis == 1 and in_fraction:
+            parts[curr_part] += 1
+            # Print out the fraction
+            if char == '\\' and curr_part == 2:
                 # Print middle part before fraction
                 self.add_part(1, x, parts[1])
                 x += parts[1] + 1
@@ -108,16 +95,10 @@ class Display:
                 self.bars += [(x, w)]
                 # Initialize parameters
                 x += w + 1
-                parts = [-1, -1, -1, 0]
-                in_fraction = False
-                pthsis = 0
-            # Closing parenthesis
-            elif char == ')':
-                pthsis -= 1
-                if pthsis == 0:
-                    append_undefined(1)
-                elif pthsis == 1 and in_fraction:
-                    append_undefined(2)
+                parts = [-1, -1, -1]
+            # Skip to next part
+            if char == '\\':
+                curr_part = (curr_part - 1) % 3
         # Add the last part
         self.add_part(1, x, sum(parts) + 3)
 
@@ -134,7 +115,7 @@ class Display:
             char = exp[i]
             if printable:
                 self.pad.addstr(y, x, char)
-            # self.pad.addstr(y, x, char)  # DEBUG
+            self.pad.addstr(y, x, char)  # DEBUG
         if self.showans:
             y, x, printable = self.mask[-1]
             self.pad.addstr(y, x, ' = ' + self.ctor.get_answer()[1])
@@ -192,7 +173,7 @@ class Display:
             if self.cursor < len(self.exp):
                 self.cursor += 1
         elif key == '/':
-            self.exp = self.exp[:c] + '(/)' + self.exp[c:]
+            self.exp = self.exp[:c] + '\\\\\\' + self.exp[c:]
             self.cursor += 1
         elif key == '\n':
             if not printable(c):
@@ -205,15 +186,9 @@ class Display:
                 self.showans = False
             else:
                 self.showans = True
-                self.ctor.calculate(self.exp)
+                self.ctor.calculate(self.format_exp())
         elif key == '\\':
             sys.exit()
-        elif key == '(':
-            self.exp = self.exp[:c] + '()' + self.exp[c:]
-            self.cursor += 1
-        elif key == '"':
-            self.exp = self.exp[:c] + '""' + self.exp[c:]
-            self.cursor += 1
         elif len(key) == 1:
             self.exp = self.exp[:c] + key + self.exp[c:]
             self.cursor += 1
