@@ -24,6 +24,7 @@ class Display:
         self.update_mask_bars(self.exp)
 
     def format_exp(self):
+        """Return the expression with clic fraction syntax."""
         smb_str = '(/)'
         smb_num = 0
         ans = ''
@@ -115,7 +116,7 @@ class Display:
             char = exp[i]
             if printable:
                 self.pad.addstr(y, x, char)
-            self.pad.addstr(y, x, char)  # DEBUG
+            # self.pad.addstr(y, x, char)  # DEBUG
         if self.showans:
             y, x, printable = self.mask[-1]
             self.pad.addstr(y, x, ' = ' + self.ctor.get_answer()[1])
@@ -197,7 +198,7 @@ class Display:
         while True:
             self.update_mask_bars(self.exp)
             self.println(0, center='clic')
-            self.println(-3, left='Welcome to clic calculator!')
+            self.println(-2, left='Welcome to clic! Press "\\" to exit, please see README.md')
             self.update_pad(self.exp)
             self.print_exp(5, 2, 2)
             inp = self.scr.getkey()
