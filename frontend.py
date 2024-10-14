@@ -17,7 +17,8 @@ class Display:
         """
         self.scr = stdscr
         self.pad = curses.newpad(3, 500)
-        self.ctor = Calculator()
+        helptext = "Welcome to clic! Press '\\' to exit, please see README.md"
+        self.ctor = Calculator({'help': helptext})
         self.exp = ''
         self.cursor = 0
         self.showans = False
@@ -198,7 +199,7 @@ class Display:
         while True:
             self.update_mask_bars(self.exp)
             self.println(0, center='clic')
-            self.println(-2, left='Welcome to clic! Press "\\" to exit, please see README.md')
+            self.println(-2, left=self.ctor.vars['help'])
             self.update_pad(self.exp)
             self.print_exp(5, 2, 2)
             inp = self.scr.getkey()

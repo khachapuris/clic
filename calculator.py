@@ -42,22 +42,21 @@ class Calculator:
     class EmptyOutputError(Exception):
         """An error to be raised for an empty output."""
 
-    def __init__(self):
+    def __init__(self, predefined=None):
         """The initialiser of the class."""
         self.err = None
         self.link = smbs.sv['ans']
         self.silent = False
-        self.reset_vars()
+        self.reset_vars(predefined)
 
-    def reset_vars(self):
-        helptext = 'This is clic calculator. '
-        helptext += smbs.cc['command'] + 'q -- quit, please see README.md'
-        self.vars = {smbs.sv['sysans']: Decimal(0), 'help': helptext}
-        self.vars |= glob_units
+    def reset_vars(self, predefined=None):
+        self.vars = {smbs.sv['sysans']: Decimal(0)}
+        if predefined:
+            self.vars.update(predefined)
+        self.vars.update(glob_units)
 
     def split(self, string):
         """Split the given string expression."""
-        replace = {'{': '(', '}': ')'}
         ans = [[]]
         space = True
         in_string = False
@@ -105,8 +104,6 @@ class Calculator:
                 new_word_if(space, smbs.standard_decsep(char))
             # Symbol:
             else:
-                if char in replace:
-                    char = replace[char]
                 new_word_if(True, char)
                 space = True
         if in_string:
@@ -322,7 +319,9 @@ class Calculator:
 
 
 if __name__ == '__main__':
-    ctor = Calculator()
+    helptext = 'This is clic calculator. '
+    helptext += smbs.cc['command'] + 'q -- quit, please see README.md'
+    ctor = Calculator({"help": helptext})
     while True:
         exp = input('% ')
         ctor.calculate(exp)
