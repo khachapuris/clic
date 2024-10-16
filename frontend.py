@@ -18,7 +18,8 @@ class Display:
         self.scr = stdscr
         self.pad = curses.newpad(3, 500)
         helptext = "Welcome to clic! Press '\\' to exit, please see README.md"
-        self.ctor = Calculator({'help': helptext})
+        title = 'clic'
+        self.ctor = Calculator({'_help': helptext, '_title': title})
         self.reset_expression()
         self.update_mask_bars(self.exp)
 
@@ -168,41 +169,42 @@ class Display:
 
         if key == 'KEY_RESIZE':
             self.scr.clear()
-        elif key == 'KEY_BACKSPACE':
-            if self.showans:
+        elif key == '\\':
+            sys.exit()
+        elif self.showans:
+            if key == 'KEY_BACKSPACE':
                 self.showans = False
-            elif self.cursor:
+            elif key == '\n':
+                self.reset_expression()
+        else:
+            if key == 'KEY_BACKSPACE' and self.cursor:
                 if printable(c-1) + printable(c) + printable(c+1) == 0:
                     self.exp = self.exp[:c-1] + self.exp[c+2:]
                 elif printable(c-1):
                     self.exp = self.exp[:c-1] + self.exp[c:]
                 self.cursor -= 1
-        elif key == 'KEY_LEFT':
-            if self.cursor:
+            elif key == 'KEY_LEFT' and self.cursor:
                 self.cursor -= 1
-        elif key == 'KEY_RIGHT':
-            if self.cursor < len(self.exp):
+            elif key == 'KEY_RIGHT' and self.cursor < len(self.exp):
                 self.cursor += 1
-        elif key == '/':
-            self.exp = self.exp[:c] + '\\\\\\' + self.exp[c:]
-            self.cursor += 1
-        elif key == '\n':
-            if not printable(c):
+            elif key == '/':
+                self.exp = self.exp[:c] + '\\\\\\' + self.exp[c:]
                 self.cursor += 1
-            elif not printable(c + 1):
-                self.cursor += 2
-            elif self.showans:
-                self.reset_expression()
-            else:
-                self.showans = True
-                self.ctor.calculate(self.format_exp())
-                if self.ctor.silent:
-                    self.reset_expression()
-        elif key == '\\':
-            sys.exit()
-        elif len(key) == 1 and not self.showans:
-            self.exp = self.exp[:c] + key + self.exp[c:]
-            self.cursor += 1
+            elif key == '\n':
+                if not self.exp:
+                    sys.exit()
+                if not printable(c):
+                    self.cursor += 1
+                elif not printable(c + 1):
+                    self.cursor += 2
+                else:
+                    self.showans = True
+                    self.ctor.calculate(self.format_exp())
+                    if self.ctor.silent:
+                        self.reset_expression()
+            elif len(key) == 1 and key.isascii():
+                self.exp = self.exp[:c] + key + self.exp[c:]
+                self.cursor += 1
 
     def main(self):
         while True:
@@ -210,8 +212,8 @@ class Display:
             if self.showans:
                 exp += ' = ' + self.ctor.get_answer()[1]
             self.update_mask_bars(exp)
-            self.println(0, center='clic')
-            self.println(-2, left=self.ctor.vars['help'])
+            self.println(0, center=self.ctor.vars['_title'])
+            self.println(-2, left=self.ctor.vars['_help'])
             self.update_pad(exp)
             self.print_exp(5, 2, 2)
             inp = self.scr.getkey()
