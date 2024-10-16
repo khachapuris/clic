@@ -154,10 +154,10 @@ class Display:
         else:
             self.pad.refresh(0, 0, y, left, y + 2, xmax - right - 1)
             self.scr.move(y + y1, x1 + left)
-        # if self.showans:
-        #     curses.curs_set(0)
-        # else:
-        #     curses.curs_set(2)
+        if self.showans:
+            curses.curs_set(0)
+        else:
+            curses.curs_set(2)
 
     def process_input(self, key):
         c = self.cursor
