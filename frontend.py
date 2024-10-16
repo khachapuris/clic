@@ -19,10 +19,13 @@ class Display:
         self.pad = curses.newpad(3, 500)
         helptext = "Welcome to clic! Press '\\' to exit, please see README.md"
         self.ctor = Calculator({'help': helptext})
+        self.reset_expression()
+        self.update_mask_bars(self.exp)
+
+    def reset_expression(self):
         self.exp = ''
         self.cursor = 0
         self.showans = False
-        self.update_mask_bars(self.exp)
 
     def format_exp(self):
         """Return the expression with clic fraction syntax."""
@@ -52,10 +55,14 @@ class Display:
         """
         ymax, xmax = self.scr.getmaxyx()
         y %= ymax  # support negative values of y
-        s, r = Display.divide(xmax - len(center) - 2, 2)
-        left_gap = ' ' * (s - len(left))
-        right_gap = ' ' * (s - len(right) + r)
-        string = ' ' + left + left_gap + center + right_gap + right + ' '
+        if center:
+            s, r = Display.divide(xmax - len(center) - 2, 2)
+            left_gap = ' ' * (s - len(left))
+            right_gap = ' ' * (s - len(right) + r)
+            string = ' ' + left + left_gap + center + right_gap + right + ' '
+        else:
+            gap = ' ' * (xmax - len(left) - len(right) - 2)
+            string = ' ' + left + gap + right + ' '
         self.scr.addstr(y, 0, string, curses.A_REVERSE)
 
     def add_part(self, line, start, length):
@@ -103,6 +110,7 @@ class Display:
                 curr_part = (curr_part - 1) % 3
         # Add the last part
         self.add_part(1, x, sum(parts) + 3)
+        x += sum(parts) + 3
 
     def update_pad(self, exp):
         """Update the expression pad.
@@ -118,9 +126,6 @@ class Display:
             if printable:
                 self.pad.addstr(y, x, char)
             # self.pad.addstr(y, x, char)  # DEBUG
-        if self.showans:
-            y, x, printable = self.mask[-1]
-            self.pad.addstr(y, x, ' = ' + self.ctor.get_answer()[1])
         for i in range(len(self.bars)):
             bar = self.bars[i]
             self.pad.addstr(1, bar[0], '─' * bar[1])
@@ -138,6 +143,8 @@ class Display:
         y %= ymax  # support negative values of y
         self.scr.refresh()
         y1, x1, printable = self.mask[self.cursor]
+        if self.showans:
+            y1, x1, printable = self.mask[-1]
         screen_width = xmax - left - right
         if x1 > screen_width:
             padstart = x1 - screen_width + 1
@@ -159,7 +166,9 @@ class Display:
                 return 9
             return self.mask[i][2]
 
-        if key == 'KEY_BACKSPACE':
+        if key == 'KEY_RESIZE':
+            self.scr.clear()
+        elif key == 'KEY_BACKSPACE':
             if self.showans:
                 self.showans = False
             elif self.cursor:
@@ -183,24 +192,27 @@ class Display:
             elif not printable(c + 1):
                 self.cursor += 2
             elif self.showans:
-                self.exp = ''
-                self.cursor = 0
-                self.showans = False
+                self.reset_expression()
             else:
                 self.showans = True
                 self.ctor.calculate(self.format_exp())
+                if self.ctor.silent:
+                    self.reset_expression()
         elif key == '\\':
             sys.exit()
-        elif len(key) == 1:
+        elif len(key) == 1 and not self.showans:
             self.exp = self.exp[:c] + key + self.exp[c:]
             self.cursor += 1
 
     def main(self):
         while True:
-            self.update_mask_bars(self.exp)
+            exp = self.exp
+            if self.showans:
+                exp += ' = ' + self.ctor.get_answer()[1]
+            self.update_mask_bars(exp)
             self.println(0, center='clic')
             self.println(-2, left=self.ctor.vars['help'])
-            self.update_pad(self.exp)
+            self.update_pad(exp)
             self.print_exp(5, 2, 2)
             inp = self.scr.getkey()
             self.process_input(inp)
