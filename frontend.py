@@ -24,6 +24,7 @@ class Display:
         self.update_mask_bars(self.exp)
 
     def reset_expression(self):
+        """Initialize the expression."""
         self.exp = ''
         self.cursor = 0
         self.showans = False
@@ -159,13 +160,44 @@ class Display:
         else:
             curses.curs_set(2)
 
-    def process_input(self, key):
-        c = self.cursor
+    def calculate(self):
+        """Calculate the current expression and switch to show answer mode."""
+        self.showans = True
+        self.ctor.calculate(self.format_exp())
+        if self.ctor.silent:
+            self.reset_expression()
 
-        def printable(i):
+    def process_input(self, key):
+        """Change the expression / state of the calculator according to key."""
+        c = self.cursor
+        notstart = self.cursor > 0
+        notend = self.cursor < len(self.exp)
+
+        def is_printable(i):
+            """Check whether exp[i] is printable.
+
+            Return:
+            0 -- hidden,
+            1 -- printable,
+            9 -- does not exist.
+            """
             if i >= len(self.exp):
                 return 9
             return self.mask[i][2]
+
+        def replace(x, w, text):
+            """Replace a fragment of the expression with some text.
+
+            Arguments:
+            x -- start of fragment relative to cursor,
+            w -- size of fragment,
+            text -- the text to replace the fragment with.
+            """
+            self.exp = self.exp[:c+x] + text + self.exp[c+x+w:]
+            if len(text) == 0:
+                self.cursor += x
+            else:
+                self.cursor += 1
 
         if key == 'KEY_RESIZE':
             self.scr.clear()
@@ -176,37 +208,40 @@ class Display:
                 self.showans = False
             elif key == '\n':
                 self.reset_expression()
-        elif key == 'KEY_BACKSPACE' and self.cursor:
-            if printable(c-1) + printable(c) + printable(c+1) == 0:
-                self.exp = self.exp[:c-1] + self.exp[c+2:]
-            elif printable(c-1):
-                self.exp = self.exp[:c-1] + self.exp[c:]
-            self.cursor -= 1
-        elif key == 'KEY_LEFT' and self.cursor:
-            self.cursor -= 1
-        elif key == 'KEY_RIGHT' and self.cursor < len(self.exp):
-            self.cursor += 1
-        elif key == '/':
-            self.exp = self.exp[:c] + '\\\\\\' + self.exp[c:]
-            self.cursor += 1
+        elif key == 'KEY_BACKSPACE' and notstart:
+            # Delete empty fractions from numerator
+            if is_printable(c-1) + is_printable(c) + is_printable(c+1) == 0:
+                replace(-1, 3, '')
+            # Delete printable characters
+            elif is_printable(c-1):
+                replace(-1, 1, '')
+            # Omit non-printable characters
+            else:
+                self.cursor -= 1
         elif key == '\n':
+            # Exit an empty expression with Enter
             if not self.exp:
                 sys.exit()
-            if not printable(c):
+            # Move to next part from the end of the current part
+            if not is_printable(c):
                 self.cursor += 1
-            elif not printable(c + 1):
+            elif not is_printable(c + 1):
                 self.cursor += 2
+            # Calculate expression
             else:
-                self.showans = True
-                self.ctor.calculate(self.format_exp())
-                if self.ctor.silent:
-                    self.reset_expression()
+                self.calculate()
+        elif key == 'KEY_DC' and notend:
+            replace(0, 1, '')
+        elif key == 'KEY_LEFT' and notstart:
+            self.cursor -= 1
+        elif key == 'KEY_RIGHT' and notend:
+            self.cursor += 1
+        elif key == '/':
+            replace(0, 0, '\\\\\\')
         elif key == "'":
-            self.exp = self.exp[:c] + '√' + self.exp[c:]
-            self.cursor += 1
+            replace(0, 0, '√')
         elif len(key) == 1 and key.isascii() and key.isprintable():
-            self.exp = self.exp[:c] + key + self.exp[c:]
-            self.cursor += 1
+            replace(0, 0, key)
 
     def main(self):
         while True:
