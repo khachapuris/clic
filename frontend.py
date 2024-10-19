@@ -2,7 +2,6 @@ from calculator import Calculator
 import symbols as smbs
 
 import curses
-import curses.ascii as cascii
 import sys
 
 

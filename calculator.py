@@ -16,6 +16,7 @@ from mathclasses import Quantity, Vector
 from token import Token
 import symbols as smbs
 from functions import functions as glob_func_list
+from functions import links as glob_func_link_list
 from units import units as glob_units
 
 
@@ -27,6 +28,9 @@ glob_syntax_list = [
 glob_funcs = {}
 for func in glob_func_list:
     glob_funcs.update({func.name: func})
+
+for (link, name) in glob_func_link_list:
+    glob_funcs.update({link: glob_funcs[name]})
 
 glob_syntax = {}
 for syntax in glob_syntax_list:
@@ -321,7 +325,7 @@ class Calculator:
 if __name__ == '__main__':
     helptext = 'This is clic calculator. '
     helptext += smbs.cc['command'] + 'q -- quit, please see README.md'
-    ctor = Calculator({"help": helptext})
+    ctor = Calculator({'help': helptext})
     while True:
         exp = input('% ')
         ctor.calculate(exp)
