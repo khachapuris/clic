@@ -176,35 +176,37 @@ class Display:
                 self.showans = False
             elif key == '\n':
                 self.reset_expression()
-        else:
-            if key == 'KEY_BACKSPACE' and self.cursor:
-                if printable(c-1) + printable(c) + printable(c+1) == 0:
-                    self.exp = self.exp[:c-1] + self.exp[c+2:]
-                elif printable(c-1):
-                    self.exp = self.exp[:c-1] + self.exp[c:]
-                self.cursor -= 1
-            elif key == 'KEY_LEFT' and self.cursor:
-                self.cursor -= 1
-            elif key == 'KEY_RIGHT' and self.cursor < len(self.exp):
+        elif key == 'KEY_BACKSPACE' and self.cursor:
+            if printable(c-1) + printable(c) + printable(c+1) == 0:
+                self.exp = self.exp[:c-1] + self.exp[c+2:]
+            elif printable(c-1):
+                self.exp = self.exp[:c-1] + self.exp[c:]
+            self.cursor -= 1
+        elif key == 'KEY_LEFT' and self.cursor:
+            self.cursor -= 1
+        elif key == 'KEY_RIGHT' and self.cursor < len(self.exp):
+            self.cursor += 1
+        elif key == '/':
+            self.exp = self.exp[:c] + '\\\\\\' + self.exp[c:]
+            self.cursor += 1
+        elif key == '\n':
+            if not self.exp:
+                sys.exit()
+            if not printable(c):
                 self.cursor += 1
-            elif key == '/':
-                self.exp = self.exp[:c] + '\\\\\\' + self.exp[c:]
-                self.cursor += 1
-            elif key == '\n':
-                if not self.exp:
-                    sys.exit()
-                if not printable(c):
-                    self.cursor += 1
-                elif not printable(c + 1):
-                    self.cursor += 2
-                else:
-                    self.showans = True
-                    self.ctor.calculate(self.format_exp())
-                    if self.ctor.silent:
-                        self.reset_expression()
-            elif len(key) == 1 and key.isascii():
-                self.exp = self.exp[:c] + key + self.exp[c:]
-                self.cursor += 1
+            elif not printable(c + 1):
+                self.cursor += 2
+            else:
+                self.showans = True
+                self.ctor.calculate(self.format_exp())
+                if self.ctor.silent:
+                    self.reset_expression()
+        elif key == "'":
+            self.exp = self.exp[:c] + '√' + self.exp[c:]
+            self.cursor += 1
+        elif len(key) == 1 and key.isascii() and key.isprintable():
+            self.exp = self.exp[:c] + key + self.exp[c:]
+            self.cursor += 1
 
     def main(self):
         while True:
