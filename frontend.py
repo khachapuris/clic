@@ -1,3 +1,10 @@
+"""This script contains a TUI for clic calculator.
+
+The script runs the calculator on a full screen.
+It can be used as a module and provides class Display.
+The only required python library is curses.
+"""
+
 from calculator import Calculator
 import symbols as smbs
 
