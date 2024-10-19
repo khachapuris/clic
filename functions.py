@@ -5,6 +5,7 @@ To register custom functions add corresponding tokens to the list.
 
 from token import Token
 
+from decimal import Decimal
 from mathclasses import Quantity, Vector
 import mathfunctions as mf
 
@@ -36,6 +37,15 @@ functions = [
     Token('sin ^', lambda a, b: Quantity.sin(a) ** b, 2, 3, 1, 'func'),
     Token('cos ^', lambda a, b: Quantity.cos(a) ** b, 2, 3, 1, 'func'),
     Token('tan ^', lambda a, b: Quantity.tan(a) ** b, 2, 3, 1, 'func'),
+    Token('sqrt', lambda a: a ** Decimal('0.5'),      1, 4, 1, 'func'),
 
     # Place your custom tokens here
 ]
+
+
+links = {
+    # Alternative names for tokens
+    ('√', 'sqrt'),
+    ('tg', 'tan'),
+    ('arctg', 'arctan'),
+}

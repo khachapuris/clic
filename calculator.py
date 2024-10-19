@@ -16,6 +16,7 @@ from mathclasses import Quantity, Vector
 from token import Token
 import symbols as smbs
 from functions import functions as glob_func_list
+from functions import links as glob_func_link_list
 from units import units as glob_units
 
 
@@ -27,6 +28,9 @@ glob_syntax_list = [
 glob_funcs = {}
 for func in glob_func_list:
     glob_funcs.update({func.name: func})
+
+for (link, name) in glob_func_link_list:
+    glob_funcs.update({link: glob_funcs[name]})
 
 glob_syntax = {}
 for syntax in glob_syntax_list:
@@ -42,22 +46,21 @@ class Calculator:
     class EmptyOutputError(Exception):
         """An error to be raised for an empty output."""
 
-    def __init__(self):
+    def __init__(self, predefined=None):
         """The initialiser of the class."""
         self.err = None
         self.link = smbs.sv['ans']
         self.silent = False
-        self.reset_vars()
+        self.reset_vars(predefined)
 
-    def reset_vars(self):
-        helptext = 'This is clic calculator. '
-        helptext += smbs.cc['command'] + 'q -- quit, please see README.md'
-        self.vars = {smbs.sv['sysans']: Decimal(0), 'help': helptext}
-        self.vars |= glob_units
+    def reset_vars(self, predefined=None):
+        self.vars = {smbs.sv['sysans']: Decimal(0)}
+        if predefined:
+            self.vars.update(predefined)
+        self.vars.update(glob_units)
 
     def split(self, string):
         """Split the given string expression."""
-        replace = {'{': '(', '}': ')'}
         ans = [[]]
         space = True
         in_string = False
@@ -105,8 +108,6 @@ class Calculator:
                 new_word_if(space, smbs.standard_decsep(char))
             # Symbol:
             else:
-                if char in replace:
-                    char = replace[char]
                 new_word_if(True, char)
                 space = True
         if in_string:
@@ -323,7 +324,9 @@ class Calculator:
 
 if __name__ == '__main__':
     import readline
-    ctor = Calculator()
+    helptext = 'This is clic calculator. '
+    helptext += smbs.cc['command'] + 'q -- quit, please see README.md'
+    ctor = Calculator({'help': helptext})
     while True:
         exp = input('% ')
         ctor.calculate(exp)
