@@ -183,7 +183,7 @@ class Calculator:
         return ans
 
     def complete_infix_notation(self, ls):
-        """Add ommited operators to a list of tokens."""
+        """Add omited operators to a list of tokens."""
         last = glob_syntax['(']
         ans = []
         for token in ls:

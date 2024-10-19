@@ -3,7 +3,7 @@
 # calculator characters
 cc = {
     'alpha':  '_',   # characters that behave like alphabetical
-    'decseps': '.',  # desimal separator characters
+    'decseps': '.',  # decimal separator characters
     'quote':  '"',   # start / end of a calculator string
     'expsep': ';',   # expression separator
     'command': '/',  # start of a command

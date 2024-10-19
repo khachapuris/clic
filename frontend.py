@@ -13,7 +13,7 @@ import sys
 
 
 class Display:
-    """The Display class is used for displaing the calculator."""
+    """The Display class is used for displaying the calculator."""
 
     def __init__(self, stdscr):
         """The initialiser for the class.

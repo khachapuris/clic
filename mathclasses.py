@@ -1,4 +1,4 @@
-"""This module provides mathematical classes for fixed-point calulations."""
+"""This module provides mathematical classes for fixed-point calculations."""
 
 from decimal import Decimal
 import decimal
@@ -9,7 +9,7 @@ glob_pi = Decimal('3.1415926535897932384626433833')
 
 
 class Quantity:
-    """The Quantity object stores phisical quantities."""
+    """The Quantity object stores physical quantities."""
 
     class OperationError(ArithmeticError):
         """An operation error class for quantities."""
@@ -91,7 +91,7 @@ class Quantity:
         raise Quantity.OperationError('addition of different units')
 
     def __neg__(self):
-        """Negatition of quantities."""
+        """Negation of quantities."""
         return Quantity(-self.value, self.units)
 
     def __sub__(self, other):
@@ -179,12 +179,12 @@ class Quantity:
 
     @staticmethod
     def tan(x):
-        """Return the tangene of the angle."""
+        """Return the tangent of the angle."""
         return Quantity.sin(x) / Quantity.cos(x)
 
     @staticmethod
     def cot(x):
-        """Return the cotangene of the angle."""
+        """Return the cotangent of the angle."""
         return Quantity.cos(x) / Quantity.sin(x)
 
     @staticmethod
@@ -199,7 +199,7 @@ class Quantity:
 
     @staticmethod
     def arctan(x):
-        """Return an angle with given tangene."""
+        """Return an angle with given tangent."""
         return Quantity.angle(Decimal(atan(x)))
 
 
