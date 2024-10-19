@@ -200,7 +200,7 @@ class Calculator:
                         ans += [token]
                 case ('num', 'num'):
                     ans += [token]
-                case ('var' | ')' | 'num', 'var' | '(' | 'num'):
+                case ('var' | ')' | 'num', 'var' | '(' | 'num' | 'func'):
                     ans += [glob_funcs[smbs.sv['implicit']], token]
                 case _:
                     ans += [token]
