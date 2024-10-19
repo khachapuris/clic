@@ -2,9 +2,9 @@
 
 """This script contains a calculator for calculating fixed-point expressions.
 
-The script runs the calculator with a minimal prompt and can be used for
-infix notation calculations. It can also be used as a module and provides
-class Calculator. For more details please see README.md.
+The script runs the calculator with a minimal prompt and can be used for infix
+notation calculations. It can also be used as a module and provides class
+Calculator and function minimal_prompt. For more details please see README.md.
 """
 
 import sys
@@ -313,7 +313,7 @@ class Calculator:
         output -- the error / answer (as a string).
         """
         if self.err:
-            # raise self.err
+            # raise self.err  # DEBUG
             return (True, f'{str(self.err)}')
         ans = self.vars[smbs.sv['sysans']]
         if ans is None:
@@ -322,8 +322,8 @@ class Calculator:
         return (False, ans)
 
 
-if __name__ == '__main__':
-    import readline
+def minimal_prompt():
+    """A minimal prompt for the calculator."""
     helptext = 'This is clic calculator. '
     helptext += smbs.cc['command'] + 'q -- quit, please see README.md'
     ctor = Calculator({'help': helptext})
@@ -337,4 +337,12 @@ if __name__ == '__main__':
             continue
         else:
             print(f'= {ans}')
-        # print()
+
+
+if __name__ == '__main__':
+    try:
+        # readline is used to improve standard input UX
+        import readline
+    except ImportError:
+        pass
+    minimal_prompt()
