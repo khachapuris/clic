@@ -20,6 +20,14 @@ class Multiset:
         # Skip all elements with zero duplicates
         self.data = {el: data[el] for el in data if data[el]}
 
+    def __iter__(self):
+        """Return an iterator over the multiset."""
+        return self.data.__iter__()
+
+    def __bool__(self):
+        """Return True if the multiset is not empty."""
+        return bool(self.data)
+
     def get(self, el):
         """Return the number of duplicates of element."""
         if el in self.data:
@@ -30,36 +38,39 @@ class Multiset:
         """Addition of multisets."""
         ans = dict()
         for el in (self.data | other.data):
-            ans.update(self.get(el) + other.get(el))
+            ans.update({el: self.get(el) + other.get(el)})
         return Multiset(ans)
 
     def __sub__(self, other):
         """Subtraction of multisets."""
         ans = dict()
         for el in (self.data | other.data):
-            ans.update(self.get(el) - other.get(el))
+            ans.update({el: self.get(el) - other.get(el)})
         return Multiset(ans)
 
-    def __mul__(self, other):
-        """Multiplication of multisets."""
+    def __mul__(self, n):
+        """Multiplication of multisets by a number."""
         ans = dict()
-        for el in (self.data | other.data):
-            ans.update(self.get(el) * other.get(el))
+        for el in self.data:
+            ans.update({el: self.get(el) * n})
         return Multiset(ans)
 
-    def __truediv__(self, other):
-        """Division of multisets."""
+    def __truediv__(self, n):
+        """Division of multisets by a number."""
         ans = dict()
-        for el in (self.data | other.data):
-            ans.update(self.get(el) / other.get(el))
+        for el in self.data:
+            ans.update({el: self.get(el) / n})
         return Multiset(ans)
 
     def __neg__(self):
         """Negation of multisets."""
         ans = dict()
         for el in self.data:
-            ans.update(-self.get(el))
+            ans.update({el: -self.get(el)})
         return Multiset(ans)
+
+    def __eq__(self, other):
+        return self.data == other.data
 
 
 class Quantity:
@@ -76,6 +87,8 @@ class Quantity:
         value -- a number representing the numeric value of a quantity,
         units -- a dictionary that matches units and their powers.
         """
+        if isinstance(units, dict):
+            units = Multiset(units)
         self.units = units
         self.value = value
 
@@ -95,9 +108,9 @@ class Quantity:
     def unit_str(self):
         """Return a string representation of the quantity's unit part."""
         ans = ''
-        for u in list(self.units):
-            power = self.units[u]
-            ans += str(u)
+        for unit in self.units:
+            power = self.units.get(unit)
+            ans += str(unit)
             if power != 1:
                 ans += '^' + str(power)
             ans += '*'
@@ -106,17 +119,13 @@ class Quantity:
     def getpow(self, unit):
         """Return the power in which unit is present in the quantity."""
         if unit in self.units:
-            return self.units[unit]
+            return self.units.get(unit)
         return 0
 
     def __mul__(self, other):
         """Multiplication of quantities."""
         if isinstance(other, Quantity):
-            units = {}
-            for u in list(self.units | other.units):
-                power = self.getpow(u) + other.getpow(u)
-                if power != 0:
-                    units[u] = power
+            units = self.units + other.units
             value = self.value * other.value
             if units:
                 return Quantity(value, units)
@@ -126,11 +135,7 @@ class Quantity:
     def __truediv__(self, other):
         """Division of quantities."""
         if isinstance(other, Quantity):
-            units = {}
-            for u in list(self.units | other.units):
-                power = self.getpow(u) - other.getpow(u)
-                if power != 0:
-                    units[u] = power
+            units = self.units - other.units
             value = self.value / other.value
             if units:
                 return Quantity(value, units)
@@ -156,10 +161,10 @@ class Quantity:
         raise Quantity.OperationError('subtraction of different units')
 
     def __rmul__(self, other):
-        return self * other
+        return Quantity(other * self.value, self.units)
 
     def __rtruediv__(self, other):
-        return other * Quantity(Decimal(1), {}) / self
+        return Quantity(other / self.value, -self.units)
 
     def __radd__(self, other):
         raise Quantity.OperationError('addition of different units')
@@ -170,12 +175,11 @@ class Quantity:
     def __round__(self, num):
         return Quantity(round(self.value, num), self.units)
 
-    def __pow__(self, other, opt=None):
+    def __pow__(self, n, opt=None):
         """Exponentiation of quantities."""
-        if not isinstance(other, (int, Decimal)):
+        if not isinstance(n, (int, Decimal)):
             raise Quantity.OperationError('raising to a (quantity) power')
-        units = {a: self.units[a] * other for a in list(self.units)}
-        return Quantity(self.value ** other, units)
+        return Quantity(self.value ** n, self.units * n)
 
     def __repr__(self):
         """String representation of quantities with additional info."""
@@ -187,9 +191,9 @@ class Quantity:
         """String representation of quantities without additional info."""
         return f'{str(self.value)} {self.unit_str()}'
 
-    def isangle(self):
+    def isangle(self, radians=Multiset({'rad': 1})):
         """Return True if the quantity is an angle."""
-        return self.units == {'rad': 1}
+        return self.units == radians
 
     @staticmethod
     def cos(x):
