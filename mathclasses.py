@@ -8,6 +8,60 @@ from math import asin, acos, atan
 glob_pi = Decimal('3.1415926535897932384626433833')
 
 
+class Multiset:
+    """The creation of the Multiset object and the related functionality."""
+
+    def __init__(self, data):
+        """The initialiser of the class.
+
+        Arguments:
+        data -- a dictionary of type {element: number_of_duplicates}.
+        """
+        # Skip all elements with zero duplicates
+        self.data = {el: data[el] for el in data if data[el]}
+
+    def get(self, el):
+        """Return the number of duplicates of element."""
+        if el in self.data:
+            return self.data[el]
+        return 0
+
+    def __add__(self, other):
+        """Addition of multisets."""
+        ans = dict()
+        for el in (self.data | other.data):
+            ans.update(self.get(el) + other.get(el))
+        return Multiset(ans)
+
+    def __sub__(self, other):
+        """Subtraction of multisets."""
+        ans = dict()
+        for el in (self.data | other.data):
+            ans.update(self.get(el) - other.get(el))
+        return Multiset(ans)
+
+    def __mul__(self, other):
+        """Multiplication of multisets."""
+        ans = dict()
+        for el in (self.data | other.data):
+            ans.update(self.get(el) * other.get(el))
+        return Multiset(ans)
+
+    def __truediv__(self, other):
+        """Division of multisets."""
+        ans = dict()
+        for el in (self.data | other.data):
+            ans.update(self.get(el) / other.get(el))
+        return Multiset(ans)
+
+    def __neg__(self):
+        """Negation of multisets."""
+        ans = dict()
+        for el in self.data:
+            ans.update(-self.get(el))
+        return Multiset(ans)
+
+
 class Quantity:
     """The Quantity object stores physical quantities."""
 
