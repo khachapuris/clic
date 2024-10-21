@@ -1,7 +1,7 @@
 # clic
 
 CLIC
-is a customizable command line scientific calculator written in Python.
+is a customisable command line scientific calculator written in Python.
 
 ## Description
 
