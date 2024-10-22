@@ -19,7 +19,7 @@ each interface has its own features.
 - Terminal user interface
     + Use this when substituting variables in a formula, for example
     + Fullscreen editing of one expression
-    + **Horizontal fraction bars** are an essential feature of clic TUI
+    + **Horizontal fraction bars**
     + Autoscrolling of expressions that are bigger than the terminal window
 
 ### Math used in clic
@@ -29,7 +29,8 @@ each interface has its own features.
     + Implicit multiplication — ~`a*b`~, `a b`
     + Function notation — ~`sin(x)^2`~, `sin^2 x`
     + Inline division vs fractions — ~`(1+2)/(2+3)`~, `1+2 / 2+3`
-- Advanced math objects — vectors, units, angles
+- Vectors
+- Units (all SI units added by default)
 - Variable assignment
 - Exponentiation, modulo division, square roots implemented initially
 - Trigonometric and reverse trigonometric functions
@@ -38,7 +39,6 @@ each interface has its own features.
 
 - Edit default functions & operators
 - Use your own Python functions in the calculator
-- Add your own and edit default units
 - Change stuff like decimal separators throughout the whole application
 
 ## Installation
@@ -58,7 +58,8 @@ please see the documentation (the documentation is not written yet).
 ### Expression rules
 
 - Operators & parenthesis: `85.64 * (2^3 + 11^-1) : 0.01`
-- Units: `10 m * 11 s`
+- Fractions (this returns `2.5`): `(10+2 / 3*2) + (1/2)`
+- Units: `0.8 * 50A * 550V * s / 10 m`
 - Vectors: `(1, 2) + (-3, 4)`
 - Variable assignment: `variable_name1 = 11 + 12`
 - Compound variable assignment: `variable_name1 += 1`
