@@ -313,7 +313,7 @@ class Calculator:
         output -- the error / answer (as a string).
         """
         if self.err:
-            raise self.err  # DEBUG
+            # raise self.err  # DEBUG
             return (True, f'{str(self.err)}')
         ans = self.vars[smbs.sv['sysans']]
         if ans is None:
