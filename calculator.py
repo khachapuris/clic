@@ -37,6 +37,16 @@ for syntax in glob_syntax_list:
     glob_syntax.update({syntax.name: syntax})
 
 
+def decimal_to_string(x):
+    """Return a string representation of decimal x."""
+    y = x.adjusted()
+    if Decimal('5e-10') < x < Decimal('5e12'):
+        y = y // 3 * 3
+    if y == 0:
+        return f'{x:f}'
+    return f'{x / Decimal(10)**y:f} * 10^{y}'
+
+
 class Calculator:
     """The Calculator object provides methods for calculating expressions."""
 
@@ -286,6 +296,8 @@ class Calculator:
             return ''
         if isinstance(obj, str):
             return f'"{obj}"'
+        if isinstance(obj, Decimal):
+            return decimal_to_string(obj)
         return str(obj)
 
     def calculate(self, expr):
