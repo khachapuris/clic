@@ -12,6 +12,7 @@ import sys
 import decimal
 from decimal import Decimal
 from mathclasses import Quantity, Vector
+from mathclasses import decimal_to_string
 
 from token import Token
 import symbols as smbs
@@ -35,16 +36,6 @@ for (link, name) in glob_func_link_list:
 glob_syntax = {}
 for syntax in glob_syntax_list:
     glob_syntax.update({syntax.name: syntax})
-
-
-def decimal_to_string(x):
-    """Return a string representation of decimal x."""
-    y = x.adjusted()
-    if Decimal('5e-10') < x < Decimal('5e12'):
-        y = y // 3 * 3
-    if y == 0:
-        return f'{x:f}'
-    return f'{x / Decimal(10)**y:f} * 10^{y}'
 
 
 class Calculator:

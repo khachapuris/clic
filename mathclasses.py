@@ -8,6 +8,19 @@ from math import asin, acos, atan
 glob_pi = Decimal('3.1415926535897932384626433833')
 
 
+def decimal_to_string(x):
+    """Return a string representation of decimal x."""
+    y = x.adjusted()
+    if Decimal('5e-10') < x < Decimal('5e12'):
+        y = y // 3 * 3
+    if y == 0:
+        return f'{x:f}'
+    a = x / Decimal(10) ** y
+    if a == 1:
+        return f'10^{y}'
+    return f'{a:f} * 10^{y}'
+
+
 class Multiset:
     """The creation of the Multiset object and the related functionality."""
 
@@ -185,11 +198,11 @@ class Quantity:
         """String representation of quantities with additional info."""
         if self.value == 1:
             return f'Quantity({self.unit_str()})'
-        return f'Quantity({str(self.value)}, {self.unit_str()})'
+        return f'Quantity({decimal_to_string(self.value)}, {self.unit_str()})'
 
     def __str__(self):
         """String representation of quantities without additional info."""
-        return f'{str(self.value)} {self.unit_str()}'
+        return f'{decimal_to_string(self.value)} {self.unit_str()}'
 
     def isangle(self, radians=Multiset({'rad': 1})):
         """Return True if the quantity is an angle."""
