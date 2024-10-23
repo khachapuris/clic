@@ -19,9 +19,9 @@ def few(a, unit):
     return Quantity(a, {unit: 1})
 
 
-def derived(units):
-    """Return a unit derived from units."""
-    return Quantity(Decimal(1), units)
+def der(kg, m, s, a):
+    """Return a unit derived from basic si units."""
+    return Quantity(Decimal(1), {'kg': kg, 'm': m, 's': s, 'a': a})
 
 
 units = dict()
@@ -30,7 +30,7 @@ prefixes = {-9: 'n', -6: 'μ', -3: 'm', -2: 'c', -1: 'd',
             0: '', 1: 'da', 2: 'h', 3: 'k', 6: 'M', 9: 'G'}
 
 
-def add_si(unit, name, exps=[-9, -6, -3, 0, 3, 6, 9]):
+def si(unit, name, exps=None):
     """Add SI units to the units dictionary.
 
     Arguments:
@@ -39,50 +39,41 @@ def add_si(unit, name, exps=[-9, -6, -3, 0, 3, 6, 9]):
     exps -- a list of numbers representing prefixes.
     """
     global units
+    if not exps:
+        exps = [-9, -6, -3, 0, 3, 6, 9]
     for exp in exps:
         name1 = prefixes[exp] + name
         unit1 = unit * (Decimal('10') ** exp)
         units.update({name1: unit1})
 
 
-gramm = few(Decimal('0.001'), 'kg')
-tonne = few(Decimal('1000'), 'kg')
+# Add SI units
 
-add_si(gramm, 'g', [3, 0, -3, -6, -9])
-add_si(tonne, 't', [9, 6, 3, 0])
-add_si(one('m'), 'm', [3, 0, -1, -2, -3, -6, -9])
-add_si(one('s'), 's', [0, -3, -6, -9])
-add_si(one('A'), 'A')
-add_si(one('K'), 'K')
-add_si(one('mol'), 'mol')
+si(few(Decimal('0.001'), 'kg'), 'g', [-9, -6, -3, 0, 3])  # gramm
+si(few(Decimal('1000'),  'kg'), 't', [0, 3, 6, 9])        # tonne
+si(one('m'), 'm', [-9, -6, -3, -2, -1, 0, 3])             # meter
+si(one('s'), 's', [-9, -6, -3, 0])                        # second
+si(one('A'), 'A')                                         # ampere
+si(one('K'), 'K')                                         # kelvin
+si(one('mol'), 'mol')                                     # mole
+si(one('rad'), 'rad', [0])                                # radian
 
-litre = Quantity(Decimal('0.001'), {'m': 3})
-herz = derived({'s': -1})
-newton = derived({'kg': 1, 'm': 1, 's': -2})
-pascal = derived({'kg': 1, 'm': -1, 's': -2})
-joule = derived({'kg': 1, 'm': 2, 's': -2})
-watt = derived({'kg': 1, 'm': 2, 's': -3})
-coulomb = derived({'s': 1, 'A': 1})
-volt = derived({'kg': 1, 'm': 2, 's': -3, 'A': -1})
-ohm = derived({'kg': 1, 'm': 2, 's': -3, 'A': -2})
-becquerrel = derived({'s': -1})
-gray = derived({'m': 2, 's': -1})
+si(der(0,  0, -1,  0), 'Hz')  # herz
+si(der(1,  1, -2,  0), 'N')   # newton
+si(der(1, -1, -2,  0), 'Pa', [-9, -6, -3, 0, 2, 3, 6, 9])  # pascal
+si(der(1,  2, -2,  0), 'J')   # joule
+si(der(1,  2, -3,  0), 'W')   # watt
+si(der(0,  0,  1,  1), 'C')   # couloumb
+si(der(1,  2, -3, -1), 'V')   # volt
+si(der(1,  2, -3, -2), 'Ω')   # ohm
+si(der(0,  0, -1,  0), 'Bq')  # becquerrel
+si(der(0,  2, -1,  0), 'Gy')  # gray
 
-add_si(litre, 'l', [0, -3])
-add_si(herz, 'Hz')
-add_si(newton, 'N')
-add_si(pascal, 'Pa', [9, 6, 3, 2, 0, -3, -6, -9])
-add_si(joule, 'J')
-add_si(watt, 'W')
-add_si(coulomb, 'C')
-add_si(volt, 'V')
-add_si(ohm, 'Ω')
-add_si(becquerrel, 'Bq')
-add_si(gray, 'Gy')
+si(Quantity(Decimal('0.001'), {'m': 3}), 'l', [-3, 0])    # litre
+si(Quantity(Decimal('10000'), {'m': 2}), 'a', [2])        # hectare
 
 units |= {
     'min': few(Decimal(60), 's'),
     'h': few(Decimal(3600), 's'),
-    'rad': one('rad'),
     'deg': few(glob_pi / Decimal(180), 'rad')
 }
