@@ -70,9 +70,7 @@ please see the documentation (the documentation is not written yet).
 ### Command line interface
 
 When you run the CLI, a prompt will appear on the screen.
-
 Type in the expression and press Enter.
-
 When you finish calculating, type `/q` and press Enter.
 
 ### Terminal user interface
