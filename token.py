@@ -11,7 +11,7 @@ import copy
 class Token:
     """Token objects are data storage and data transformation elements."""
 
-    def __init__(self, name, calc, arg_num, pref, ltor, kind=''):
+    def __init__(self, name, calc, arg_num, pref, ltor, kind='', helptext=''):
         """The initialiser of the class.
 
         Arguments:
@@ -29,6 +29,7 @@ class Token:
         self.pref = pref
         self.ltor = ltor
         self.kind = kind
+        self.help = helptext
 
     @staticmethod
     def give(obj):
@@ -41,6 +42,14 @@ class Token:
         def func():
             return copy.copy(obj)
         return func
+
+    def get_help(self):
+        if self.kind == 'func':
+            return f'{self.help} function'
+        if self.kind == 'oper':
+            return f'{self.help} operator'
+        if self.kind == 'sign':
+            return f'{self.help} sign'
 
     def __repr__(self):
         """String representation of tokens."""

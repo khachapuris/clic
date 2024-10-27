@@ -25,6 +25,7 @@ the items with commas (`(1, 9, 13.5)`).
 (`3 km`) or just a unit (`mA`).
 3. Quantities support all basic operators
 (NOTE: some operations on quantities are invalid, such as `3m + 4s`)
+4. All SI units are implemented; to see the list, type `/l u`
 
 ### Angles
 
@@ -47,6 +48,7 @@ the items with commas (`(1, 9, 13.5)`).
 (`a += 10`, `a *= 0.1`) or just reassign it
 4. To get the value of a variable, use its name (`a`)
 5. To delete variable `a`, type `/d a`
+6. To see the list of all variables, type `/l`
 
 ### Functions
 
@@ -60,6 +62,7 @@ the items with commas (`(1, 9, 13.5)`).
     arguments in parenthesis, separated with commas (`function_name(10, 11)`)
 3. Trigonometric function exponentiation: `sin^2 30deg`
 4. NOTE: negation is considered a function (`-4`)
+5. To see the list of all functions, operators and signs, type `/l f`
 
 ### Operators
 
@@ -81,10 +84,16 @@ after a number/variable/closing parenthesis (`10 x`, `2 sqrt 2`, `(5+1)(5-1)`).
 
 ### Commands
 
-1. Use commands to quit the calculator or delete variables
-2. To quit type `/q`
-3. To delete variable `a` type `/d a`
-4. To reset all variables type `/d`
+Commands tell the calculator to do special tasks
+
+1. To quit type `/q`
+2. To delete variable `a` type `/d a`
+3. To reset all variables type `/d`
+4. To list all functions type `/l f`
+5. To list all units type `/l u`
+6. To list all variables type `/l`
+7. To see help on a function, operator or sign
+with name `name` type `/h name`
 
 ### Multiple expressions
 
@@ -133,11 +142,11 @@ Use one of the following examples.
 
 ```python
 # Simple function
-Token('name', function, 1, 3, 1, 'func'),
+Token('name', function, 1, 3, 1, 'func', 'Help text'),
 # Operator with preference x
-Token('name', function, 2, x, 0, 'oper'),
+Token('name', function, 2, x, 0, 'oper', 'Help text'),
 # Sign with preference x
-Token('name', function, 1, x, 0, 'sign'),
+Token('name', function, 1, x, 0, 'sign', 'Help text'),
 ```
 
 ### Step 3: Use the function / operator / sign

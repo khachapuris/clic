@@ -1,11 +1,12 @@
-# clic
+clic
+====
 
 CLIC
 is a customisable command line scientific calculator written in Python.
 
 ## Description
 
-### One calculator — two interfaces
+### Two interfaces
 
 CLIC provides two different interfaces.
 Though the expression rules remains the same,

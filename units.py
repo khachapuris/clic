@@ -66,8 +66,8 @@ si(der(1,  2, -3,  0), 'W')   # watt
 si(der(0,  0,  1,  1), 'C')   # couloumb
 si(der(1,  2, -3, -1), 'V')   # volt
 si(der(1,  2, -3, -2), 'Ω')   # ohm
-si(der(0,  0, -1,  0), 'Bq')  # becquerrel
-si(der(0,  2, -1,  0), 'Gy')  # gray
+si(der(0,  0, -1,  0), 'Bq', [0, 3, 6, 9])  # becquerrel
+si(der(0,  2, -2,  0), 'Gy', [-6, -3, -2, 0])  # gray
 
 si(Quantity(Decimal('0.001'), {'m': 3}), 'l', [-3, 0])    # litre
 si(Quantity(Decimal('10000'), {'m': 2}), 'a', [2])        # hectare
