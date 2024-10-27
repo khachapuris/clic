@@ -1,4 +1,4 @@
-# Welcome to clic manual!
+# Welcome to the clic manual!
 
 ## Expressions
 
@@ -145,7 +145,9 @@ Answer: 11 carbon atoms and 20 hydrogen atoms.
 ### Example
 
 Substitute values in a formula
-$\tau = \frac{ c m (t_2 - t_1) cdot R}{\eta cdot U^2}$
+
+$\tau = \frac{ c m (t_2 - t_1) \cdot R}{\eta \cdot U^2}$
+
 and get the answer in minutes.
 
 ```
