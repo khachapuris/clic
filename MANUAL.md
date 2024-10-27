@@ -87,7 +87,7 @@ after a number/variable/closing parenthesis (`10 x`, `2 sqrt 2`, `(5+1)(5-1)`).
 Commands tell the calculator to do special tasks
 
 1. To quit type `/q`
-2. To delete variable `a` type `/d a`
+2. To delete variable `var` type `/d var`
 3. To reset all variables type `/d`
 4. To list all functions type `/l f`
 5. To list all units type `/l u`
@@ -109,6 +109,29 @@ with name `name` type `/h name`
 2. Type in the expression / command and press Enter
 3. To exit type `/q` and press Enter
 
+### Example
+
+Get the number of molecules of a hydrocarbon with
+8 single bonds and 2 double bonds.
+
+```
+% "1st number in the vector is the amount of carbon";
+% "2nd number in the vector is the amount of hydrogen";
+%
+% methane = (1, 4);
+%
+% single = (1,  2);
+% double = (1,  0);
+% triple = (1, -2);
+%
+% methane + 8 single + 2 double
+= (11, 20)
+%
+% /q
+```
+
+Answer: 11 carbon atoms and 20 hydrogen atoms.
+
 ## Terminal user interface
 
 1. Run the TUI with `python frontend.py`
@@ -118,6 +141,20 @@ with name `name` type `/h name`
 3. Press `Enter` to see the answer
 4. Press `Enter` again to start a new expression
 5. Press `\` on any step to exit
+
+### Example
+
+Substitute values in a formula
+$\tau = \frac{ c m (t_2 - t_1) cdot R}{\eta cdot U^2}$
+and get the answer in minutes.
+
+```
+ 4.2*10^3 J * 0.5 kg * 80 K * 160 Ohm
+ ──────────────────────────────────── : min = 11.57024793388429752066115702
+       kg*K * 0.8 * (220 V)^2
+```
+
+Answer: 11.5 min.
 
 ## Adding your Python functions
 
@@ -129,8 +166,8 @@ It should meet the following criteria:
 - If the function accepts a number as an argument, it should support decimal
 values (see the decimal docs at https://docs.python.org/3/library/decimal.html)
 - If the function returns a number, it should be a decimal
-- If it will be an operator, the function should accept two arguments
-- If it will be a function, the function should accept one argument
+- If the function will be an operator, it should accept two arguments
+- If the function will be a function, it should accept one argument
 - NOTE: if `func(arg1, arg2, arg3)` is inputed in the calculator,
 the function `func` will recieve one vector argument: `(arg1, arg2, arg3)`;
 to use it in the function, iterate over it
@@ -142,16 +179,18 @@ Use one of the following examples.
 
 ```python
 # Simple function
-Token('name', function, 1, 3, 1, 'func', 'Help text'),
+Token('name', mf.function, 3, 1, 'func', 'Help text'),
 # Operator with preference x
-Token('name', function, 2, x, 0, 'oper', 'Help text'),
+Token('name', mf.function, x, 0, 'oper', 'Help text'),
 # Sign with preference x
-Token('name', function, 1, x, 0, 'sign', 'Help text'),
+Token('name', mf.function, x, 0, 'sign', 'Help text'),
 ```
+
+Replace `name` with the name for usage in the calculator,
+and `function` with the name of the function.
+Note that the help text is optional.
 
 ### Step 3: Use the function / operator / sign
 
 Run the calculator in any interface and use your new
 function / operator / sign.
-
-## Various examples

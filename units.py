@@ -26,7 +26,7 @@ def der(kg, m, s, a):
 
 units = dict()
 
-prefixes = {-9: 'n', -6: 'μ', -3: 'm', -2: 'c', -1: 'd',
+prefixes = {-9: 'n', -6: 'mk', -3: 'm', -2: 'c', -1: 'd',
             0: '', 1: 'da', 2: 'h', 3: 'k', 6: 'M', 9: 'G'}
 
 
@@ -65,7 +65,7 @@ si(der(1,  2, -2,  0), 'J')   # joule
 si(der(1,  2, -3,  0), 'W')   # watt
 si(der(0,  0,  1,  1), 'C')   # couloumb
 si(der(1,  2, -3, -1), 'V')   # volt
-si(der(1,  2, -3, -2), 'Ω')   # ohm
+si(der(1,  2, -3, -2), 'Ohm')   # ohm
 si(der(0,  0, -1,  0), 'Bq', [0, 3, 6, 9])  # becquerrel
 si(der(0,  2, -2,  0), 'Gy', [-6, -3, -2, 0])  # gray
 

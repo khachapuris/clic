@@ -185,18 +185,18 @@ class Calculator:
                 ans.append(glob_syntax[word])
             elif word[0] == smbs.cc['quote']:
                 get = Token.give(word.strip(smbs.cc['quote']))
-                ans.append(Token(word, get, 0, 10, 0, 'str'))
+                ans.append(Token(word, get, 10, 0, 'str'))
             elif smbs.isdigitplus(word[0], plus='.'):
                 num = Decimal(word)
-                ans.append(Token(word, Token.give(num), 0, 10, 0, 'num'))
+                ans.append(Token(word, Token.give(num), 10, 0, 'num'))
             elif word in glob_funcs:
                 ans.append(glob_funcs[word])
             elif word in self.vars:
                 get = Token.give(self.vars[word])
-                ans.append(Token(word, get, 0, 10, 0, 'var'))
+                ans.append(Token(word, get, 10, 0, 'var'))
             elif word in glob_units:
                 get = Token.give(glob_units[word])
-                ans.append(Token(word, get, 0, 10, 0, 'var'))
+                ans.append(Token(word, get, 10, 0, 'var'))
             else:
                 raise Calculator.CompilationError(f"unknown name: '{word}'")
         return ans

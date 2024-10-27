@@ -11,25 +11,31 @@ import copy
 class Token:
     """Token objects are data storage and data transformation elements."""
 
-    def __init__(self, name, calc, arg_num, pref, ltor, kind='', helptext=''):
+    def __init__(self, name, calc, pref, ltor, kind, ht=''):
         """The initialiser of the class.
 
         Arguments:
+        name -- the name of the token (optional),
         calc -- the token's function,
         arg_num -- number of arguments of calc,
         pref -- the token's preference,
         ltor -- a truthy value, if tokens with the same pref
           should be calculated left-to-right, falsy otherwise,
-        kind -- the kind of the token (optional),
-        name -- the name of the token (optional).
+        kind -- the kind of the token,
+        ht -- the help text for the token (optional).
         """
         self.name = name
         self.calc = calc
-        self.arg_num = arg_num
+        if kind in ('func', 'sign'):
+            self.arg_num = 1
+        elif kind in ('oper', 'doub'):
+            self.arg_num = 2
+        else:
+            self.arg_num = 0
         self.pref = pref
         self.ltor = ltor
         self.kind = kind
-        self.help = helptext
+        self.ht = ht
 
     @staticmethod
     def give(obj):
@@ -45,11 +51,11 @@ class Token:
 
     def get_help(self):
         if self.kind == 'func':
-            return f'{self.help} function'
+            return f'{self.ht} function'
         if self.kind == 'oper':
-            return f'{self.help} operator'
+            return f'{self.ht} operator'
         if self.kind == 'sign':
-            return f'{self.help} sign'
+            return f'{self.ht} sign'
 
     def __repr__(self):
         """String representation of tokens."""
