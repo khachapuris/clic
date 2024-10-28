@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """This script contains a TUI for clic calculator.
 
 The script runs the calculator on a full screen.
