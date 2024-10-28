@@ -47,7 +47,6 @@ functions = [
 
 links = {
     # Alternative names for tokens
-    ('√', 'sqrt'),
     ('tg', 'tan'),
     ('arctg', 'arctan'),
 }

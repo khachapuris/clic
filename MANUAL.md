@@ -137,7 +137,11 @@ Answer: 11 carbon atoms and 20 hydrogen atoms.
 1. Run the TUI with `python frontend.py`
 2. Type in the expression
     + `/` — create fraction
-    + `'` — insert square root
+    + `'v` — insert square root
+    + `'o` — insert degree symbol
+    + `'p` — insert pi
+    + `'w` — insert ohm symbol
+    + `'m` — insert micro symbol
 3. Press `Enter` to see the answer
 4. Press `Enter` again to start a new expression
 5. Press `\` on any step to exit
@@ -151,8 +155,8 @@ $\tau = \frac{ c m (t_2 - t_1) \cdot R}{\eta \cdot U^2}$
 and get the answer in minutes.
 
 ```
- 4.2*10^3 J * 0.5 kg * 80 K * 160 Ohm
- ──────────────────────────────────── : min = 11.57024793388429752066115702
+ 4.2*10^3 J * 0.5 kg * 80 K * 160 Ω
+ ────────────────────────────────── : min = 11.57024793388429752066115702
        kg*K * 0.8 * (220 V)^2
 ```
 
