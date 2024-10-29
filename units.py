@@ -16,7 +16,7 @@ def few(a, unit):
 
 def der(kg, m, s, a):
     """Return a unit derived from basic si units."""
-    return Quantity(Decimal(1), {'kg': kg, 'm': m, 's': s, 'a': a})
+    return Quantity(Decimal(1), {'kg': kg, 'm': m, 's': s, 'A': a})
 
 
 units = dict()
