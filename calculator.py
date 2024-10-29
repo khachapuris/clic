@@ -4,7 +4,7 @@
 
 The script runs the calculator with a minimal prompt and can be used for infix
 notation calculations. It can also be used as a module and provides class
-Calculator and function minimal_prompt. For more details please see README.md.
+Calculator and function minimal_prompt. For more details please see MANUAL.md.
 """
 
 import sys

@@ -1,9 +1,4 @@
-"""This module contains a dictionary with units used in the calculator.
-
-The user can add new items or modify existing units. For readability,
-quantity-defining functions are provided, but the units can be any
-Quantity objects.
-"""
+"""This module contains a dictionary with units used in the calculator."""
 
 from decimal import Decimal
 from mathclasses import Quantity, glob_pi

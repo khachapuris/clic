@@ -167,14 +167,14 @@ Answer: 11.5 min.
 ### Step 1: Write the function
 
 Go to `mathfunctions.py` and write your function in Python.
-It should meet the following criteria:
+It should meet the following requirements:
 
 - If the function accepts a number as an argument, it should support decimal
 values (see the decimal docs at https://docs.python.org/3/library/decimal.html)
 - If the function returns a number, it should be a decimal
 - If the function will be an operator, it should accept two arguments
 - If the function will be a function, it should accept one argument
-- NOTE: if `func(arg1, arg2, arg3)` is inputed in the calculator,
+- NOTE: if `func(arg1, arg2, arg3)` is entered in the calculator,
 the function `func` will recieve one vector argument: `(arg1, arg2, arg3)`;
 to use it in the function, iterate over it
 
@@ -200,3 +200,16 @@ Note that the help text is optional.
 
 Run the calculator in any interface and use your new
 function / operator / sign.
+
+## Changing decimal separators and similar syntax elements
+
+Go to `symbols.py`.
+
+```python
+{
+'decseps': '<HERE>',  # decimal separator characters
+}
+```
+
+Replace the string marked as `<HERE>` with the separator you
+chose. Other syntax elements are replaced in a similar way.
