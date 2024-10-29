@@ -4,7 +4,7 @@
 
 The script runs the calculator with a minimal prompt and can be used for infix
 notation calculations. It can also be used as a module and provides class
-Calculator and function minimal_prompt. For more details please see README.md.
+Calculator and function minimal_prompt. For more details please see MANUAL.md.
 """
 
 import sys
@@ -58,7 +58,6 @@ class Calculator:
         self.vars = {smbs.sv['sysans']: Decimal(0)}
         if predefined:
             self.vars.update(predefined)
-        self.vars.update(glob_units)
 
     def split(self, string):
         """Split the given string expression."""
@@ -138,6 +137,22 @@ class Calculator:
                 if ls[2] in list(self.vars):
                     del self.vars[ls[2]]
             return True
+        # list
+        elif ls[1] == 'l':
+            if len(ls) > 2 and ls[2] == 'f':
+                self.vars['_'] = '  '.join([str(f) for f in glob_funcs])
+            elif len(ls) > 2 and ls[2] == 'u':
+                self.vars['_'] = '  '.join([str(u) for u in glob_units])
+            else:
+                self.vars['_'] = '  '.join([str(v) for v in list(self.vars)])
+            self.silent = False
+            return True
+        # help
+        elif ls[1] == 'h':
+            if len(ls) > 2 and ls[2] in list(glob_funcs):
+                self.vars['_'] = glob_funcs[ls[2]].get_help()
+            self.silent = False
+            return True
         raise Calculator.CompilationError(f"unknown command: '{ls[1]}'")
 
     def perform_assignment(self, ls):
@@ -170,15 +185,18 @@ class Calculator:
                 ans.append(glob_syntax[word])
             elif word[0] == smbs.cc['quote']:
                 get = Token.give(word.strip(smbs.cc['quote']))
-                ans.append(Token(word, get, 0, 10, 0, 'str'))
+                ans.append(Token(word, get, 10, 0, 'str'))
             elif smbs.isdigitplus(word[0], plus='.'):
                 num = Decimal(word)
-                ans.append(Token(word, Token.give(num), 0, 10, 0, 'num'))
+                ans.append(Token(word, Token.give(num), 10, 0, 'num'))
             elif word in glob_funcs:
                 ans.append(glob_funcs[word])
             elif word in self.vars:
                 get = Token.give(self.vars[word])
-                ans.append(Token(word, get, 0, 10, 0, 'var'))
+                ans.append(Token(word, get, 10, 0, 'var'))
+            elif word in glob_units:
+                get = Token.give(glob_units[word])
+                ans.append(Token(word, get, 10, 0, 'var'))
             else:
                 raise Calculator.CompilationError(f"unknown name: '{word}'")
         return ans

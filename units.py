@@ -1,9 +1,4 @@
-"""This module contains a dictionary with units used in the calculator.
-
-The user can add new items or modify existing units. For readability,
-quantity-defining functions are provided, but the units can be any
-Quantity objects.
-"""
+"""This module contains a dictionary with units used in the calculator."""
 
 from decimal import Decimal
 from mathclasses import Quantity, glob_pi
@@ -26,7 +21,7 @@ def der(kg, m, s, a):
 
 units = dict()
 
-prefixes = {-9: 'n', -6: 'μ', -3: 'm', -2: 'c', -1: 'd',
+prefixes = {-9: 'n', -6: 'mc', -3: 'm', -2: 'c', -1: 'd',
             0: '', 1: 'da', 2: 'h', 3: 'k', 6: 'M', 9: 'G'}
 
 
@@ -65,9 +60,9 @@ si(der(1,  2, -2,  0), 'J')   # joule
 si(der(1,  2, -3,  0), 'W')   # watt
 si(der(0,  0,  1,  1), 'C')   # couloumb
 si(der(1,  2, -3, -1), 'V')   # volt
-si(der(1,  2, -3, -2), 'Ω')   # ohm
-si(der(0,  0, -1,  0), 'Bq')  # becquerrel
-si(der(0,  2, -1,  0), 'Gy')  # gray
+si(der(1,  2, -3, -2), 'ohm')   # ohm
+si(der(0,  0, -1,  0), 'Bq', [0, 3, 6, 9])  # becquerrel
+si(der(0,  2, -2,  0), 'Gy', [-6, -3, -2, 0])  # gray
 
 si(Quantity(Decimal('0.001'), {'m': 3}), 'l', [-3, 0])    # litre
 si(Quantity(Decimal('10000'), {'m': 2}), 'a', [2])        # hectare

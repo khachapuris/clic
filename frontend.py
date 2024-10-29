@@ -14,6 +14,9 @@ import curses
 import sys
 
 
+insert_chars = {'p': 'π', 'm': 'μ', 'w': 'Ω', 'v': '√', 'o': '°', '/': '/'}
+
+
 class Display:
     """The Display class is used for displaying the calculator."""
 
@@ -28,6 +31,7 @@ class Display:
         helptext = "Welcome to clic! Press '\\' to exit, please see README.md"
         title = 'clic'
         self.ctor = Calculator({'_help': helptext, '_title': title})
+        self.insert = False
         self.reset_expression()
         self.update_mask_bars(self.exp)
 
@@ -40,14 +44,17 @@ class Display:
     def format_exp(self):
         """Return the expression with clic fraction syntax."""
         smb_str = '(/)'
+        non_ascii = {'π': 'pi', 'μ': 'mc', 'Ω': 'ohm', '√': 'sqrt', '°': 'deg'}
         smb_num = 0
         ans = ''
         for char in self.exp:
             if char == '\\':
                 ans += smb_str[smb_num]
                 smb_num = (smb_num + 1) % 3
-                continue
-            ans += char
+            elif char in non_ascii:
+                ans += f' {non_ascii[char]} '
+            else:
+                ans += char
         return ans
 
     @staticmethod
@@ -244,10 +251,17 @@ class Display:
             self.cursor -= 1
         elif key == 'KEY_RIGHT' and notend:
             self.cursor += 1
+        elif self.insert:
+            if key in insert_chars:
+                replace(0, 0, insert_chars[key])
+            self.insert = False
         elif key == '/':
-            replace(0, 0, '\\\\\\')
+            if self.mask[c][0] == 1:
+                replace(0, 0, '\\\\\\')
+            else:
+                replace(0, 0, '/')
         elif key == "'":
-            replace(0, 0, '√')
+            self.insert = True
         elif len(key) == 1 and key.isascii() and key.isprintable():
             replace(0, 0, key)
 

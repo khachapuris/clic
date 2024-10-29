@@ -6,6 +6,7 @@ from math import asin, acos, atan
 
 
 glob_pi = Decimal('3.1415926535897932384626433833')
+glob_e = Decimal('2.7182818284590452353602874714')
 
 
 def decimal_to_string(x):
