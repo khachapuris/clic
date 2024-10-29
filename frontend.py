@@ -9,12 +9,10 @@ The only required python library is curses.
 
 from calculator import Calculator
 import symbols as smbs
+import tuisymbols as smbs2
 
 import curses
 import sys
-
-
-insert_chars = {'p': 'π', 'm': 'μ', 'w': 'Ω', 'v': '√', 'o': '°', '/': '/'}
 
 
 class Display:
@@ -44,15 +42,14 @@ class Display:
     def format_exp(self):
         """Return the expression with clic fraction syntax."""
         smb_str = '(/)'
-        non_ascii = {'π': 'pi', 'μ': 'mc', 'Ω': 'ohm', '√': 'sqrt', '°': 'deg'}
         smb_num = 0
         ans = ''
         for char in self.exp:
             if char == '\\':
                 ans += smb_str[smb_num]
                 smb_num = (smb_num + 1) % 3
-            elif char in non_ascii:
-                ans += f' {non_ascii[char]} '
+            elif char in smbs2.sub:
+                ans += f' {smbs2.sub[char]} '
             else:
                 ans += char
         return ans
@@ -252,8 +249,8 @@ class Display:
         elif key == 'KEY_RIGHT' and notend:
             self.cursor += 1
         elif self.insert:
-            if key in insert_chars:
-                replace(0, 0, insert_chars[key])
+            if key in smbs2.ins:
+                replace(0, 0, smbs2.ins[key])
             self.insert = False
         elif key == '/':
             if self.mask[c][0] == 1:
