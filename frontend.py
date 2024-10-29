@@ -14,7 +14,7 @@ import curses
 import sys
 
 
-insert_chars = {'p': 'π', 'm': 'μ', 'w': 'Ω', 'v': '√', 'o': '°'}
+insert_chars = {'p': 'π', 'm': 'μ', 'w': 'Ω', 'v': '√', 'o': '°', '/': '/'}
 
 
 class Display:
@@ -256,7 +256,10 @@ class Display:
                 replace(0, 0, insert_chars[key])
             self.insert = False
         elif key == '/':
-            replace(0, 0, '\\\\\\')
+            if self.mask[c][0] == 1:
+                replace(0, 0, '\\\\\\')
+            else:
+                replace(0, 0, '/')
         elif key == "'":
             self.insert = True
         elif len(key) == 1 and key.isascii() and key.isprintable():
