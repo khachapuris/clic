@@ -22,8 +22,8 @@ from units import units as glob_units
 
 
 glob_syntax_list = [
-    Token('(', lambda: None, 0, 10, 0, '('),
-    Token(')', lambda: None, 0, 10, 0, ')'),
+    Token('(', lambda: None, 10, 0, '(', 'Opening parhethesis'),
+    Token(')', lambda: None, 10, 0, ')', 'Closing parenthesis'),
 ]
 
 glob_funcs = {}
