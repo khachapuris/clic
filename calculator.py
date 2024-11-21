@@ -259,7 +259,6 @@ class Calculator:
             for _ in range(token.arg_num):
                 args.insert(0, data_stack.pop())
             ans = token.calc(*args)
-            # TODO: make all answers lists
             if isinstance(ans, list):
                 data_stack += ans
             else:
