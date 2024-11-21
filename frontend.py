@@ -254,7 +254,7 @@ class Display:
             self.insert = False
         elif key == '/':
             if self.mask[c][0] == 1:
-                if self.exp[c-1] == ' ':
+                if notstart and self.exp[c-1] == ' ':
                     replace(-1, 1, '')
                     replace(0, 0, '\\\\\\')
                 else:
