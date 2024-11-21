@@ -14,6 +14,8 @@ def decimal_to_string(x):
     y = x.adjusted()
     if Decimal('5e-10') < x < Decimal('5e12'):
         y = y // 3 * 3
+    if Decimal('-5e-10') > x > Decimal('-5e12'):
+        y = y // 3 * 3
     if y == 0:
         return f'{x:f}'
     a = x / Decimal(10) ** y
