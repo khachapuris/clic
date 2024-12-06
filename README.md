@@ -48,8 +48,8 @@ each interface has its own features.
 2. Install the python curses library (only for TUI, CLI works without it)
 3. Use `git clone` to copy the git repository to your computer.
 4. `cd` into the `clic` directory
-5. Run the calculator's CLI by executing `python calculator.py`
-6. Run the calculator's TUI by executing `python frontend.py`
+5. Run the calculator's CLI by executing `python src/calculator.py`
+6. Run the calculator's TUI by executing `python src/frontend.py`
 
 ## Usage
 

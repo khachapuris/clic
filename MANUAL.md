@@ -166,7 +166,7 @@ Answer: 11.5 min.
 
 ### Step 1: Write the function
 
-Go to `mathfunctions.py` and write your function in Python.
+Go to `src/mathfunctions.py` and write your function in Python.
 It should meet the following requirements:
 
 - If the function accepts a number as an argument, it should support decimal
@@ -180,7 +180,7 @@ to use it in the function, iterate over it
 
 ### Step 2: Register the function
 
-Go to `functions.py` and add a token to the list.
+Go to `src/functions.py` and add a token to the list.
 Use one of the following examples.
 
 ```python
@@ -203,7 +203,7 @@ function / operator / sign.
 
 ## Changing decimal separators and similar syntax elements
 
-Go to `symbols.py`.
+Go to `src/symbols.py`.
 
 ```python
 {
