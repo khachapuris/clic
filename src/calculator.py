@@ -149,8 +149,10 @@ class Calculator:
             return True
         # help
         elif ls[1] == 'h':
-            if len(ls) > 2 and ls[2] in list(glob_funcs):
+            if len(ls) == 3 and ls[2] in list(glob_funcs):
                 self.vars['_'] = glob_funcs[ls[2]].get_help()
+            else:
+                self.vars['_'] = f"Could not find help on '{' '.join(ls[2:])}'"
             self.silent = False
             return True
         raise Calculator.CompilationError(f"unknown command: '{ls[1]}'")
