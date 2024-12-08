@@ -121,41 +121,43 @@ class Calculator:
         done -- the expression does not need to be calculated.
         """
         self.silent = True
+        # empty input
         if not ls:
             return True
-        if ls[0] != smbs.cc['command'] or len(ls) < 2:
-            self.silent = False
-            return False
         # quit the calculator
-        if ls[1] == 'q':
+        if ls[0] == 'quit':
             sys.exit()
         # delete variable (opposite to assignment)
-        elif ls[1] == 'd':
-            if len(ls) > 2:
-                if ls[2] == smbs.sv['sysans']:
+        elif ls[0] == 'del':
+            if len(ls) == 2:
+                if ls[1] == smbs.sv['sysans']:
                     self.vars[smbs.sv['sysans']] = Decimal(0)
-                if ls[2] in list(self.vars):
-                    del self.vars[ls[2]]
+                if ls[1] in list(self.vars):
+                    del self.vars[ls[1]]
             return True
         # list
-        elif ls[1] == 'l':
-            if len(ls) > 2 and ls[2] == 'f':
+        elif ls[0] == 'ls':
+            if len(ls) == 2 and ls[1] == 'f':
                 self.vars['_'] = '  '.join([str(f) for f in glob_funcs])
-            elif len(ls) > 2 and ls[2] == 'u':
+            elif len(ls) == 2 and ls[1] == 'u':
                 self.vars['_'] = '  '.join([str(u) for u in glob_units])
             else:
                 self.vars['_'] = '  '.join([str(v) for v in list(self.vars)])
             self.silent = False
             return True
         # help
-        elif ls[1] == 'h':
-            if len(ls) == 3 and ls[2] in list(glob_funcs):
-                self.vars['_'] = glob_funcs[ls[2]].get_help()
+        elif ls[0] == 'help':
+            if len(ls) == 1:
+                self.vars['_'] = self.vars['help']
+            elif len(ls) == 2 and ls[1] in list(glob_funcs):
+                self.vars['_'] = glob_funcs[ls[1]].get_help()
             else:
-                self.vars['_'] = f"Could not find help on '{' '.join(ls[2:])}'"
+                self.vars['_'] = f"Could not find help on '{' '.join(ls[1:])}'"
             self.silent = False
             return True
-        raise Calculator.CompilationError(f"unknown command: '{ls[1]}'")
+        # not a command
+        self.silent = False
+        return False
 
     def perform_assignment(self, ls):
         """Change the assignment link according to a list of strings."""
