@@ -124,6 +124,7 @@ class Calculator:
         done -- the expression does not need to be calculated.
         """
         self.silent = True
+        self.err = None
         # empty input
         if not ls:
             return True
@@ -164,7 +165,6 @@ class Calculator:
 
     def perform_assignment(self, ls):
         """Change the assignment link according to a list of strings."""
-        self.err = None
         # simple assignment (x = 1)
         if len(ls) > 2 and ls[1] == smbs.cc['assign']:
             name = ls[0]
