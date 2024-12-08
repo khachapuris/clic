@@ -6,16 +6,17 @@ It runs the calculator with a prompt.
 """
 
 from calculator import Calculator
-import symbols as smbs
 
 
 def prompt():
     """A minimal prompt for the calculator."""
-    helptext = 'Basic help:\n'
-    helptext += smbs.cc['command'] + 'exit -- exit the calculator,\n'
-    helptext += smbs.cc['command'] + 'ls f -- list available functions,\n'
-    helptext += smbs.cc['command'] + 'ls u -- list available units,\n'
-    helptext += smbs.cc['command'] + 'help <FUNCTION> -- help on a function.\n'
+    helptext = '''
+,~~~~~~~~~~~~~~~~ Basic help ~~~~~~~~~~~~~~~~,
+| exit -- exit the calculator                |
+| ls f -- list available functions           |
+| ls u -- list available units               |
+| help <NAME> -- help on a specific function |
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
     ctor = Calculator({'help': helptext})
     print(',~~~~~~~~~~~~~~~~~~~~~~~~~~~~~,')
     print('| Welcome to clic calculator! |')
