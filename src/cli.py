@@ -12,10 +12,10 @@ import symbols as smbs
 def prompt():
     """A minimal prompt for the calculator."""
     helptext = 'Basic help:\n'
-    helptext += smbs.cc['command'] + 'q -- quit,\n'
-    helptext += smbs.cc['command'] + 'l f -- list available functions,\n'
-    helptext += smbs.cc['command'] + 'l u -- list available units,\n'
-    helptext += smbs.cc['command'] + 'h <FUNCTION> -- help on a function.\n'
+    helptext += smbs.cc['command'] + 'exit -- exit the calculator,\n'
+    helptext += smbs.cc['command'] + 'ls f -- list available functions,\n'
+    helptext += smbs.cc['command'] + 'ls u -- list available units,\n'
+    helptext += smbs.cc['command'] + 'help <FUNCTION> -- help on a function.\n'
     ctor = Calculator({'help': helptext})
     print(',~~~~~~~~~~~~~~~~~~~~~~~~~~~~~,')
     print('| Welcome to clic calculator! |')

@@ -14,7 +14,9 @@ cc = {
 sv = {
     'ans': 'ans',
     'sysans': '_',
-    'implicit': '_dot_'
+    'implicit': '_dot_',
+    'help':
+        "This is clic calculator. Type 'exit' to quit, please see MANUAL.md"
 }
 
 

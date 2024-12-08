@@ -55,7 +55,10 @@ class Calculator:
         self.reset_vars(predefined)
 
     def reset_vars(self, predefined=None):
-        self.vars = {smbs.sv['sysans']: Decimal(0)}
+        self.vars = {
+            smbs.sv['sysans']: Decimal(0),
+            'help': smbs.sv['help']
+        }
         if predefined:
             self.vars.update(predefined)
 
@@ -125,7 +128,7 @@ class Calculator:
         if not ls:
             return True
         # quit the calculator
-        if ls[0] == 'quit':
+        if ls[0] == 'exit':
             sys.exit()
         # delete variable (opposite to assignment)
         elif ls[0] == 'del':
@@ -348,9 +351,7 @@ class Calculator:
 
 def minimal_prompt():
     """A minimal prompt for the calculator."""
-    helptext = 'This is clic calculator. '
-    helptext += smbs.cc['command'] + 'q -- quit, please see README.md'
-    ctor = Calculator({'help': helptext})
+    ctor = Calculator()
     while True:
         exp = input('% ')
         ctor.calculate(exp)
