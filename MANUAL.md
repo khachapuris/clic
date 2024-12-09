@@ -86,14 +86,13 @@ after a number/variable/closing parenthesis (`10 x`, `2 sqrt 2`, `(5+1)(5-1)`).
 
 Commands tell the calculator to do special tasks
 
-1. To quit type `/q`
-2. To delete variable `var` type `/d var`
-3. To reset all variables type `/d`
-4. To list all functions type `/l f`
-5. To list all units type `/l u`
-6. To list all variables type `/l`
-7. To see help on a function, operator or sign
-with name `name` type `/h name`
+1. To exit type `exit`
+2. To delete variable `var` type `del var`
+3. To list all functions type `ls f`
+4. To list all units type `ls u`
+5. To list all variables type `ls`
+6. To see help on a function, operator or sign
+with name `name` type `help name`
 
 ### Multiple expressions
 
@@ -105,9 +104,9 @@ with name `name` type `/h name`
 
 ## Command line interface
 
-1. Run the CLI with `python calculator.py`
+1. Run the CLI with `python src/cli.py`
 2. Type in the expression / command and press Enter
-3. To exit type `/q` and press Enter
+3. To exit type `exit` and press Enter
 
 ### Example
 
@@ -127,14 +126,14 @@ Get the number of molecules of a hydrocarbon with
 % methane + 8 single + 2 double
 = (11, 20)
 %
-% /q
+% exit
 ```
 
 Answer: 11 carbon atoms and 20 hydrogen atoms.
 
 ## Terminal user interface
 
-1. Run the TUI with `python frontend.py`
+1. Run the TUI with `python src/tui.py`
 2. Type in the expression
     + `/` — create fraction
     + `'v` — insert square root
