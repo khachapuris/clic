@@ -17,14 +17,17 @@ def prompt():
 | ls u -- list available units               |
 | help <NAME> -- help on a specific function |
 '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
-    ctor = Calculator({'help': helptext})
+    ctor = Calculator({
+        'help': helptext,
+        '_prompt': '\033[1;32mclic:\033[0m ',
+    })
     print(',~~~~~~~~~~~~~~~~~~~~~~~~~~~~~,')
     print('| Welcome to clic calculator! |')
     print("| Type 'help' for basic help, |")
     print('|    please see MANUAL.md     |')
     print("'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'")
     while True:
-        exp = input('\033[1;32mclic:\033[0m ')
+        exp = input(ctor.vars['_prompt'])
         ctor.calculate(exp)
         flag, ans = ctor.get_answer()
         if flag:
