@@ -29,7 +29,8 @@ each interface has its own features.
 - Clean expression syntax:
     + Implicit multiplication — ~`a*b`~, `a b`
     + Function notation — ~`sin(x)^2`~, `sin^2 x`
-    + Inline division vs fractions — ~`(1+2)/(2+3)`~, `1+2 / 2+3`
+    + Fractions — ~`(1+2)/(2+3)`~, `1+2 / 2+3`
+    + Inline division — ~`1+(2/2)+3`~, `1 + 2:2 + 3`
 - Vectors
 - Units (all SI units added by default)
 - Variable assignment
