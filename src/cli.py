@@ -6,6 +6,24 @@ It runs the calculator with a prompt.
 """
 
 from calculator import Calculator
+import readline
+
+
+def greek_completer(text, state):
+    vocab = {
+        # Greek alphabet
+        'alpha':   'α', 'beta':  'β', 'gamma':   'γ', 'delta':   'δ',
+        'epsilon': 'ε', 'zeta':  'ζ', 'eta':     'η', 'theta':   'θ',
+        'iotta':   'ι', 'kappa': 'κ', 'lambda':  'λ', 'mu':      'μ',
+        'nu':      'ν', 'xi':    'ξ', 'omicron': 'ο', 'pi':      'π',
+        'rho':     'ρ', 'sigma': 'σ', 'tau':     'τ', 'upsilon': 'υ',
+        'phi':     'φ', 'chi':   'χ', 'psi':     'ψ', 'omega':   'ω',
+        # Other
+        'deg': '°',
+    }
+    if text in vocab:
+        return [vocab[text], None][state]
+    return None
 
 
 def prompt():
@@ -40,9 +58,7 @@ def prompt():
 
 
 if __name__ == '__main__':
-    try:
-        # readline is used to improve standard input UX
-        import readline
-    except ImportError:
-        pass
+    readline.parse_and_bind('tab: complete')
+    readline.set_completer_delims('0123456789!@#$%^&*()-+=`~\'"<,.>/?:;\\| ')
+    readline.set_completer(greek_completer)
     prompt()
