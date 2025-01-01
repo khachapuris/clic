@@ -6,6 +6,7 @@ It runs the calculator with a prompt.
 """
 
 from calculator import Calculator
+import sys
 
 
 def prompt():
@@ -27,7 +28,11 @@ def prompt():
     print('|    please see MANUAL.md     |')
     print("'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'")
     while True:
-        exp = input(ctor.vars['_prompt'])
+        try:
+            exp = input(ctor.vars['_prompt'])
+        except (KeyboardInterrupt, EOFError):
+            print(f'\r{ctor.vars["_prompt"]}exit')
+            sys.exit()
         ctor.calculate(exp)
         flag, ans = ctor.get_answer()
         if flag:
