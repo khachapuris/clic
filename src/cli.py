@@ -31,7 +31,7 @@ def prompt():
         try:
             exp = input(ctor.vars['_prompt'])
         except (KeyboardInterrupt, EOFError):
-            print(f'exit')
+            print('exit')
             sys.exit()
         ctor.calculate(exp)
         flag, ans = ctor.get_answer()
