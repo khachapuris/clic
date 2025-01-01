@@ -42,6 +42,8 @@ functions = [
           'Square root'),
 
     # Place your custom tokens here
+    Token('perm', mf.permutations, 3, 1, 'func', 'Number of permutations'),
+    Token('comb', mf.combinations, 3, 1, 'func', 'Number of combinations'),
 ]
 
 

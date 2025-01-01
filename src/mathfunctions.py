@@ -20,8 +20,10 @@ def factorial(x):
     return Decimal(ans)
 
 
-def permutations(n, k):
+def permutations(args=None, n=None, k=None):
     """Return the number of k-permutations on a set of n elements."""
+    if args:
+        n, k = tuple(args)
     ans = 1
     i = 0
     while i < k:
@@ -30,6 +32,8 @@ def permutations(n, k):
     return Decimal(ans)
 
 
-def combinations(n, k):
+def combinations(args=None, n=None, k=None):
     """Return the number of k-combinations on a set of n elements."""
-    return permutations(n, k) / factorial(n, k)
+    if args:
+        n, k = tuple(args)
+    return permutations(n=n, k=k) / factorial(k)
