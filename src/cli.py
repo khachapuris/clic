@@ -17,8 +17,8 @@ def prompt():
     helptext = '''
 ,~~~~~~~~~~~~~~~~ Basic help ~~~~~~~~~~~~~~~~,
 | exit -- exit the calculator                |
-| ls f -- list available functions           |
-| ls u -- list available units               |
+| list -- list available functions & units   |
+| load <NAME> -- load module                 |
 | help <NAME> -- help on a specific function |
 '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
     ctor = Calculator(helptext=helptext)

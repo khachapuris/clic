@@ -33,13 +33,13 @@ class Calculator:
         self.err = None
         self.link = smbs.sv['ans']
         self.silent = False
-        self.reset_vars(helptext)
+        self.reset_vars()
+        self.helptext = helptext
 
-    def reset_vars(self, helptext=smbs.sv['help']):
+    def reset_vars(self):
         """Reset all variables."""
         self.vars = dict()
         self.assign_ans(Decimal(0))
-        self.assign_ans(helptext, link='help')
         self.load_module('default')
 
     def assign_ans(self, ans, link=smbs.sv['sysans']):
@@ -123,16 +123,8 @@ class Calculator:
         # quit the calculator
         if ls[0] == 'exit':
             sys.exit()
-        # delete variable (opposite to assignment)
-        elif ls[0] == 'del':
-            if len(ls) == 2:
-                if ls[1] == smbs.sv['sysans']:
-                    self.assign_ans(Decimal(0))
-                if ls[1] in list(self.vars):
-                    del self.vars[ls[1]]
-            return True
-        # list
-        elif ls[0] == 'ls':
+        # list all variables
+        elif ls[0] == 'list':
             self.assign_ans('  '.join([str(v) for v in list(self.vars)]))
             self.silent = False
             return True
@@ -144,7 +136,7 @@ class Calculator:
         # help
         elif ls[0] == 'help':
             if len(ls) == 1:
-                self.assign_ans(self.vars['help'])
+                self.assign_ans(self.helptext)
             elif len(ls) == 2 and ls[1] in self.vars:
                 self.assign_ans(self.vars[ls[1]].get_help())
             else:
