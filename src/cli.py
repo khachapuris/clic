@@ -9,6 +9,9 @@ from calculator import Calculator
 import sys
 
 
+PROMPT = '\033[1;32mclic:\033[0m '
+
+
 def prompt():
     """A minimal prompt for the calculator."""
     helptext = '''
@@ -18,10 +21,7 @@ def prompt():
 | ls u -- list available units               |
 | help <NAME> -- help on a specific function |
 '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
-    ctor = Calculator({
-        'help': helptext,
-        '_prompt': '\033[1;32mclic:\033[0m ',
-    })
+    ctor = Calculator(helptext=helptext)
     print(',~~~~~~~~~~~~~~~~~~~~~~~~~~~~~,')
     print('| Welcome to clic calculator! |')
     print("| Type 'help' for basic help, |")
@@ -29,7 +29,7 @@ def prompt():
     print("'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'")
     while True:
         try:
-            exp = input(ctor.vars['_prompt'])
+            exp = input(PROMPT)
         except (KeyboardInterrupt, EOFError):
             print('exit')
             sys.exit()

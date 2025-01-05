@@ -28,24 +28,20 @@ class Calculator:
     class EmptyOutputError(Exception):
         """An error to be raised for an empty output."""
 
-    def __init__(self, predefined=None):
+    def __init__(self, helptext=smbs.sv['help']):
         """The initialiser of the class."""
         self.err = None
         self.link = smbs.sv['ans']
         self.silent = False
-        self.reset_vars(predefined)
+        self.reset_vars(helptext)
 
-    def reset_vars(self, predefined=None):
-        self.vars = {
-            smbs.sv['sysans']: Decimal(0),
-            'help': smbs.sv['help']
-        }
+    def reset_vars(self, helptext=smbs.sv['help']):
+        """Reset all variables."""
+        self.vars = dict()
         self.assign_ans(Decimal(0))
-        self.assign_ans(smbs.sv['help'], link='help')
+        self.assign_ans(helptext, link='help')
         for module in ['essential', 'default', 'custom']:
             self.load_module(module)
-        if predefined:
-            self.vars.update(predefined)
 
     def assign_ans(self, ans, link=smbs.sv['sysans']):
         """Set variable with name link to a token containing ans."""
