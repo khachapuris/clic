@@ -16,22 +16,13 @@ from mathclasses import decimal_to_string
 
 from token import Token
 import symbols as smbs
-from functions import functions as glob_func_list
-from functions import links as glob_func_link_list
-from units import units as glob_units
+from functions import modules
 
 
 glob_syntax_list = [
     Token('(', lambda: None, 10, 0, '(', 'Opening parhethesis'),
     Token(')', lambda: None, 10, 0, ')', 'Closing parenthesis'),
 ]
-
-glob_funcs = {}
-for func in glob_func_list:
-    glob_funcs.update({func.name: func})
-
-for (link, name) in glob_func_link_list:
-    glob_funcs.update({link: glob_funcs[name]})
 
 glob_syntax = {}
 for syntax in glob_syntax_list:
@@ -59,8 +50,14 @@ class Calculator:
             smbs.sv['sysans']: Decimal(0),
             'help': smbs.sv['help']
         }
+        for token in modules['default']:
+            self.vars.update({token.name: token})
         if predefined:
             self.vars.update(predefined)
+
+    def assign_ans(self, ans, link=smbs.sv['sysans']):
+        """Set variable with name link to a token containing ans."""
+        self.vars |= {link: Token.wrap(ans, name=link)}
 
     def split(self, string):
         """Split the given string expression."""
@@ -135,28 +132,23 @@ class Calculator:
         elif ls[0] == 'del':
             if len(ls) == 2:
                 if ls[1] == smbs.sv['sysans']:
-                    self.vars[smbs.sv['sysans']] = Decimal(0)
+                    self.assign_ans(Decimal(0))
                 if ls[1] in list(self.vars):
                     del self.vars[ls[1]]
             return True
         # list
         elif ls[0] == 'ls':
-            if len(ls) == 2 and ls[1] == 'f':
-                self.vars['_'] = '  '.join([str(f) for f in glob_funcs])
-            elif len(ls) == 2 and ls[1] == 'u':
-                self.vars['_'] = '  '.join([str(u) for u in glob_units])
-            else:
-                self.vars['_'] = '  '.join([str(v) for v in list(self.vars)])
+            self.assign_ans('  '.join([str(v) for v in list(self.vars)]))
             self.silent = False
             return True
         # help
         elif ls[0] == 'help':
             if len(ls) == 1:
-                self.vars['_'] = self.vars['help']
-            elif len(ls) == 2 and ls[1] in list(glob_funcs):
-                self.vars['_'] = glob_funcs[ls[1]].get_help()
+                self.assign_ans(self.vars['help'])
+            elif len(ls) == 2 and ls[1] in self.vars:
+                self.assign_ans(self.vars[ls[1]].get_help())
             else:
-                self.vars['_'] = f"Could not find help on '{' '.join(ls[1:])}'"
+                self.assign_ans(f"Could not find help on '{' '.join(ls[1:])}'")
             self.silent = False
             return True
         # not a command
@@ -169,7 +161,6 @@ class Calculator:
         if len(ls) > 2 and ls[1] == smbs.cc['assign']:
             name = ls[0]
             if not smbs.isalphaplus(name[0]) \
-                    or name in (glob_funcs | glob_units) \
                     or name == smbs.sv['sysans']:
                 raise Calculator.CompilationError('assignment error')
             self.link = name
@@ -196,14 +187,8 @@ class Calculator:
             elif smbs.isdigitplus(word[0], plus='.'):
                 num = Decimal(word)
                 ans.append(Token(word, Token.give(num), 10, 0, 'num'))
-            elif word in glob_funcs:
-                ans.append(glob_funcs[word])
             elif word in self.vars:
-                get = Token.give(self.vars[word])
-                ans.append(Token(word, get, 10, 0, 'var'))
-            elif word in glob_units:
-                get = Token.give(glob_units[word])
-                ans.append(Token(word, get, 10, 0, 'var'))
+                ans.append(self.vars[word])
             else:
                 raise Calculator.CompilationError(f"unknown name: '{word}'")
         return ans
@@ -213,21 +198,21 @@ class Calculator:
         last = glob_syntax['(']
         ans = []
         for token in ls:
-            if last.name + ' ' + token.name in list(glob_funcs):
-                ans[-1] = glob_funcs[last.name + ' ' + token.name]
+            if last.name + ' ' + token.name in list(self.vars):
+                ans[-1] = self.vars[last.name + ' ' + token.name]
                 last = ans[-1]
                 continue
             match (last.kind, token.kind):
                 case ('(' | 'oper' | 'func', 'oper'):
                     alt = ' ' + token.name
-                    if alt in glob_funcs:
-                        ans += [glob_funcs[alt]]
+                    if alt in self.vars:
+                        ans += [self.vars[alt]]
                     else:
                         ans += [token]
                 case ('num', 'num'):
                     ans += [token]
                 case ('var' | ')' | 'num', 'var' | '(' | 'num' | 'func'):
-                    ans += [glob_funcs[smbs.sv['implicit']], token]
+                    ans += [self.vars[smbs.sv['implicit']], token]
                 case _:
                     ans += [token]
             last = ans[-1]
@@ -326,8 +311,8 @@ class Calculator:
                 exp = self.complete_infix_notation(exp)
                 exp = self.shunting_yard_algorithm(exp)
                 exp = self.perform_operations_twice(exp)
-                self.vars |= {smbs.sv['sysans']: exp}
-                self.vars |= {self.link: exp}
+                self.assign_ans(exp)
+                self.assign_ans(exp, self.link)
                 self.err = None
         except Exception as err:
             self.err = err
@@ -340,9 +325,9 @@ class Calculator:
         output -- the error / answer (as a string).
         """
         if self.err:
-            # raise self.err  # DEBUG
+            raise self.err  # DEBUG
             return (True, f'{str(self.err)}')
-        ans = self.vars[smbs.sv['sysans']]
+        ans = self.vars[smbs.sv['sysans']].calc()
         if ans is None:
             return (True, '')
         ans = self.object_to_string(ans)

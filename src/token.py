@@ -6,6 +6,8 @@ the list of tokens used in the calculator see functions.py.
 """
 
 import copy
+from decimal import Decimal
+from mathclasses import Quantity, Vector
 
 
 class Token:
@@ -48,6 +50,20 @@ class Token:
         def func():
             return copy.copy(obj)
         return func
+
+    @staticmethod
+    def wrap(obj, name=''):
+        """Return a token that wraps obj."""
+        kind = ''
+        if isinstance(obj, str):
+            kind = 'str'
+        elif isinstance(obj, Decimal):
+            kind = 'num'
+        elif isinstance(obj, Quantity):
+            kind = 'unit'
+        elif isinstance(obj, Vector):
+            kind = 'vec'
+        return Token(name, Token.give(obj), 10, 0, kind)
 
     def get_help(self):
         if self.kind == 'func':
