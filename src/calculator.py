@@ -40,8 +40,7 @@ class Calculator:
         self.vars = dict()
         self.assign_ans(Decimal(0))
         self.assign_ans(helptext, link='help')
-        for module in ['essential', 'default', 'custom']:
-            self.load_module(module)
+        self.load_module('default')
 
     def assign_ans(self, ans, link=smbs.sv['sysans']):
         """Set variable with name link to a token containing ans."""
@@ -138,7 +137,7 @@ class Calculator:
             self.silent = False
             return True
         # import module
-        elif ls[0] == 'use':
+        elif ls[0] == 'load':
             if len(ls) == 2:
                 self.load_module(ls[1])
             return True

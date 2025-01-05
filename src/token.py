@@ -59,10 +59,8 @@ class Token:
             kind = 'str'
         elif isinstance(obj, Decimal):
             kind = 'num'
-        elif isinstance(obj, Quantity):
-            kind = 'unit'
-        elif isinstance(obj, Vector):
-            kind = 'vec'
+        else:
+            kind = 'var'
         return Token(name, Token.give(obj), 10, 0, kind, ht)
 
     def get_help(self):

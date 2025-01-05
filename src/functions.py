@@ -12,10 +12,12 @@ import mathfunctions as mf
 
 import symbols as smbs
 
+from si import units as si_units
+
 
 modules = {
-    'essential': [
-        # Essential tokens
+    'default': [
+        # These tokens are loaded by default
         Token('(', lambda: None, 10, 0, '(', 'Opening parhethesis'),
         Token(')', lambda: None, 10, 0, ')', 'Closing parenthesis'),
         Token('+', lambda a, b: a + b,  1, 0, 'oper', 'Addition'),
@@ -27,13 +29,16 @@ modules = {
         Token(' +', lambda a: +a,       4, 1, 'func', 'Positition'),
         Token(smbs.sv['implicit'], lambda a, b: a * b, 3, 1, 'oper',
               'Implicit multiplication'),
+        Token(',', Vector.join,         0, 0, 'oper', 'Argument separator'),
+        Token('/', lambda a, b: a / b,  0, 0, 'oper', 'Fraction bar'),
+        Token('sqrt', lambda a: a ** Decimal('0.5'),      4, 1, 'func',
+              'Square root'),
+        Token.wrap(glob_pi, name='pi', ht='The number pi'),
+        Token.wrap(glob_e,  name='e',  ht='The number e'),
+        # Place your custom tokens here
     ],
-    'default': [
+    'trigonometry': [
         # Default tokens
-        Token('!', mf.factorial,         4, 0, 'sign', 'Factorial'),
-        Token(',', Vector.join,          0, 0, 'oper', 'Argument separator'),
-        Token('/', lambda a, b: a / b,   0, 0, 'oper', 'Fraction bar'),
-        Token('mod', lambda a, b: a % b, 2, 0, 'oper', 'Modulo'),
         Token('sin',    Quantity.sin,    3, 1, 'func', 'Sine'),
         Token('cos',    Quantity.cos,    3, 1, 'func', 'Cosine'),
         Token('tan',    Quantity.tan,    3, 1, 'func', 'tangent'),
@@ -43,23 +48,22 @@ modules = {
         Token('sin ^', lambda a, b: Quantity.sin(a) ** b, 3, 1, 'doub'),
         Token('cos ^', lambda a, b: Quantity.cos(a) ** b, 3, 1, 'doub'),
         Token('tan ^', lambda a, b: Quantity.tan(a) ** b, 3, 1, 'doub'),
-        Token('sqrt', lambda a: a ** Decimal('0.5'),      4, 1, 'func',
-              'Square root'),
-        Token.wrap(glob_pi, name='pi', ht='The number pi'),
-        Token.wrap(glob_e,  name='e',  ht='The number e'),
+        Token.wrap(Quantity(glob_pi / Decimal(180), {'rad': 1}), name='deg',
+                   ht='Degree'),
+        Token.wrap(Quantity(Decimal(1), {'rad': 1}), name='rad', ht='Radian')
     ],
-    'custom': [
-        # These tokens will be loaded by default
-        # Place your custom tokens here
-    ],
-
     'combinatorics': [
+        Token('!', mf.factorial,    4, 0, 'sign', 'Factorial'),
         Token('P', mf.permutations, 3, 1, 'func', 'Number of permutations'),
         Token('C', mf.combinations, 3, 1, 'func', 'Number of combinations'),
     ],
+    'number_theory': [
+        Token('mod', lambda a, b: a % b, 2, 0, 'oper', 'Modulo'),
+    ],
     'chemistry': [
         Token('M', mf.mass, 3, 1, 'func', 'Molar mass of compound'),
-    ]
+    ],
+    'si': si_units,
 }
 
 
