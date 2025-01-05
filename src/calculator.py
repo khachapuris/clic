@@ -19,16 +19,6 @@ import symbols as smbs
 from functions import modules
 
 
-glob_syntax_list = [
-    Token('(', lambda: None, 10, 0, '(', 'Opening parhethesis'),
-    Token(')', lambda: None, 10, 0, ')', 'Closing parenthesis'),
-]
-
-glob_syntax = {}
-for syntax in glob_syntax_list:
-    glob_syntax.update({syntax.name: syntax})
-
-
 class Calculator:
     """The Calculator object provides methods for calculating expressions."""
 
@@ -50,8 +40,9 @@ class Calculator:
             smbs.sv['sysans']: Decimal(0),
             'help': smbs.sv['help']
         }
-        for token in modules['default']:
-            self.vars.update({token.name: token})
+        for module in ['essential', 'default', 'custom']:
+            for token in modules[module]:
+                self.vars.update({token.name: token})
         if predefined:
             self.vars.update(predefined)
 
@@ -179,9 +170,7 @@ class Calculator:
         """Transform a list of strings to a list of Token objects."""
         ans = []
         for word in ls:
-            if word[0] in glob_syntax:
-                ans.append(glob_syntax[word])
-            elif word[0] == smbs.cc['quote']:
+            if word[0] == smbs.cc['quote']:
                 get = Token.give(word.strip(smbs.cc['quote']))
                 ans.append(Token(word, get, 10, 0, 'str'))
             elif smbs.isdigitplus(word[0], plus='.'):
@@ -195,7 +184,7 @@ class Calculator:
 
     def complete_infix_notation(self, ls):
         """Add omited operators to a list of tokens."""
-        last = glob_syntax['(']
+        last = self.vars['(']
         ans = []
         for token in ls:
             if last.name + ' ' + token.name in list(self.vars):

@@ -52,7 +52,7 @@ class Token:
         return func
 
     @staticmethod
-    def wrap(obj, name=''):
+    def wrap(obj, name='', ht=''):
         """Return a token that wraps obj."""
         kind = ''
         if isinstance(obj, str):
@@ -63,7 +63,7 @@ class Token:
             kind = 'unit'
         elif isinstance(obj, Vector):
             kind = 'vec'
-        return Token(name, Token.give(obj), 10, 0, kind)
+        return Token(name, Token.give(obj), 10, 0, kind, ht)
 
     def get_help(self):
         if self.kind == 'func':
@@ -72,6 +72,7 @@ class Token:
             return f'{self.ht} operator'
         if self.kind == 'sign':
             return f'{self.ht} sign'
+        return f'{self.ht}'
 
     def __repr__(self):
         """String representation of tokens."""
