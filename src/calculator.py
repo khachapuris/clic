@@ -40,15 +40,24 @@ class Calculator:
             smbs.sv['sysans']: Decimal(0),
             'help': smbs.sv['help']
         }
+        self.assign_ans(Decimal(0))
+        self.assign_ans(smbs.sv['help'], link='help')
         for module in ['essential', 'default', 'custom']:
-            for token in modules[module]:
-                self.vars.update({token.name: token})
+            self.load_module(module)
         if predefined:
             self.vars.update(predefined)
 
     def assign_ans(self, ans, link=smbs.sv['sysans']):
         """Set variable with name link to a token containing ans."""
         self.vars |= {link: Token.wrap(ans, name=link)}
+
+    def load_module(self, module):
+        """Update self.vars with tokens from module."""
+        if module in modules:
+            for token in modules[module]:
+                self.vars.update({token.name: token})
+        else:
+            raise Calculator.CompilationError(f"unknown module: '{module}'")
 
     def split(self, string):
         """Split the given string expression."""
@@ -131,6 +140,11 @@ class Calculator:
         elif ls[0] == 'ls':
             self.assign_ans('  '.join([str(v) for v in list(self.vars)]))
             self.silent = False
+            return True
+        # import module
+        elif ls[0] == 'use':
+            if len(ls) == 2:
+                self.load_module(ls[1])
             return True
         # help
         elif ls[0] == 'help':
@@ -301,7 +315,7 @@ class Calculator:
                 exp = self.shunting_yard_algorithm(exp)
                 exp = self.perform_operations_twice(exp)
                 self.assign_ans(exp)
-                self.assign_ans(exp, self.link)
+                self.assign_ans(exp, link=self.link)
                 self.err = None
         except Exception as err:
             self.err = err

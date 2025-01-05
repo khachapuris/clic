@@ -13,6 +13,7 @@ import mathfunctions as mf
 import symbols as smbs
 
 
+<<<<<<< HEAD
 modules = {
     'essential': [
         # Essential tokens
@@ -52,6 +53,14 @@ modules = {
         # These tokens will be loaded by default
         # Place your custom tokens here
     ],
+
+    'combinatorics': [
+        Token('perm', mf.permutations, 3, 1, 'func', 'Number of permutations'),
+        Token('comb', mf.combinations, 3, 1, 'func', 'Number of combinations'),
+    ],
+    'chemistry': [
+        Token('M', mf.mass, 3, 1, 'func', 'Molar mass of compound'),
+    ]
 }
 
 
