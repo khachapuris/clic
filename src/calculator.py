@@ -130,6 +130,9 @@ class Calculator:
             return True
         # import module
         elif ls[0] == 'load':
+            if len(ls) == 1:
+                self.assign_ans('  '.join([str(m) for m in list(modules)]))
+                self.silent = False
             if len(ls) == 2:
                 self.load_module(ls[1])
             return True
@@ -315,7 +318,7 @@ class Calculator:
         output -- the error / answer (as a string).
         """
         if self.err:
-            raise self.err  # DEBUG
+            # raise self.err  # DEBUG
             return (True, f'{str(self.err)}')
         ans = self.vars[smbs.sv['sysans']].calc()
         if ans is None:
