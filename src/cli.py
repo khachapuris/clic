@@ -46,10 +46,26 @@ def prompt():
         print()
 
 
+def command_line_calc():
+    """Calculate using command line arguments."""
+    ctor = Calculator()
+    ctor.calculate(''.join(sys.argv[1:]))
+    flag, ans = ctor.get_answer()
+    if flag:
+        print(f'! {ans}')
+    elif ctor.silent:
+        pass
+    else:
+        print(f'= {ans}')
+
+
 if __name__ == '__main__':
     try:
         # readline is used to improve standard input UX
         import readline
     except ImportError:
         pass
-    prompt()
+    if len(sys.argv) > 1:
+        command_line_calc()
+    else:
+        prompt()
