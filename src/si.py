@@ -42,6 +42,10 @@ def si(unit, name, exps=None):
         name1 = prefixes[exp] + name
         unit1 = unit * (Decimal('10') ** exp)
         units.append(Token.wrap(unit1, name=name1))
+        # Alternative micro prefix
+        if exp == -6:
+            name1 = 'μ' + name
+            units.append(Token.wrap(unit1, name=name1))
 
 
 # Add SI units
@@ -62,7 +66,8 @@ si(der(1,  2, -2,  0), 'J')   # joule
 si(der(1,  2, -3,  0), 'W')   # watt
 si(der(0,  0,  1,  1), 'C')   # couloumb
 si(der(1,  2, -3, -1), 'V')   # volt
-si(der(1,  2, -3, -2), 'ohm')   # ohm
+si(der(1,  2, -3, -2), 'ohm')  # ohm
+si(der(1,  2, -3, -2), 'Ω')    # ohm (alternative)
 si(der(0,  0, -1,  0), 'Bq', [0, 3, 6, 9])  # becquerrel
 si(der(0,  2, -2,  0), 'Gy', [-6, -3, -2, 0])  # gray
 

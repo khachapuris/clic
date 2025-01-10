@@ -48,8 +48,8 @@ class Display:
             if char == '\\':
                 ans += smb_str[smb_num]
                 smb_num = (smb_num + 1) % 3
-            elif char in smbs2.sub:
-                ans += f' {smbs2.sub[char]} '
+            # elif char in smbs2.sub:
+            #     ans += f' {smbs2.sub[char]} '
             else:
                 ans += char
         return ans
