@@ -180,7 +180,7 @@ to use it in the function, iterate over it
 
 ### Step 2: Register the function
 
-Go to `src/functions.py` and add a token to the list.
+Go to `src/functions.py` and add a token to the list marked by `default`.
 Use one of the following examples.
 
 ```python
