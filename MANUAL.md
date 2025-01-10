@@ -87,10 +87,11 @@ after a number/variable/closing parenthesis (`10 x`, `2 sqrt 2`, `(5+1)(5-1)`).
 Commands tell the calculator to do special tasks
 
 1. To exit type `exit`
-2. To delete variable `var` type `del var`
-3. To list all functions type `ls f`
-4. To list all units type `ls u`
-5. To list all variables type `ls`
+2. To list all functions, units
+and variables type `list`
+3. To list all modules type `load`
+4. To load a module with name `name` type `load name`
+5. To see the basic help type `help`
 6. To see help on a function, operator or sign
 with name `name` type `help name`
 
@@ -179,7 +180,7 @@ to use it in the function, iterate over it
 
 ### Step 2: Register the function
 
-Go to `src/functions.py` and add a token to the list.
+Go to `src/functions.py` and add a token to the list marked by `default`.
 Use one of the following examples.
 
 ```python

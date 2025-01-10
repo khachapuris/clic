@@ -6,7 +6,7 @@ It runs the calculator with a prompt.
 """
 
 from calculator import Calculator
-import readline
+import sys
 
 
 def greek_completer(text, state):
@@ -19,11 +19,14 @@ def greek_completer(text, state):
         'rho':     'ρ', 'sigma': 'σ', 'tau':     'τ', 'upsilon': 'υ',
         'phi':     'φ', 'chi':   'χ', 'psi':     'ψ', 'omega':   'ω',
         # Other
-        'deg': '°',
+        'deg':     '°', 'sqrt':  '√',
     }
     if text in vocab:
         return [vocab[text], None][state]
     return None
+
+
+PROMPT = '\033[1;32mclic:\033[0m '
 
 
 def prompt():
@@ -31,21 +34,24 @@ def prompt():
     helptext = '''
 ,~~~~~~~~~~~~~~~~ Basic help ~~~~~~~~~~~~~~~~,
 | exit -- exit the calculator                |
-| ls f -- list available functions           |
-| ls u -- list available units               |
+| help -- display this help                  |
+| list -- list available functions & units   |
+| load -- list available modules             |
 | help <NAME> -- help on a specific function |
+| load <NAME> -- load module                 |
 '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
-    ctor = Calculator({
-        'help': helptext,
-        '_prompt': '\033[1;32mclic:\033[0m ',
-    })
+    ctor = Calculator(helptext=helptext)
     print(',~~~~~~~~~~~~~~~~~~~~~~~~~~~~~,')
     print('| Welcome to clic calculator! |')
     print("| Type 'help' for basic help, |")
     print('|    please see MANUAL.md     |')
     print("'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'")
     while True:
-        exp = input(ctor.vars['_prompt'])
+        try:
+            exp = input(PROMPT)
+        except (KeyboardInterrupt, EOFError):
+            print('exit')
+            sys.exit()
         ctor.calculate(exp)
         flag, ans = ctor.get_answer()
         if flag:
@@ -57,8 +63,26 @@ def prompt():
         print()
 
 
+def command_line_calc():
+    """Calculate using command line arguments."""
+    ctor = Calculator()
+    ctor.calculate(''.join(sys.argv[1:]))
+    flag, ans = ctor.get_answer()
+    if flag:
+        print(f'! {ans}')
+    elif ctor.silent:
+        pass
+    else:
+        print(f'= {ans}')
+
+
 if __name__ == '__main__':
-    readline.parse_and_bind('tab: complete')
-    readline.set_completer_delims('0123456789!@#$%^&*()-+=`~\'"<,.>/?:;\\| ')
-    readline.set_completer(greek_completer)
-    prompt()
+    if len(sys.argv) > 1:
+        command_line_calc()
+    else:
+        # impove standard UX
+        import readline
+        readline.parse_and_bind('tab: complete')
+        readline.set_completer_delims('0123456789!@#$%^&*()-+=`~\'"<,.>/?:;\\| ')
+        readline.set_completer(greek_completer)
+        prompt()

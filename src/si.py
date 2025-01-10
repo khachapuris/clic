@@ -1,7 +1,9 @@
-"""This module contains a dictionary with units used in the calculator."""
+"""This module defines si units used in the calulator."""
 
 from decimal import Decimal
 from mathclasses import Quantity, glob_pi
+
+from token import Token
 
 
 def one(unit):
@@ -19,7 +21,7 @@ def der(kg, m, s, a):
     return Quantity(Decimal(1), {'kg': kg, 'm': m, 's': s, 'A': a})
 
 
-units = dict()
+units = []
 
 prefixes = {-9: 'n', -6: 'mc', -3: 'm', -2: 'c', -1: 'd',
             0: '', 1: 'da', 2: 'h', 3: 'k', 6: 'M', 9: 'G'}
@@ -39,7 +41,7 @@ def si(unit, name, exps=None):
     for exp in exps:
         name1 = prefixes[exp] + name
         unit1 = unit * (Decimal('10') ** exp)
-        units.update({name1: unit1})
+        units.append(Token.wrap(unit1, name=name1))
 
 
 # Add SI units
@@ -66,9 +68,3 @@ si(der(0,  2, -2,  0), 'Gy', [-6, -3, -2, 0])  # gray
 
 si(Quantity(Decimal('0.001'), {'m': 3}), 'l', [-3, 0])    # litre
 si(Quantity(Decimal('10000'), {'m': 2}), 'a', [2])        # hectare
-
-units |= {
-    'min': few(Decimal(60), 's'),
-    'h': few(Decimal(3600), 's'),
-    'deg': few(glob_pi / Decimal(180), 'rad')
-}
