@@ -298,7 +298,7 @@ class Calculator:
         try:
             for exp in self.split(expr):
                 if self.run_command(exp):
-                    return None
+                    continue
                 exp = self.perform_assignment(exp)
                 exp = self.tokenize(exp)
                 exp = self.complete_infix_notation(exp)
