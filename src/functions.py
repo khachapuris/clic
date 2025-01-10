@@ -1,6 +1,9 @@
-"""This module contains a list of functions/operators for the calculator.
+"""This module contains a dictionary with modules. Each module
+contains a list of functions/operators for the calculator.
+Modules can be loaded from the calculator with the 'load' command;
+the default module is loaded by default.
 
-To register custom functions add corresponding tokens to the list.
+To register custom functions add corresponding tokens to the desired module.
 """
 
 from token import Token
