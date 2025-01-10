@@ -109,6 +109,19 @@ with name `name` type `help name`
 2. Type in the expression / command and press Enter
 3. To exit type `exit` and press Enter
 
+### Special character insertion
+
+CLIC offers a Julia REPL like method of entering special characters.
+To input a special character, type:
+
+1. Small greek letter -> `\` + it's name in lowercase
+2. Capital greek letter -> `\` + it's name capitalised
+3. Final sigma -> `\sigmaf`
+4. Degree sign -> `\deg`
+5. Square root sign -> `\sqrt`
+
+Press tab, and what you typed is replaced with the symbol.
+
 ### Example
 
 Get the number of molecules of a hydrocarbon with
