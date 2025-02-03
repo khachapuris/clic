@@ -40,7 +40,7 @@ modules = {
         Token.wrap(glob_e,  name='e',  ht='The number e'),
         # Place your custom tokens here
     ],
-    'trigonometry': [
+    'trig': [
         # Default tokens
         Token('sin',    Quantity.sin,    3, 1, 'func', 'Sine'),
         Token('cos',    Quantity.cos,    3, 1, 'func', 'Cosine'),
@@ -55,15 +55,15 @@ modules = {
                    ht='Degree'),
         Token.wrap(Quantity(Decimal(1), {'rad': 1}), name='rad', ht='Radian')
     ],
-    'combinatorics': [
+    'comb': [
         Token('!', mf.factorial,    4, 0, 'sign', 'Factorial'),
         Token('P', mf.permutations, 3, 1, 'func', 'Number of permutations'),
         Token('C', mf.combinations, 3, 1, 'func', 'Number of combinations'),
     ],
-    'number_theory': [
+    'numthe': [
         Token('mod', lambda a, b: a % b, 2, 0, 'oper', 'Modulo'),
     ],
-    'chemistry': [
+    'chem': [
         Token('M', mf.mass, 3, 1, 'func', 'Molar mass of compound'),
     ],
     'si': si_units,
