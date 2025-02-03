@@ -48,9 +48,9 @@ modules = {
         Token('arcsin', Quantity.arcsin, 3, 1, 'func', 'Angle by sine'),
         Token('arccos', Quantity.arccos, 3, 1, 'func', 'Angle by cosine'),
         Token('arctan', Quantity.arctan, 3, 1, 'func', 'Angle by tangent'),
-        Token('sin ^', lambda a, b: Quantity.sin(a) ** b, 3, 1, 'doub'),
-        Token('cos ^', lambda a, b: Quantity.cos(a) ** b, 3, 1, 'doub'),
-        Token('tan ^', lambda a, b: Quantity.tan(a) ** b, 3, 1, 'doub'),
+        Token('sin ^', lambda a, b: Quantity.sin(b) ** a, 3, 1, 'doub'),
+        Token('cos ^', lambda a, b: Quantity.cos(b) ** a, 3, 1, 'doub'),
+        Token('tan ^', lambda a, b: Quantity.tan(b) ** a, 3, 1, 'doub'),
         Token.wrap(Quantity(glob_pi / Decimal(180), {'rad': 1}), name='deg',
                    ht='Degree'),
         Token.wrap(Quantity(Decimal(1), {'rad': 1}), name='rad', ht='Radian')
