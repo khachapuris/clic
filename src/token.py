@@ -54,14 +54,7 @@ class Token:
     @staticmethod
     def wrap(obj, name='', ht=''):
         """Return a token that wraps obj."""
-        kind = ''
-        if isinstance(obj, str):
-            kind = 'str'
-        elif isinstance(obj, Decimal):
-            kind = 'num'
-        else:
-            kind = 'var'
-        return Token(name, Token.give(obj), 10, 0, kind, ht)
+        return Token(name, Token.give(obj), 10, 0, 'var', ht)
 
     def get_help(self):
         if self.kind == 'func':
