@@ -62,6 +62,8 @@ modules = {
         # Alternative names
         Token('tg',    Quantity.tan,     3, 1, 'func', 'Tangent'),
         Token('arctg', Quantity.arctan,  3, 1, 'func', 'Angle by tangent'),
+        Token.wrap(Quantity(glob_pi / Decimal(180), {'rad': 1}), name='°',
+                   ht='Degree'),
     ],
     'comb': [
         Token('!', mf.factorial,    4, 0, 'sign', 'Factorial'),
