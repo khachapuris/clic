@@ -35,6 +35,9 @@ exporttokens = {
     Token.wrap(glob_pi, name='π',  ht='The number pi'),
     Token('√', lambda a: a ** Decimal('0.5'), 4, 1, 'func',
           'Square root'),
+    # Settings
+    Token.wrap(0, name='_debug_', ht='Show debug messages setting'),
+    Token.wrap('classic', name='_notation_', ht='Number notation setting'),
 
     # Place your custom tokens here
 }

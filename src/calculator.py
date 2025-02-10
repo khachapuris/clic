@@ -316,7 +316,8 @@ class Calculator:
         if isinstance(obj, str):
             return f'"{obj}"'
         if isinstance(obj, Decimal):
-            return decimal_to_string(obj)
+            notation = self.vars['_notation_'].calc()
+            return decimal_to_string(obj, notation=notation)
         return str(obj)
 
     def calculate(self, expr):
@@ -344,7 +345,8 @@ class Calculator:
         output -- the error / answer (as a string).
         """
         if self.err:
-            # raise self.err  # DEBUG
+            if self.vars['_debug_'].calc():
+                raise self.err
             return (True, f'{str(self.err)}')
         ans = self.vars[smbs.sv['sysans']].calc()
         if ans is None:

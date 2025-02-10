@@ -9,13 +9,22 @@ glob_pi = Decimal('3.1415926535897932384626433833')
 glob_e = Decimal('2.7182818284590452353602874714')
 
 
-def decimal_to_string(x):
+def decimal_to_string(x, notation='classic'):
     """Return a string representation of decimal x."""
     y = x.adjusted()
-    if Decimal('5e-10') < x < Decimal('5e12'):
+    if notation == 'classic':
+        if Decimal('5e-10') < x < Decimal('5e12'):
+            y = y // 3 * 3
+        if Decimal('-5e-10') > x > Decimal('-5e12'):
+            y = y // 3 * 3
+    elif notation == 'engineering':
         y = y // 3 * 3
-    if Decimal('-5e-10') > x > Decimal('-5e12'):
-        y = y // 3 * 3
+    elif notation == 'scientific':
+        pass
+    elif notation == 'normal':
+        return f'{x:f}'
+    else:
+        raise ValueError('invalid notation')
     if y == 0:
         return f'{x:f}'
     a = x / Decimal(10) ** y
