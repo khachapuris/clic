@@ -16,7 +16,13 @@ from mathclasses import decimal_to_string
 
 from token import Token
 import symbols as smbs
-from functions import modules
+from functions import exporttokens as default_tokens
+
+import importlib
+import os
+import os.path as os_path
+from os import listdir
+from os.path import isfile, join
 
 
 class Calculator:
@@ -34,13 +40,25 @@ class Calculator:
         self.link = smbs.sv['ans']
         self.silent = False
         self.reset_vars()
+        self.update_modules()
         self.helptext = helptext
 
     def reset_vars(self):
         """Reset all variables."""
         self.vars = dict()
         self.assign_ans(Decimal(0))
-        self.load_module('default')
+        for token in default_tokens:
+            self.vars.update({token.name: token})
+
+    def update_modules(self):
+        """Update the list of all modules."""
+        modules = []
+        path_to_modules = os_path.join(os_path.dirname(__file__), 'modules')
+        for filename in os.listdir(path_to_modules):
+            if os_path.isfile(os_path.join(path_to_modules, filename)):
+                if filename.endswith('.py') and filename != '__init__.py':
+                    modules.append(filename[:-3])
+        self.modules = modules
 
     def assign_ans(self, ans, link=smbs.sv['sysans']):
         """Set variable with name link to a token containing ans."""
@@ -48,11 +66,15 @@ class Calculator:
 
     def load_module(self, module):
         """Update self.vars with tokens from module."""
-        if module in modules:
-            for token in modules[module]:
-                self.vars.update({token.name: token})
-        else:
+        self.update_modules()
+        if module not in self.modules:
             raise Calculator.CompilationError(f"unknown module: '{module}'")
+        try:
+            exporttokens = getattr(importlib.import_module(f'modules.{module}'), 'exporttokens')
+        except AttributeError:
+            raise Calculator.CompilationError(f"invalid module: '{module}'")
+        for token in exporttokens:
+            self.vars.update({token.name: token})
 
     def split(self, string):
         """Split the given string expression."""
@@ -131,7 +153,7 @@ class Calculator:
         # import module
         elif ls[0] == 'load':
             if len(ls) == 1:
-                self.assign_ans('  '.join([str(m) for m in list(modules)]))
+                self.assign_ans('  '.join([str(m) for m in list(self.modules)]))
                 self.silent = False
             if len(ls) == 2:
                 self.load_module(ls[1])
