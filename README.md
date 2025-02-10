@@ -5,6 +5,20 @@ is a customisable command line scientific calculator written in Python.
 
 ## Description
 
+### Math used in clic
+
+- Infix notation & fixed point calculations
+- Clean expression syntax:
+    + Implicit multiplication — ~`a*b`~, `a b`
+    + Function notation — ~`sin(x)^2`~, `sin^2 x`
+    + Fractions — ~`(1+2)/(2+3)`~, `1+2 / 2+3`
+    + Inline division — ~`1+(2/2)+3`~, `1 + 2:2 + 3`
+- Vectors
+- Units (all SI units added by default)
+- Variable assignment
+- Exponentiation, modulo division, square root implemented initially
+- Trigonometric and reverse trigonometric functions
+
 ### Two interfaces
 
 CLIC provides two different interfaces.
@@ -23,24 +37,9 @@ each interface has its own features.
     + Special characters for pi, square root, etc.
     + Autoscrolling of expressions that are bigger than the terminal window
 
-### Math used in clic
+### Extensibility
 
-- Infix notation & fixed point calculations
-- Clean expression syntax:
-    + Implicit multiplication — ~`a*b`~, `a b`
-    + Function notation — ~`sin(x)^2`~, `sin^2 x`
-    + Fractions — ~`(1+2)/(2+3)`~, `1+2 / 2+3`
-    + Inline division — ~`1+(2/2)+3`~, `1 + 2:2 + 3`
-- Vectors
-- Units (all SI units added by default)
-- Variable assignment
-- Exponentiation, modulo division, square root implemented initially
-- Trigonometric and reverse trigonometric functions
-
-### Editing the default setup
-
-- Edit default functions & operators
-- Use your own Python functions in the calculator
+- Write extensions with your own functions and operators
 - Change stuff like decimal separators throughout the whole application
 
 ## Installation
