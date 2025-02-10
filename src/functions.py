@@ -1,10 +1,16 @@
-"""This module contains a dictionary with modules. Each module
+'''This module contains a dictionary with modules. Each module
 contains a list of functions/operators for the calculator.
 Modules can be loaded from the calculator with the 'load' command;
 the default module is loaded by default.
 
 To register custom functions add corresponding tokens to the desired module.
-"""
+'''
+
+import importlib
+import os
+import os.path as os_path
+from os import listdir
+from os.path import isfile, join
 
 from token import Token
 
@@ -14,8 +20,6 @@ from mathclasses import glob_pi, glob_e
 import mathfunctions as mf
 
 import symbols as smbs
-
-from si import units as si_units
 
 
 modules = {
@@ -76,12 +80,17 @@ modules = {
     'chem': [
         Token('M', mf.mass, 3, 1, 'func', 'Molar mass of compound'),
     ],
-    'si': si_units,
 }
 
 
-links = {
-    # Alternative names for tokens
-    ('tg', 'tan'),
-    ('arctg', 'arctan'),
-}
+# Import all modules from the 'modules' directory
+onlyfiles = []
+my_path = os_path.join(os_path.dirname(__file__), 'modules')
+for filename in os.listdir(my_path):
+    if os_path.isfile(os_path.join(my_path, filename)):
+        if filename.endswith('.py') and filename != '__init__.py':
+            onlyfiles.append(filename[:-3])
+
+for filename in onlyfiles:
+    exporttokens = getattr(importlib.import_module(f'modules.{filename}'), 'exporttokens')
+    modules.update({filename: exporttokens})
