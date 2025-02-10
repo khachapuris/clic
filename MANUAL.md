@@ -103,6 +103,21 @@ with name `name` type `help name`
 3. You can create comments by hiding the output of strings
 (`"This is a comment";`)
 
+### Settings
+
+To alter a setting, use assignment: `_setting_name_ = <setting_value>`
+Here is a list of all settings with their available values:
+
+1. `_debug_` show debug messages and error tracebacks
+    + `0`(default) -> off
+    + `1` -> on
+2. `_notation_` number representation mode
+    + `"classic"`(default) -> use engineering notation between `10^-9` and `10^9`,
+otherwise use scientific notation
+    + `"engineering"` -> express numbers like `x * 10^(3y)`
+    + `"scientific"` -> express numbers like `x * 10^y`
+    + `"normal"` -> express numbers without any exponent
+
 ## Command line interface
 
 1. Run the CLI with `python src/cli.py`
