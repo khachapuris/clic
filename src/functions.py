@@ -1,17 +1,13 @@
-'''This module contains a dictionary with modules. Each module
-contains a list of functions/operators for the calculator.
-Modules can be loaded from the calculator with the 'load' command;
-the default module is loaded by default.
+"""This module contains a list of tokens that are loaded by default.
 
-To register custom functions add corresponding tokens to the desired module.
-'''
+To register custom functions add corresponding tokens to the list.
+"""
 
 from token import Token
 
 from decimal import Decimal
 from mathclasses import Quantity, Vector
 from mathclasses import glob_pi, glob_e
-import mathfunctions as mf
 
 import symbols as smbs
 

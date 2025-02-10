@@ -21,8 +21,6 @@ from functions import exporttokens as default_tokens
 import importlib
 import os
 import os.path as os_path
-from os import listdir
-from os.path import isfile, join
 
 
 class Calculator:
