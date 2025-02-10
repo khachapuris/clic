@@ -1,4 +1,4 @@
-"""This module defines si units used in the calulator."""
+"""Module with SI units."""
 
 from decimal import Decimal
 from mathclasses import Quantity, glob_pi

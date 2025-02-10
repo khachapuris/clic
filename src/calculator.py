@@ -164,6 +164,12 @@ class Calculator:
                 self.assign_ans(self.helptext)
             elif len(ls) == 2 and ls[1] in self.vars:
                 self.assign_ans(self.vars[ls[1]].get_help())
+                if ls[1] in self.modules:
+                    module = importlib.import_module(f'modules.{ls[1]}')
+                    self.assign_ans(self.vars[ls[1]].get_help() + ';  ' + module.__doc__)
+            elif len(ls) == 2 and ls[1] in self.modules:
+                module = importlib.import_module(f'modules.{ls[1]}')
+                self.assign_ans(module.__doc__)
             else:
                 self.assign_ans(f"Could not find help on '{' '.join(ls[1:])}'")
             self.silent = False
