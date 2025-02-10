@@ -106,12 +106,13 @@ with name `name` type `help name`
 ### Settings
 
 To alter a setting, use assignment: `_setting_name_ = <setting_value>`
+
 Here is a list of all settings with their available values:
 
-1. `_debug_` show debug messages and error tracebacks
+1. `_debug_`: show debug messages and error tracebacks
     + `0`(default) -> off
     + `1` -> on
-2. `_notation_` number representation mode
+2. `_notation_`: number representation mode
     + `"classic"`(default) -> use engineering notation between `10^-9` and `10^9`,
 otherwise use scientific notation
     + `"engineering"` -> express numbers like `x * 10^(3y)`
