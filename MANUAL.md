@@ -175,12 +175,15 @@ and get the answer in minutes.
 
 Answer: 11.5 min.
 
-## Adding your Python functions
+## Writing an extension
 
-### Step 1: Write the function
+For examples, see files from the `modules` directory.
 
-Go to `src/mathfunctions.py` and write your function in Python.
-It should meet the following requirements:
+### Step 1: Write functions
+
+Go to `src/modules` and add a file `my_module.py`, where `my_module`
+is the name of your module. There write your function(s) in Python.
+Every function should meet the following requirements:
 
 - If the function accepts a number as an argument, it should support decimal
 values (see the decimal docs at https://docs.python.org/3/library/decimal.html)
@@ -193,26 +196,33 @@ to use it in the function, iterate over it
 
 ### Step 2: Register the function
 
-Go to `src/functions.py` and add a token to the list marked by `default`.
-Use one of the following examples.
+Define a list called `exporttokens` in your module.
+Each element of that list should be a `Token`:
 
 ```python
-# Simple function
-Token('name', mf.function, 3, 1, 'func', 'Help text'),
-# Operator with preference x
-Token('name', mf.function, x, 0, 'oper', 'Help text'),
-# Sign with preference x
-Token('name', mf.function, x, 0, 'sign', 'Help text'),
-```
+from token import Token
 
-Replace `name` with the name for usage in the calculator,
-and `function` with the name of the function.
+# Here are your function definitions...
+
+exporttokens = [
+    # If you want a simple function, insert this
+    Token('example_name_a', example_function_a, 3, 1, 'func', 'Help text'),
+    # If you want an operator with preference x, insert this
+    Token('example_name_b', example_function_b, x, 0, 'oper', 'Help text'),
+    # If you want a sign with preference x, insert this
+    Token('example_name_c', example_function_c, x, 0, 'sign', 'Help text'),
+    # Create and register as much functions as you want
+]
+```
 Note that the help text is optional.
+Don't forget to save the file!
 
 ### Step 3: Use the function / operator / sign
 
-Run the calculator in any interface and use your new
-function / operator / sign.
+Run the calculator in any interface.
+Type `load my_module`, where `my_module` is the name of your module.
+Use your functions, operators and/or signs by their name (marked in the
+code snippet above as `example_name_...`).
 
 ## Changing decimal separators and similar syntax elements
 
