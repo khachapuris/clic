@@ -89,8 +89,6 @@ Commands tell the calculator to do special tasks
 1. To exit type `exit`
 2. To list all functions, units
 and variables type `list`
-3. To list all modules type `load`
-4. To load a module with name `name` type `load name`
 5. To see the basic help type `help`
 6. To see help on a function, operator or sign
 with name `name` type `help name`
@@ -189,7 +187,7 @@ and get the answer in minutes.
        kg*K * 0.8 * (220 V)^2
 ```
 
-Answer: 11.5 min.
+Answer: 11.6 min.
 
 ## Writing an extension
 
@@ -210,7 +208,7 @@ values (see the decimal docs at https://docs.python.org/3/library/decimal.html)
 the function `func` will recieve one vector argument: `(arg1, arg2, arg3)`;
 to use it in the function, iterate over it
 
-### Step 2: Register the function
+### Step 2: Register functions
 
 Define a list called `exporttokens` in your module.
 Each element of that list should be a `Token`:
@@ -233,22 +231,8 @@ exporttokens = [
 Note that the help text is optional.
 Don't forget to save the file!
 
-### Step 3: Use the function / operator / sign
+### Step 3: Use functions / operators / signs
 
 Run the calculator in any interface.
-Type `load my_module`, where `my_module` is the name of your module.
 Use your functions, operators and/or signs by their name (marked in the
 code snippet above as `example_name_...`).
-
-## Changing decimal separators and similar syntax elements
-
-Go to `src/symbols.py`.
-
-```python
-{
-'decseps': '<HERE>',  # decimal separator characters
-}
-```
-
-Replace the string marked as `<HERE>` with the separator you
-chose. Other syntax elements are replaced in a similar way.

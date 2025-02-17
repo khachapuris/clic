@@ -19,28 +19,9 @@ is a customisable command line scientific calculator written in Python.
 - Exponentiation, modulo division, square root implemented initially
 - Trigonometric and reverse trigonometric functions
 
-### Two interfaces
-
-CLIC provides two different interfaces.
-Though the expression syntax remains the same,
-each interface has its own features.
-
-- Command line interface
-    + Use this for a set of related calculations
-    + Inline expression editing
-    + Variable assignment and vectors become very useful
-    + Calculate multiple expressions in one line
-- Terminal user interface
-    + Use this when substituting values in a formula, for example
-    + Fullscreen editing of one expression
-    + **Horizontal fraction bars**
-    + Special characters for pi, square root, etc.
-    + Autoscrolling of expressions that are bigger than the terminal window
-
 ### Extensibility
 
 - Write extensions with your own functions and operators
-- Change stuff like decimal separators throughout the whole application
 
 ## Installation
 
