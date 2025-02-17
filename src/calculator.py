@@ -15,12 +15,32 @@ from mathclasses import Quantity, Vector
 from mathclasses import decimal_to_string
 
 from token import Token
-import symbols as smbs
 from functions import exporttokens as default_tokens
+from functions import implicit_multiplication_name
 
 import importlib
 import os
 import os.path as os_path
+
+
+# Calculator characters
+CHARS = {
+    'alpha':  '_',   # characters that behave like alphabetical
+    'quote':  '"',   # start / end of a calculator string
+    'assign': '=',   # assignment operator
+}
+
+
+# System variables
+SYS_VARS = {
+    'ans': 'ans',
+    'sysans': '_',
+    'implicit': implicit_multiplication_name,
+}
+
+
+# The default help text
+HELP_TEXT = "This is clic calculator. Type 'exit' to quit, please see MANUAL.md"
 
 
 class Calculator:
@@ -32,10 +52,10 @@ class Calculator:
     class EmptyOutputError(Exception):
         """An error to be raised for an empty output."""
 
-    def __init__(self, helptext=smbs.sv['help']):
+    def __init__(self, helptext=HELP_TEXT):
         """The initialiser of the class."""
         self.err = None
-        self.link = smbs.sv['ans']
+        self.link = SYS_VARS['ans']
         self.silent = False
         self.reset_vars()
         self.update_modules()
@@ -58,7 +78,7 @@ class Calculator:
                     modules.append(filename[:-3])
         self.modules = modules
 
-    def assign_ans(self, ans, link=smbs.sv['sysans']):
+    def assign_ans(self, ans, link=SYS_VARS['sysans']):
         """Set variable with name link to a token containing ans."""
         self.vars |= {link: Token.wrap(ans, name=link)}
 
@@ -73,6 +93,24 @@ class Calculator:
             raise Calculator.CompilationError(f"invalid module: '{module}'")
         for token in exporttokens:
             self.vars.update({token.name: token})
+
+    def isalphaplus(self, x, plus=None):
+        """Return whether x is alphabetical / semi-alphabetical or not."""
+        if plus is None:
+            return x.isalpha() or x in CHARS['alpha']
+        return x.isalpha() or x in plus
+
+    def isdigitplus(self, x, plus=None):
+        """Return whether x is a digit / decimal separator or not."""
+        if plus is None:
+            return x.isdigit() or x in self.vars['_decseps_'].calc()
+        return x.isdigit() or x in plus
+
+    def standard_decsep(self, x):
+        """If x is a decsep, return a period; otherwise return x."""
+        if x in self.vars['_decseps_'].calc():
+            return '.'
+        return x
 
     def split(self, string):
         """Split the given string expression."""
@@ -99,7 +137,7 @@ class Calculator:
             else:
                 last = ' '
             # Quote:
-            if char == smbs.cc['quote']:
+            if char == CHARS['quote']:
                 # Is it an opening quote
                 condition = not in_string
                 new_word_if(condition, char)
@@ -108,19 +146,19 @@ class Calculator:
             elif in_string:
                 new_word_if(False, char)
             # Expression separator
-            elif char == smbs.cc['expsep']:
+            elif char == self.vars['_separator_'].calc():
                 ans.append([])
             # Space
             elif char == ' ':
                 space = True
             # Letter:
-            elif smbs.isalphaplus(char):
+            elif self.isalphaplus(char):
                 # Does it go after a non-letter / some space
-                condition = not smbs.isalphaplus(last) or space
+                condition = not self.isalphaplus(last) or space
                 new_word_if(condition, char)
             # Digit:
-            elif smbs.isdigitplus(char):
-                new_word_if(space, smbs.standard_decsep(char))
+            elif self.isdigitplus(char):
+                new_word_if(space, self.standard_decsep(char))
             # Symbol:
             else:
                 new_word_if(True, char)
@@ -156,6 +194,12 @@ class Calculator:
             if len(ls) == 2:
                 self.load_module(ls[1])
             return True
+        # map token
+        elif ls[0] == 'copy':
+            if len(ls) == 3:
+                if ls[2] in self.vars:
+                    self.vars[ls[1]] = self.vars[ls[2]]
+            return True
         # help
         elif ls[0] == 'help':
             if len(ls) == 1:
@@ -179,31 +223,31 @@ class Calculator:
     def perform_assignment(self, ls):
         """Change the assignment link according to a list of strings."""
         # simple assignment (x = 1)
-        if len(ls) > 2 and ls[1] == smbs.cc['assign']:
+        if len(ls) > 2 and ls[1] == CHARS['assign']:
             name = ls[0]
-            if not smbs.isalphaplus(name[0]) \
-                    or name == smbs.sv['sysans']:
+            if not self.isalphaplus(name[0]) \
+                    or name == SYS_VARS['sysans']:
                 raise Calculator.CompilationError('assignment error')
             self.link = name
             return ls[2:]
         # compound assignment (x += 1)
-        if len(ls) > 2 and ls[2] == smbs.cc['assign']:
+        if len(ls) > 2 and ls[2] == CHARS['assign']:
             name = ls[0]
             if name not in self.vars:
                 raise Calculator.CompilationError('compound assignment error')
             self.link = name
             return ls[:2] + ls[3:]
-        self.link = smbs.sv['ans']
+        self.link = SYS_VARS['ans']
         return ls
 
     def tokenize(self, ls):
         """Transform a list of strings to a list of Token objects."""
         ans = []
         for word in ls:
-            if word[0] == smbs.cc['quote']:
-                get = Token.give(word.strip(smbs.cc['quote']))
+            if word[0] == CHARS['quote']:
+                get = Token.give(word.strip(CHARS['quote']))
                 ans.append(Token(word, get, 10, 0, 'str'))
-            elif smbs.isdigitplus(word[0], plus='.'):
+            elif self.isdigitplus(word[0], plus='.'):
                 num = Decimal(word)
                 ans.append(Token(word, Token.give(num), 10, 0, 'num'))
             elif word in self.vars:
@@ -231,7 +275,7 @@ class Calculator:
                 case ('num', 'num'):
                     ans += [token]
                 case ('var' | ')' | 'num', 'var' | '(' | 'num' | 'func'):
-                    ans += [self.vars[smbs.sv['implicit']], token]
+                    ans += [self.vars[SYS_VARS['implicit']], token]
                 case _:
                     ans += [token]
             last = ans[-1]
@@ -348,7 +392,7 @@ class Calculator:
             if self.vars['_debug_'].calc():
                 raise self.err
             return (True, f'{str(self.err)}')
-        ans = self.vars[smbs.sv['sysans']].calc()
+        ans = self.vars[SYS_VARS['sysans']].calc()
         if ans is None:
             return (True, '')
         ans = self.object_to_string(ans)

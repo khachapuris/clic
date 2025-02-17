@@ -9,7 +9,8 @@ from decimal import Decimal
 from mathclasses import Quantity, Vector
 from mathclasses import glob_pi, glob_e
 
-import symbols as smbs
+
+implicit_multiplication_name = '_implicit_'
 
 
 exporttokens = {
@@ -23,7 +24,7 @@ exporttokens = {
     Token('^', lambda a, b: a ** b, 4, 1, 'oper', 'Exponentiation'),
     Token(' -', lambda a: -a,       4, 1, 'func', 'Negation'),
     Token(' +', lambda a: +a,       4, 1, 'func', 'Positition'),
-    Token(smbs.sv['implicit'], lambda a, b: a * b, 3, 1, 'oper',
+    Token(implicit_multiplication_name, lambda a, b: a * b, 3, 1, 'oper',
           'Implicit multiplication'),
     Token(',', Vector.join,         0, 0, 'oper', 'Argument separator'),
     Token('/', lambda a, b: a / b,  0, 0, 'oper', 'Fraction bar'),
@@ -38,6 +39,6 @@ exporttokens = {
     # Settings
     Token.wrap(0, name='_debug_', ht='Show debug messages setting'),
     Token.wrap('classic', name='_notation_', ht='Number notation setting'),
-
-    # Place your custom tokens here
+    Token.wrap('.', name='_decseps_', ht='Decimal separators setting'),
+    Token.wrap(';', name='_separator_', ht='Expression separator setting'),
 }

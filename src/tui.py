@@ -8,7 +8,6 @@ The only required python library is curses.
 """
 
 from calculator import Calculator
-import symbols as smbs
 
 import curses
 import sys
