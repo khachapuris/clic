@@ -48,9 +48,7 @@ def prompt():
 | exit -- exit the calculator                |
 | help -- display this help                  |
 | list -- list available functions & units   |
-| load -- list available modules             |
 | help <NAME> -- help on a specific function |
-| load <NAME> -- load module                 |
 '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
     ctor = Calculator(helptext=helptext)
     print(',~~~~~~~~~~~~~~~~~~~~~~~~~~~~~,')

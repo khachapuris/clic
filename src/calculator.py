@@ -15,8 +15,8 @@ from mathclasses import Quantity, Vector
 from mathclasses import decimal_to_string
 
 from token import Token
-from functions import exporttokens as default_tokens
-from functions import implicit_multiplication_name
+from setup import exporttokens as default_tokens
+from setup import implicit_multiplication_name
 
 import importlib
 import os
@@ -27,6 +27,7 @@ import os.path as os_path
 CHARS = {
     'alpha':  '_',   # characters that behave like alphabetical
     'quote':  '"',   # start / end of a calculator string
+    'expsep': ';',   # expression separator
     'assign': '=',   # assignment operator
 }
 
@@ -75,24 +76,22 @@ class Calculator:
         for filename in os.listdir(path_to_modules):
             if os_path.isfile(os_path.join(path_to_modules, filename)):
                 if filename.endswith('.py') and filename != '__init__.py':
-                    modules.append(filename[:-3])
-        self.modules = modules
+                    module = filename[:-3]
+                    try:
+                        exporttokens = getattr(
+                            importlib.import_module(f'modules.{module}'),
+                            'exporttokens',
+                        )
+                    except AttributeError:
+                        raise Calculator.CompilationError(
+                            f"invalid module: '{module}'",
+                        )
+                    for token in exporttokens:
+                        self.vars.update({token.name: token})
 
     def assign_ans(self, ans, link=SYS_VARS['sysans']):
         """Set variable with name link to a token containing ans."""
         self.vars |= {link: Token.wrap(ans, name=link)}
-
-    def load_module(self, module):
-        """Update self.vars with tokens from module."""
-        self.update_modules()
-        if module not in self.modules:
-            raise Calculator.CompilationError(f"unknown module: '{module}'")
-        try:
-            exporttokens = getattr(importlib.import_module(f'modules.{module}'), 'exporttokens')
-        except AttributeError:
-            raise Calculator.CompilationError(f"invalid module: '{module}'")
-        for token in exporttokens:
-            self.vars.update({token.name: token})
 
     def isalphaplus(self, x, plus=None):
         """Return whether x is alphabetical / semi-alphabetical or not."""
@@ -146,7 +145,7 @@ class Calculator:
             elif in_string:
                 new_word_if(False, char)
             # Expression separator
-            elif char == self.vars['_separator_'].calc():
+            elif char == CHARS['expsep']:
                 ans.append([])
             # Space
             elif char == ' ':
@@ -186,32 +185,14 @@ class Calculator:
             self.assign_ans('  '.join([str(v) for v in list(self.vars)]))
             self.silent = False
             return True
-        # import module
-        elif ls[0] == 'load':
-            if len(ls) == 1:
-                self.assign_ans('  '.join([str(m) for m in list(self.modules)]))
-                self.silent = False
-            if len(ls) == 2:
-                self.load_module(ls[1])
-            return True
-        # map token
-        elif ls[0] == 'copy':
-            if len(ls) == 3:
-                if ls[2] in self.vars:
-                    self.vars[ls[1]] = self.vars[ls[2]]
-            return True
         # help
         elif ls[0] == 'help':
             if len(ls) == 1:
                 self.assign_ans(self.helptext)
-            elif len(ls) == 2 and ls[1] in self.vars:
-                self.assign_ans(self.vars[ls[1]].get_help())
-                if ls[1] in self.modules:
-                    module = importlib.import_module(f'modules.{ls[1]}')
-                    self.assign_ans(self.vars[ls[1]].get_help() + ';  ' + module.__doc__)
-            elif len(ls) == 2 and ls[1] in self.modules:
-                module = importlib.import_module(f'modules.{ls[1]}')
-                self.assign_ans(module.__doc__)
+                self.silent = False
+                return True
+            if len(ls) == 2 and ls[1].strip(CHARS['quote']) in self.vars:
+                self.assign_ans(self.vars[ls[1].strip(CHARS['quote'])].get_help())
             else:
                 self.assign_ans(f"Could not find help on '{' '.join(ls[1:])}'")
             self.silent = False
@@ -225,8 +206,7 @@ class Calculator:
         # simple assignment (x = 1)
         if len(ls) > 2 and ls[1] == CHARS['assign']:
             name = ls[0]
-            if not self.isalphaplus(name[0]) \
-                    or name == SYS_VARS['sysans']:
+            if name in self.vars and self.vars[name].kind != 'var':
                 raise Calculator.CompilationError('assignment error')
             self.link = name
             return ls[2:]

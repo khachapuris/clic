@@ -40,5 +40,4 @@ exporttokens = {
     Token.wrap(0, name='_debug_', ht='Show debug messages setting'),
     Token.wrap('classic', name='_notation_', ht='Number notation setting'),
     Token.wrap('.', name='_decseps_', ht='Decimal separators setting'),
-    Token.wrap(';', name='_separator_', ht='Expression separator setting'),
 }
