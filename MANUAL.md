@@ -117,13 +117,13 @@ otherwise use scientific notation
     + `"scientific"` -> express numbers like `x * 10^y`
     + `"normal"` -> express numbers without any exponent
 
-## The interface
+## Interactive input
 
-1. Run the CLI with `python src/cli.py`
+1. Run `python src/cli.py`
 2. Type in the expression / command and press Enter
 3. To exit type `exit` and press Enter
 
-### Special character insertion (interactive input)
+### Special character insertion
 
 CLIC offers a Julia REPL like method of entering special characters.
 To input a special character, type:
@@ -136,7 +136,7 @@ To input a special character, type:
 
 Press tab, and what you typed is replaced with the symbol.
 
-### Example 1 (interactive)
+### Example
 
 Get the number of molecules of a hydrocarbon with
 8 single bonds and 2 double bonds.
@@ -159,20 +159,19 @@ Get the number of molecules of a hydrocarbon with
 
 Answer: 11 carbon atoms and 20 hydrogen atoms.
 
-### Example 2 (non-interactive input)
+## Non-interactive input
 
-Substitute values in a formula
+1. Run `python src/cli.py 'your expression here'`
 
-$\tau = \frac{ c m (t_2 - t_1) \cdot R}{\eta \cdot U^2}$
+### Example
 
-and get the answer in minutes.
+Get the sine of 100 degrees
 
 ```
-[user@host]$ clic '4.2*10^3 J * 0.5kg * 80K * 160ohm / kg*K * 0.8 * (220 V)^2; ans / 60s'
-= 11.57024793388429752066115702
+[user@host]$ python src/cli.py 'sin 100deg'
+= 984.8077530122080593667430247 * 10^-3
 ```
-
-Answer: 11.6 min.
+Answer: 0.98
 
 ## Writing an extension
 

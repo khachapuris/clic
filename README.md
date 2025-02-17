@@ -31,7 +31,7 @@ is an extensible command line scientific calculator written in Python.
 4. `cd` into the `clic` directory
 5. Run the calculator's CLI (interactive) by executing `python src/cli.py`
 6. Run the calculator's CLI (non-interactive) by executing
-`python src/cli.py '<your expression here>'`
+`python src/cli.py 'your expression here'`
 6. Run the calculator's TUI by executing `python src/tui.py`
 
 ## Usage
