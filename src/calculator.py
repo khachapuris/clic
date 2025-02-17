@@ -29,6 +29,7 @@ CHARS = {
     'quote':  '"',   # start / end of a calculator string
     'expsep': ';',   # expression separator
     'assign': '=',   # assignment operator
+    'decseps': '.',  # the decimal separators
 }
 
 
@@ -102,12 +103,12 @@ class Calculator:
     def isdigitplus(self, x, plus=None):
         """Return whether x is a digit / decimal separator or not."""
         if plus is None:
-            return x.isdigit() or x in self.vars['_decseps_'].calc()
+            return x.isdigit() or x in CHARS['decseps']
         return x.isdigit() or x in plus
 
     def standard_decsep(self, x):
         """If x is a decsep, return a period; otherwise return x."""
-        if x in self.vars['_decseps_'].calc():
+        if x in CHARS['decseps']:
             return '.'
         return x
 
