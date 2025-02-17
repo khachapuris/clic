@@ -25,7 +25,8 @@ the items with commas (`(1, 9, 13.5)`).
 (`3 km`) or just a unit (`mA`).
 3. Quantities support all basic operators
 (NOTE: some operations on quantities are invalid, such as `3m + 4s`)
-4. All SI units are implemented; to see the list, type `/l u`
+4. All SI units are implemented; to see all of them (but not only them),
+type `list`
 
 ### Angles
 
@@ -47,8 +48,6 @@ the items with commas (`(1, 9, 13.5)`).
 3. To change a variable, you can use the compound assignment
 (`a += 10`, `a *= 0.1`) or just reassign it
 4. To get the value of a variable, use its name (`a`)
-5. To delete variable `a`, type `/d a`
-6. To see the list of all variables, type `/l`
 
 ### Functions
 
@@ -62,7 +61,7 @@ the items with commas (`(1, 9, 13.5)`).
     arguments in parenthesis, separated with commas (`function_name(10, 11)`)
 3. Trigonometric function exponentiation: `sin^2 30deg`
 4. NOTE: negation is considered a function (`-4`)
-5. To see the list of all functions, operators and signs, type `/l f`
+5. To see the list of all functions, operators and signs (and more) type `list`
 
 ### Operators
 
@@ -103,6 +102,7 @@ with name `name` type `help name`
 
 ### Settings
 
+Settings are variables that have a special meaning in the calculator.
 To alter a setting, use assignment: `_setting_name_ = <setting_value>`
 
 Here is a list of all settings with their available values:
@@ -117,13 +117,13 @@ otherwise use scientific notation
     + `"scientific"` -> express numbers like `x * 10^y`
     + `"normal"` -> express numbers without any exponent
 
-## Interface
+## The interface
 
 1. Run the CLI with `python src/cli.py`
 2. Type in the expression / command and press Enter
 3. To exit type `exit` and press Enter
 
-### Special character insertion
+### Special character insertion (interactive input)
 
 CLIC offers a Julia REPL like method of entering special characters.
 To input a special character, type:
@@ -159,7 +159,7 @@ Get the number of molecules of a hydrocarbon with
 
 Answer: 11 carbon atoms and 20 hydrogen atoms.
 
-### Example 2 (non-interactive)
+### Example 2 (non-interactive input)
 
 Substitute values in a formula
 
