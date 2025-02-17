@@ -26,13 +26,11 @@ is an extensible command line scientific calculator written in Python.
 ## Installation
 
 1. Make sure you have Python installed
-2. Install the python curses library (only for TUI, CLI works without it)
-3. Use `git clone` to copy the git repository to your computer.
-4. `cd` into the `clic` directory
-5. Run the calculator's CLI (interactive) by executing `python src/cli.py`
-6. Run the calculator's CLI (non-interactive) by executing
+2. Use `git clone` to copy the git repository to your computer.
+3. `cd` into the `clic` directory
+4. Run the calculator (interactive) by executing `python src/cli.py`
+5. Run the calculator (non-interactive) by executing
 `python src/cli.py 'your expression here'`
-6. Run the calculator's TUI by executing `python src/tui.py`
 
 ## Usage
 
@@ -41,5 +39,3 @@ Please see the user manual (MANUAL.md).
 ### How to exit
 
 To exit the calculator's CLI, type `exit` and press Enter.
-
-To exit the calculator's TUI, press the backslash `\`
