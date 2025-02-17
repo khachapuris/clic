@@ -117,7 +117,7 @@ otherwise use scientific notation
     + `"scientific"` -> express numbers like `x * 10^y`
     + `"normal"` -> express numbers without any exponent
 
-## Command line interface
+## Interface
 
 1. Run the CLI with `python src/cli.py`
 2. Type in the expression / command and press Enter
@@ -136,7 +136,7 @@ To input a special character, type:
 
 Press tab, and what you typed is replaced with the symbol.
 
-### Example
+### Example 1 (interactive)
 
 Get the number of molecules of a hydrocarbon with
 8 single bonds and 2 double bonds.
@@ -159,21 +159,7 @@ Get the number of molecules of a hydrocarbon with
 
 Answer: 11 carbon atoms and 20 hydrogen atoms.
 
-## Terminal user interface
-
-1. Run the TUI with `python src/tui.py`
-2. Type in the expression
-    + `/` — create fraction
-    + `'v` — insert square root
-    + `'o` — insert degree symbol
-    + `'p` — insert pi
-    + `'w` — insert ohm symbol
-    + `'m` — insert micro symbol
-3. Press `Enter` to see the answer
-4. Press `Enter` again to start a new expression
-5. Press `\` on any step to exit
-
-### Example
+### Example 2 (non-interactive)
 
 Substitute values in a formula
 
@@ -182,9 +168,8 @@ $\tau = \frac{ c m (t_2 - t_1) \cdot R}{\eta \cdot U^2}$
 and get the answer in minutes.
 
 ```
- 4.2*10^3 J * 0.5 kg * 80 K * 160 Ω
- ────────────────────────────────── : min = 11.57024793388429752066115702
-       kg*K * 0.8 * (220 V)^2
+[user@host]$ clic '4.2*10^3 J * 0.5kg * 80K * 160ohm / kg*K * 0.8 * (220 V)^2; ans / 60s'
+= 11.57024793388429752066115702
 ```
 
 Answer: 11.6 min.
