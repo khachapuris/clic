@@ -23,6 +23,7 @@ exporttokens = [
     # Alternative names
     Token('tg',    Quantity.tan,     3, 1, 'func', 'Tangent'),
     Token('arctg', Quantity.arctan,  3, 1, 'func', 'Angle by tangent'),
+    Token('tg ^', lambda a, b: Quantity.tan(b) ** a, 3, 1, 'doub'),
     Token.wrap(Quantity(glob_pi / Decimal(180), {'rad': 1}), name='°',
                ht='Degree'),
 ]
