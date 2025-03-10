@@ -26,7 +26,7 @@ exporttokens = {
     Token(' +', lambda a: +a,       4, 1, 'func', 'Positition'),
     Token(implicit_multiplication_name, lambda a, b: a * b, 3, 1, 'oper',
           'Implicit multiplication'),
-    Token(',', Vector.join,         0, 0, 'oper', 'Argument separator'),
+    Token(';', Vector.join,         0, 0, 'oper', 'Argument separator'),
     Token('/', lambda a, b: a / b,  0, 0, 'oper', 'Fraction bar'),
     Token('sqrt', lambda a: a ** Decimal('0.5'), 4, 1, 'func',
           'Square root'),

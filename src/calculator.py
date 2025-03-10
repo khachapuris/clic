@@ -27,9 +27,9 @@ import os.path as os_path
 CHARS = {
     'alpha':  '_',   # characters that behave like alphabetical
     'quote':  '"',   # start / end of a calculator string
-    'expsep': ';',   # expression separator
+    'expsep': ';;',   # expression separator
     'assign': '=',   # assignment operator
-    'decseps': '.',  # the decimal separators
+    'decseps': '.,',  # the decimal separators
 }
 
 
@@ -42,7 +42,8 @@ SYS_VARS = {
 
 
 # The default help text
-HELP_TEXT = "This is clic calculator. Type 'exit' to quit, please see MANUAL.md"
+HELP_TEXT = "This is clic calculator. \
+Type 'exit' to quit, please see MANUAL.md"
 
 
 class Calculator:
@@ -72,7 +73,6 @@ class Calculator:
 
     def update_modules(self):
         """Update the list of all modules."""
-        modules = []
         path_to_modules = os_path.join(os_path.dirname(__file__), 'modules')
         for filename in os.listdir(path_to_modules):
             if os_path.isfile(os_path.join(path_to_modules, filename)):
@@ -114,7 +114,7 @@ class Calculator:
 
     def split(self, string):
         """Split the given string expression."""
-        ans = [[]]
+        ans = []
         space = True
         in_string = False
 
@@ -131,38 +131,37 @@ class Calculator:
             else:
                 ans[-1][-1] += c
 
-        for char in string:
-            if ans[-1]:
-                last = ans[-1][-1][-1]
-            else:
-                last = ' '
-            # Quote:
-            if char == CHARS['quote']:
-                # Is it an opening quote
-                condition = not in_string
-                new_word_if(condition, char)
-                in_string = not in_string
-            # Character inside a calculator string
-            elif in_string:
-                new_word_if(False, char)
-            # Expression separator
-            elif char == CHARS['expsep']:
-                ans.append([])
-            # Space
-            elif char == ' ':
-                space = True
-            # Letter:
-            elif self.isalphaplus(char):
-                # Does it go after a non-letter / some space
-                condition = not self.isalphaplus(last) or space
-                new_word_if(condition, char)
-            # Digit:
-            elif self.isdigitplus(char):
-                new_word_if(space, self.standard_decsep(char))
-            # Symbol:
-            else:
-                new_word_if(True, char)
-                space = True
+        for expr in string.split(CHARS['expsep']):
+            ans.append([])
+            for char in expr:
+                if ans[-1]:
+                    last = ans[-1][-1][-1]
+                else:
+                    last = ' '
+                # Quote:
+                if char == CHARS['quote']:
+                    # Is it an opening quote
+                    condition = not in_string
+                    new_word_if(condition, char)
+                    in_string = not in_string
+                # Character inside a calculator string
+                elif in_string:
+                    new_word_if(False, char)
+                # Space
+                elif char == ' ':
+                    space = True
+                # Letter:
+                elif self.isalphaplus(char):
+                    # Does it go after a non-letter / some space
+                    condition = not self.isalphaplus(last) or space
+                    new_word_if(condition, char)
+                # Digit:
+                elif self.isdigitplus(char):
+                    new_word_if(space, self.standard_decsep(char))
+                # Symbol:
+                else:
+                    new_word_if(True, char)
+                    space = True
         if in_string:
             raise ValueError('unclosed quotes')
         return ans
@@ -193,7 +192,9 @@ class Calculator:
                 self.silent = False
                 return True
             if len(ls) == 2 and ls[1].strip(CHARS['quote']) in self.vars:
-                self.assign_ans(self.vars[ls[1].strip(CHARS['quote'])].get_help())
+                self.assign_ans(
+                    self.vars[ls[1].strip(CHARS['quote'])].get_help()
+                )
             else:
                 self.assign_ans(f"Could not find help on '{' '.join(ls[1:])}'")
             self.silent = False
