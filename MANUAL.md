@@ -16,11 +16,11 @@ the items with commas (`(1, 9, 13.5)`).
 3. Vectors support:
     + Addition, subtraction
     + Multiplication by a scalar
-    + Vector product
+    + Dot product
 
 ### Quantities
 
-1. Quantities store a number multiplied by a unit
+1. Quantities store a number multiplied by a unit of measure
 2. To type in a quantity type in a number followed by a unit
 (`3 km`) or just a unit (`mA`).
 3. Quantities support all basic operators
@@ -31,7 +31,7 @@ type `list`
 ### Angles
 
 1. Angles are a subset of quantities
-2. To type in an angle type in a number followed by an angle unit
+2. To type in an angle enter a number followed by an angle unit
 (`3 deg`, `5 rad`).
 3. Angles support all basic operators and trigonometric functions
 
@@ -78,16 +78,16 @@ type `list`
 ### Implicit multiplication
 
 1. Implicit multiplication is a hidden operator
-2. To use implicit multiplication, put a variable/opening parenthesis/function
-after a number/variable/closing parenthesis (`10 x`, `2 sqrt 2`, `(5+1)(5-1)`).
+2. To use implicit multiplication, put a
+variable / number   /  closing parenthesis before a
+variable / function /  opening parenthesis (`10 x`, `2 sqrt 2`, `(5+1)(5-1)`).
 
 ### Commands
 
 Commands tell the calculator to do special tasks
 
 1. To exit type `exit`
-2. To list all functions, units
-and variables type `list`
+2. To list all functions, units and variables type `list`
 5. To see the basic help type `help`
 6. To see help on a function, operator or sign
 with name `name` type `help name`
