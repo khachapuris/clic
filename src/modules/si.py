@@ -1,7 +1,7 @@
 """Module with SI units."""
 
 from decimal import Decimal
-from mathclasses import Quantity, glob_pi
+from mathclasses import Quantity
 
 from token import Token
 
@@ -35,7 +35,6 @@ def si(unit, name, exps=None):
     name -- the name of that unit,
     exps -- a list of numbers representing prefixes.
     """
-    global exporttokens
     if not exps:
         exps = [-9, -6, -3, 0, 3, 6, 9]
     for exp in exps:

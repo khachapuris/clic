@@ -7,6 +7,7 @@ from decimal import Decimal
 def mass(cp):
     """Find molar mass of compound"""
     import re
+
     def f(st):
         if st.isalpha():
             if st not in table:
@@ -23,7 +24,8 @@ def mass(cp):
                 raise ValueError('incorrect compound name')
             return table[st] * int(n)
 
-    table = {'H': 1, 'Li': 7, 'Na': 23, 'K': 39, 'Rb': 85, 'Cs': 133, 'Fr': 223,
+    table = {
+        'H': 1, 'Li': 7, 'Na': 23, 'K': 39, 'Rb': 85, 'Cs': 133, 'Fr': 223,
         'Be': 9, 'Mg': 24, 'Ca': 40, 'Sr': 88, 'Ba': 137, 'Ra': 226,
         'Sc': 45, 'Y': 89, 'La': 139, 'Ac': 227,
         'Ti': 48, 'Zr': 91, 'Hf': 178, 'Rf': 265,
@@ -44,13 +46,13 @@ def mass(cp):
         'Ce': 140, 'Pr': 141, 'Nd': 144, 'Pm': 145, 'Sm': 150, 'Eu': 152, 'Gd': 157,
         'Tb': 159, 'Dy': 162, 'Ho': 165, 'Er': 167, 'Tm': 169, 'Yb': 173, 'Lu': 175,
         'Th': 232, 'Pa': 231, 'U': 238, 'Np': 237, 'Pu': 244, 'Am': 243, 'Cm': 247,
-        'Bk': 247, 'Cf': 251, 'Es': 252, 'Fm': 257, 'Md': 258, 'No': 259, 'Lr': 262}
+        'Bk': 247, 'Cf': 251, 'Es': 252, 'Fm': 257, 'Md': 258, 'No': 259, 'Lr': 262
+    }
 
     cp = re.sub(r'([A-Z()\[\]*])', r' \1', cp)[1:]
     ls = cp.split()
     m = [0, 0, 0, 0]
     level = 1
-    molec_num = 1
     for el in ls:
         if el in ('(', '['):
             level += 1
