@@ -23,21 +23,21 @@ import os
 import os.path as os_path
 
 
-# Calculator characters
-CHARS = {
-    'alpha':  '_',   # characters that behave like alphabetical
-    'quote':  '"',   # start / end of a calculator string
-    'expsep': ';;',   # expression separator
-    'assign': '=',   # assignment operator
-    'decseps': '.,',  # the decimal separators
-}
-
-
-# System variables
-SYS_VARS = {
-    'ans': 'ans',
-    'sysans': '_',
-    'implicit': implicit_multiplication_name,
+# Settings
+CONFIG = {
+    'answer_name': 'ans',
+    'notation': 'classic',
+    'quote': '"',
+    'decimal_separators': ',.',
+    'thousands_separators': '_',
+    'vector_separator': ';',
+    'expression_separator': ';;',
+    'show_debug': 0,
+    # Permanent settings
+    'alphabet_extra': '_',
+    'assignment_operator': '=',
+    'system_answer_name': '_',
+    'implicit_mul_name': implicit_multiplication_name,
 }
 
 
@@ -58,7 +58,7 @@ class Calculator:
     def __init__(self, helptext=HELP_TEXT):
         """The initialiser of the class."""
         self.err = None
-        self.link = SYS_VARS['ans']
+        self.link = CONFIG['answer_name']
         self.silent = False
         self.reset_vars()
         self.update_modules()
@@ -90,25 +90,25 @@ class Calculator:
                     for token in exporttokens:
                         self.vars.update({token.name: token})
 
-    def assign_ans(self, ans, link=SYS_VARS['sysans']):
+    def assign_ans(self, ans, link=CONFIG['system_answer_name']):
         """Set variable with name link to a token containing ans."""
         self.vars |= {link: Token.wrap(ans, name=link)}
 
     def isalphaplus(self, x, plus=None):
         """Return whether x is alphabetical / semi-alphabetical or not."""
         if plus is None:
-            return x.isalpha() or x in CHARS['alpha']
+            return x.isalpha() or x in CONFIG['alphabet_extra']
         return x.isalpha() or x in plus
 
     def isdigitplus(self, x, plus=None):
         """Return whether x is a digit / decimal separator or not."""
         if plus is None:
-            return x.isdigit() or x in CHARS['decseps']
+            return x.isdigit() or x in CONFIG['decimal_separators']
         return x.isdigit() or x in plus
 
     def standard_decsep(self, x):
         """If x is a decsep, return a period; otherwise return x."""
-        if x in CHARS['decseps']:
+        if x in CONFIG['decimal_separators']:
             return '.'
         return x
 
@@ -124,14 +124,14 @@ class Calculator:
             If divide is True, add a new word c to ans;
             otherwise append c to the last word.
             """
-            nonlocal ans, space
+            nonlocal space
             if divide:
                 ans[-1].append(c)
                 space = False
             else:
                 ans[-1][-1] += c
 
-        for expr in string.split(CHARS['expsep']):
+        for expr in string.split(CONFIG['expression_separator']):
             ans.append([])
             for char in expr:
                 if ans[-1]:
@@ -139,7 +139,7 @@ class Calculator:
                 else:
                     last = ' '
                 # Quote:
-                if char == CHARS['quote']:
+                if char == CONFIG['quote']:
                     # Is it an opening quote
                     condition = not in_string
                     new_word_if(condition, char)
@@ -150,14 +150,20 @@ class Calculator:
                 # Space
                 elif char == ' ':
                     space = True
+                # Decimal separator:
+                elif char in CONFIG['decimal_separators']:
+                    new_word_if(space, '.')
+                # Thousands separator:
+                elif char in CONFIG['thousands_separators']:
+                    new_word_if(space, '' if last.isdigit() else char)
                 # Letter:
                 elif self.isalphaplus(char):
                     # Does it go after a non-letter / some space
                     condition = not self.isalphaplus(last) or space
                     new_word_if(condition, char)
                 # Digit:
-                elif self.isdigitplus(char):
-                    new_word_if(space, self.standard_decsep(char))
+                elif char.isdigit():
+                    new_word_if(space, char)
                 # Symbol:
                 else:
                     new_word_if(True, char)
@@ -191,9 +197,9 @@ class Calculator:
                 self.assign_ans(self.helptext)
                 self.silent = False
                 return True
-            if len(ls) == 2 and ls[1].strip(CHARS['quote']) in self.vars:
+            if len(ls) == 2 and ls[1].strip(CONFIG['quote']) in self.vars:
                 self.assign_ans(
-                    self.vars[ls[1].strip(CHARS['quote'])].get_help()
+                    self.vars[ls[1].strip(CONFIG['quote'])].get_help()
                 )
             else:
                 self.assign_ans(f"Could not find help on '{' '.join(ls[1:])}'")
@@ -206,28 +212,28 @@ class Calculator:
     def perform_assignment(self, ls):
         """Change the assignment link according to a list of strings."""
         # simple assignment (x = 1)
-        if len(ls) > 2 and ls[1] == CHARS['assign']:
+        if len(ls) > 2 and ls[1] == CONFIG['assignment_operator']:
             name = ls[0]
             if name in self.vars and self.vars[name].kind != 'var':
                 raise Calculator.CompilationError('assignment error')
             self.link = name
             return ls[2:]
         # compound assignment (x += 1)
-        if len(ls) > 2 and ls[2] == CHARS['assign']:
+        if len(ls) > 2 and ls[2] == CONFIG['assignment_operator']:
             name = ls[0]
             if name not in self.vars:
                 raise Calculator.CompilationError('compound assignment error')
             self.link = name
             return ls[:2] + ls[3:]
-        self.link = SYS_VARS['ans']
+        self.link = CONFIG['answer_name']
         return ls
 
     def tokenize(self, ls):
         """Transform a list of strings to a list of Token objects."""
         ans = []
         for word in ls:
-            if word[0] == CHARS['quote']:
-                get = Token.give(word.strip(CHARS['quote']))
+            if word[0] == CONFIG['quote']:
+                get = Token.give(word.strip(CONFIG['quote']))
                 ans.append(Token(word, get, 10, 0, 'str'))
             elif self.isdigitplus(word[0], plus='.'):
                 num = Decimal(word)
@@ -257,7 +263,7 @@ class Calculator:
                 case ('num', 'num'):
                     ans += [token]
                 case ('var' | ')' | 'num', 'var' | '(' | 'num' | 'func'):
-                    ans += [self.vars[SYS_VARS['implicit']], token]
+                    ans += [self.vars[CONFIG['implicit_mul_name']], token]
                 case _:
                     ans += [token]
             last = ans[-1]
@@ -342,7 +348,7 @@ class Calculator:
         if isinstance(obj, str):
             return f'"{obj}"'
         if isinstance(obj, Decimal):
-            notation = self.vars['_notation_'].calc()
+            notation = CONFIG['notation']
             return decimal_to_string(obj, notation=notation)
         return str(obj)
 
@@ -371,10 +377,10 @@ class Calculator:
         output -- the error / answer (as a string).
         """
         if self.err:
-            if self.vars['_debug_'].calc():
+            if CONFIG['show_debug']:
                 raise self.err
             return (True, f'{str(self.err)}')
-        ans = self.vars[SYS_VARS['sysans']].calc()
+        ans = self.vars[CONFIG['system_answer_name']].calc()
         if ans is None:
             return (True, '')
         ans = self.object_to_string(ans)
