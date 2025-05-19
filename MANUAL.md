@@ -100,22 +100,40 @@ with name `name` type `help name`
 3. You can create comments by hiding the output of strings
 (`"This is a comment";`)
 
-### Settings
+### Configuration
 
-Settings are variables that have a special meaning in the calculator.
-To alter a setting, use assignment: `_setting_name_ = <setting_value>`
+1. The configuration is stored in `.clicconfig.toml` file in your home directory.
+2. The calculator does not create this file for you, so you may have to create
+it yourself. To start, you can populate it with these lines (the default config):
+```toml
+# Number notation options:
+# - classic (engineering + scientific)
+# - engineering
+# - scientific
+# - normal (no exponent)
+number.notation = "classic"
+number.decimal_separators = "."
+number.thousands_separators = "_"
 
-Here is a list of all settings with their available values:
+modules.load_all = true
+modules.load = []
+modules.exclude = []
 
-1. `_debug_`: show debug messages and error tracebacks
-    + `0`(default) -> off
-    + `1` -> on
-2. `_notation_`: number representation mode
-    + `"classic"`(default) -> use engineering notation between `10^-9` and `10^9`,
-otherwise use scientific notation
-    + `"engineering"` -> express numbers like `x * 10^(3y)`
-    + `"scientific"` -> express numbers like `x * 10^y`
-    + `"normal"` -> express numbers without any exponent
+vector_separator = ","
+expression_separator = ";"
+show_debug = false
+answer_name = "ans"
+```
+
+3. Note that there is a difference between decimal / thousands separators
+and vector / expression separators.
+    + The decimal and thousands separators can be multiple characters,
+    then each character will be a separator by itself;
+    i.e. `number.decimal_separators = ".,"` will make a period and a comma
+    each a decimal separator.
+    + The vector and expression separators can be a word,
+    i.e. `expression_separator = "AND"` will make the word `AND`
+    an expression separator.
 
 ## Interactive input
 

@@ -4,7 +4,7 @@ import os
 
 path = os.path.expanduser('/home/john/.clicconfig.toml')
 with open(path, 'rb') as file:
-    user_config = tomllib.load(file)['global']
+    user_config = tomllib.load(file)
 
 permanent_config = {
     'quote': '"',
