@@ -16,30 +16,12 @@ from mathclasses import decimal_to_string
 
 from token import Token
 from setup import exporttokens as default_tokens
-from setup import implicit_multiplication_name
+
+from config import config as CONFIG
 
 import importlib
 import os
 import os.path as os_path
-
-
-# Settings
-CONFIG = {
-    'answer_name': 'ans',
-    'notation': 'classic',
-    'quote': '"',
-    'decimal_separators': ',.',
-    'thousands_separators': '_',
-    'vector_separator': ';',
-    'expression_separator': ';;',
-    'show_debug': 0,
-    # Permanent settings
-    'alphabet_extra': '_',
-    'assignment_operator': '=',
-    'system_answer_name': '_',
-    'implicit_mul_name': implicit_multiplication_name,
-}
-
 
 # The default help text
 HELP_TEXT = "This is clic calculator. \
@@ -73,44 +55,40 @@ class Calculator:
 
     def update_modules(self):
         """Update the list of all modules."""
+        load_all = CONFIG['modules']['load_all']
         path_to_modules = os_path.join(os_path.dirname(__file__), 'modules')
         for filename in os.listdir(path_to_modules):
-            if os_path.isfile(os_path.join(path_to_modules, filename)):
-                if filename.endswith('.py') and filename != '__init__.py':
-                    module = filename[:-3]
-                    try:
-                        exporttokens = getattr(
-                            importlib.import_module(f'modules.{module}'),
-                            'exporttokens',
-                        )
-                    except AttributeError:
-                        raise Calculator.CompilationError(
-                            f"invalid module: '{module}'",
-                        )
-                    for token in exporttokens:
-                        self.vars.update({token.name: token})
+            # Directories
+            if not os_path.isfile(os_path.join(path_to_modules, filename)):
+                continue
+            # Not python files
+            if not filename.endswith('.py') or filename == '__init__.py':
+                continue
+            module = filename[:-3]
+            # Ignored modules
+            if load_all and module in CONFIG['modules']['exclude']:
+                continue
+            if not load_all and module not in CONFIG['modules']['load']:
+                continue
+            try:
+                exporttokens = getattr(
+                    importlib.import_module(f'modules.{module}'),
+                    'exporttokens',
+                )
+            except AttributeError:
+                raise Calculator.CompilationError(
+                    f"invalid module: '{module}'",
+                )
+            for token in exporttokens:
+                self.vars.update({token.name: token})
 
     def assign_ans(self, ans, link=CONFIG['system_answer_name']):
         """Set variable with name link to a token containing ans."""
         self.vars |= {link: Token.wrap(ans, name=link)}
 
-    def isalphaplus(self, x, plus=None):
+    def isalphaplus(self, x):
         """Return whether x is alphabetical / semi-alphabetical or not."""
-        if plus is None:
-            return x.isalpha() or x in CONFIG['alphabet_extra']
-        return x.isalpha() or x in plus
-
-    def isdigitplus(self, x, plus=None):
-        """Return whether x is a digit / decimal separator or not."""
-        if plus is None:
-            return x.isdigit() or x in CONFIG['decimal_separators']
-        return x.isdigit() or x in plus
-
-    def standard_decsep(self, x):
-        """If x is a decsep, return a period; otherwise return x."""
-        if x in CONFIG['decimal_separators']:
-            return '.'
-        return x
+        return x.isalpha() or x in CONFIG['alphabet_extra']
 
     def split(self, string):
         """Split the given string expression."""
@@ -151,10 +129,10 @@ class Calculator:
                 elif char == ' ':
                     space = True
                 # Decimal separator:
-                elif char in CONFIG['decimal_separators']:
+                elif char in CONFIG['number']['decimal_separators']:
                     new_word_if(space, '.')
                 # Thousands separator:
-                elif char in CONFIG['thousands_separators']:
+                elif char in CONFIG['number']['thousands_separators']:
                     new_word_if(space, '' if last.isdigit() else char)
                 # Letter:
                 elif self.isalphaplus(char):
@@ -235,7 +213,7 @@ class Calculator:
             if word[0] == CONFIG['quote']:
                 get = Token.give(word.strip(CONFIG['quote']))
                 ans.append(Token(word, get, 10, 0, 'str'))
-            elif self.isdigitplus(word[0], plus='.'):
+            elif word[0].isdigit() or word[0] == '.':
                 num = Decimal(word)
                 ans.append(Token(word, Token.give(num), 10, 0, 'num'))
             elif word in self.vars:
@@ -348,7 +326,7 @@ class Calculator:
         if isinstance(obj, str):
             return f'"{obj}"'
         if isinstance(obj, Decimal):
-            notation = CONFIG['notation']
+            notation = CONFIG['number']['notation']
             return decimal_to_string(obj, notation=notation)
         return str(obj)
 
@@ -379,6 +357,7 @@ class Calculator:
         if self.err:
             if CONFIG['show_debug']:
                 raise self.err
+            raise self.err
             return (True, f'{str(self.err)}')
         ans = self.vars[CONFIG['system_answer_name']].calc()
         if ans is None:

@@ -8,9 +8,7 @@ from token import Token
 from decimal import Decimal
 from mathclasses import Vector
 from mathclasses import glob_pi, glob_e
-
-
-implicit_multiplication_name = '_implicit_'
+from config import config as CONFIG
 
 
 exporttokens = {
@@ -24,9 +22,10 @@ exporttokens = {
     Token('^', lambda a, b: a ** b, 4, 1, 'oper', 'Exponentiation'),
     Token(' -', lambda a: -a,       4, 1, 'func', 'Negation'),
     Token(' +', lambda a: +a,       4, 1, 'func', 'Positition'),
-    Token(implicit_multiplication_name, lambda a, b: a * b, 3, 1, 'oper',
+    Token(CONFIG['implicit_mul_name'], lambda a, b: a * b, 3, 1, 'oper',
           'Implicit multiplication'),
-    Token(';', Vector.join,         0, 0, 'oper', 'Argument separator'),
+    Token(CONFIG['vector_separator'], Vector.join, 0, 0, 'oper',
+          'Argument separator'),
     Token('/', lambda a, b: a / b,  0, 0, 'oper', 'Fraction bar'),
     Token('sqrt', lambda a: a ** Decimal('0.5'), 4, 1, 'func',
           'Square root'),
