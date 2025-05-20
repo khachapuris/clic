@@ -102,9 +102,8 @@ with name `name` type `help name`
 
 ### Configuration
 
-1. The configuration is stored in `.clicconfig.toml` file in your home directory.
-2. The calculator does not create this file for you, so you may have to create
-it yourself. To start, you can populate it with these lines (the default config):
+1. The configuration is stored in `.clic/config.toml` file in your home directory.
+2. This is the default configuration:
 ```toml
 # Number notation options:
 # - classic (engineering + scientific)
