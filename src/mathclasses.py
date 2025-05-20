@@ -4,9 +4,21 @@ from decimal import Decimal
 import decimal
 from math import asin, acos, atan
 
+from config import config as CONFIG
+
 
 glob_pi = Decimal('3.1415926535897932384626433833')
 glob_e = Decimal('2.7182818284590452353602874714')
+
+
+def normalize_fraction(d):
+    a = f'{round(d, 22):f}'
+    if '.' in a:
+        return a.rstrip('0').rstrip('.').replace(
+            '.',
+            CONFIG['number']['decimal_separators'][0]
+        )
+    return a
 
 
 def decimal_to_string(x, notation='classic'):
@@ -22,15 +34,15 @@ def decimal_to_string(x, notation='classic'):
     elif notation == 'scientific':
         pass
     elif notation == 'normal':
-        return f'{x:f}'
+        return f'{normalize_fraction(x)}'
     else:
         raise ValueError('invalid notation')
     if y == 0:
-        return f'{x:f}'
+        return f'{normalize_fraction(x)}'
     a = x / Decimal(10) ** y
     if a == 1:
         return f'10^{y}'
-    return f'{a:f} * 10^{y}'
+    return f'{normalize_fraction(a)} * 10^{y}'
 
 
 class Multiset:
@@ -368,4 +380,5 @@ class Vector:
 
     def __repr__(self):
         """String representation of vectors."""
-        return '(' + ', '.join([str(x) for x in self.ls]) + ')'
+        vector_separator = CONFIG['vector_separator'] + ' '
+        return '(' + vector_separator.join([str(x) for x in self.ls]) + ')'
