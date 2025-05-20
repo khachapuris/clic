@@ -19,6 +19,12 @@ is an extensible command line scientific calculator written in Python.
 - Exponentiation, modulo division, square root implemented initially
 - Trigonometric and reverse trigonometric functions
 
+### Customizability
+
+- Use a comma as a decimal separator if you wish
+- Multiple number notation support
+- All settings stored in a `config.toml` file
+
 ### Extensibility
 
 - Write extensions with your own functions and operators
