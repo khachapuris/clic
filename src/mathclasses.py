@@ -382,3 +382,24 @@ class Vector:
         """String representation of vectors."""
         vector_separator = CONFIG['vector_separator'] + ' '
         return '(' + vector_separator.join([str(x) for x in self.ls]) + ')'
+
+
+class UnknownName():
+    """A place to keep unknown names before raising an error."""
+    def __init__(self, name):
+        self.name = name
+
+    def raise_error(self, *args):
+        raise ValueError(f'unknown name: {self.name}')
+
+    __add__ = raise_error
+    __sub__ = raise_error
+    __mul__ = raise_error
+    __div__ = raise_error
+    __truediv__ = raise_error
+    __radd__ = raise_error
+    __rsub__ = raise_error
+    __rmul__ = raise_error
+    __rdiv__ = raise_error
+    __rtruediv__ = raise_error
+    __str__ = raise_error

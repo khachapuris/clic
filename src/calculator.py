@@ -13,6 +13,7 @@ import decimal
 from decimal import Decimal
 from mathclasses import Quantity, Vector
 from mathclasses import decimal_to_string
+from mathclasses import UnknownName
 
 from token import Token
 from setup import exporttokens as default_tokens
@@ -95,6 +96,7 @@ class Calculator:
         ans = []
         space = True
         in_string = False
+        in_name = False
 
         def new_word_if(divide, c):
             """Add a new word / character to ans.
@@ -128,6 +130,7 @@ class Calculator:
                 # Space
                 elif char == ' ':
                     space = True
+                    in_name = False
                 # Decimal separator:
                 elif char in CONFIG['number']['decimal_separators']:
                     new_word_if(space, '.')
@@ -136,9 +139,8 @@ class Calculator:
                     new_word_if(space, '' if last.isdigit() else char)
                 # Letter:
                 elif self.isalphaplus(char):
-                    # Does it go after a non-letter / some space
-                    condition = not self.isalphaplus(last) or space
-                    new_word_if(condition, char)
+                    new_word_if(not in_name, char)
+                    in_name = True
                 # Digit:
                 elif char.isdigit():
                     new_word_if(space, char)
@@ -146,6 +148,7 @@ class Calculator:
                 else:
                     new_word_if(True, char)
                     space = True
+                    in_name = False
         if in_string:
             raise ValueError('unclosed quotes')
         return ans
@@ -219,7 +222,11 @@ class Calculator:
             elif word in self.vars:
                 ans.append(self.vars[word])
             else:
-                raise Calculator.CompilationError(f"unknown name: '{word}'")
+                ans.append(Token.wrap(
+                    UnknownName(word),
+                    name=f'<?{word}?>'
+                ))
+                # raise Calculator.CompilationError(f"unknown name: '{word}'")
         return ans
 
     def complete_infix_notation(self, ls):
@@ -323,6 +330,8 @@ class Calculator:
         """Represent obj as a string."""
         if obj is None:
             return ''
+        if isinstance(obj, UnknownName):
+            obj.raise_error()
         if isinstance(obj, str):
             return f'"{obj}"'
         if isinstance(obj, Decimal):
@@ -357,7 +366,6 @@ class Calculator:
         if self.err:
             if CONFIG['show_debug']:
                 raise self.err
-            raise self.err
             return (True, f'{str(self.err)}')
         ans = self.vars[CONFIG['system_answer_name']].calc()
         if ans is None:
