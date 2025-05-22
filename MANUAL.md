@@ -221,11 +221,11 @@ from token import Token
 
 exporttokens = [
     # If you want a simple function, insert this
-    Token('example_name_a', example_function_a, 3, 1, 'func', 'Help text'),
+    Token('example_name_a', example_function_a, 'normal', 'func', 'Help text'),
     # If you want an operator with preference x, insert this
-    Token('example_name_b', example_function_b, x, 0, 'oper', 'Help text'),
+    Token('example_name_b', example_function_b, 'mul-tion', 'oper', 'Help text'),
     # If you want a sign with preference x, insert this
-    Token('example_name_c', example_function_c, x, 0, 'sign', 'Help text'),
+    Token('example_name_c', example_function_c, 'strong', 'sign', 'Help text'),
     # Create and register as much functions as you want
 ]
 ```
