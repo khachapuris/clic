@@ -11,28 +11,32 @@ from mathclasses import glob_pi, glob_e
 from config import config as CONFIG
 
 
+imp = CONFIG['implicit_mul_name']
+vec = CONFIG['vector_separator']
+square_root = (lambda a: a ** Decimal('0.5'))
+
+
 exporttokens = {
     # These tokens are loaded by default
-    Token('(', lambda: None, 10, 0, '(', 'Opening parhethesis'),
-    Token(')', lambda: None, 10, 0, ')', 'Closing parenthesis'),
-    Token('+', lambda a, b: a + b,  1, 0, 'oper', 'Addition'),
-    Token('-', lambda a, b: a - b,  1, 0, 'oper', 'Subtraction'),
-    Token('*', lambda a, b: a * b,  2, 0, 'oper', 'Multiplication'),
-    Token(':', lambda a, b: a / b,  2, 0, 'oper', 'Inline division'),
-    Token('^', lambda a, b: a ** b, 4, 1, 'oper', 'Exponentiation'),
-    Token(' -', lambda a: -a,       4, 1, 'func', 'Negation'),
-    Token(' +', lambda a: +a,       4, 1, 'func', 'Positition'),
-    Token(CONFIG['implicit_mul_name'], lambda a, b: a * b, 3, 1, 'oper',
-          'Implicit multiplication'),
-    Token(CONFIG['vector_separator'], Vector.join, 0, 0, 'oper',
-          'Argument separator'),
-    Token('/', lambda a, b: a / b,  0, 0, 'oper', 'Fraction bar'),
-    Token('sqrt', lambda a: a ** Decimal('0.5'), 4, 1, 'func',
-          'Square root'),
+    Token('(', lambda: None, 'static', '(', 'Opening parhethesis'),
+    Token(')', lambda: None, 'static', ')', 'Closing parenthesis'),
+    Token('+', lambda a, b: a + b,  'addition', 'oper', 'Addition'),
+    Token('-', lambda a, b: a - b,  'addition', 'oper', 'Subtraction'),
+    Token('*', lambda a, b: a * b,  'mul-tion', 'oper', 'Multiplication'),
+    Token(':', lambda a, b: a / b,  'mul-tion', 'oper', 'Inline division'),
+    Token('^', lambda a, b: a ** b, 'strong', 'oper', 'Exponentiation',
+          order='reverse'),
+    Token(' -', lambda a: -a,      'strong', 'func', 'Negation'),
+    Token(' +', lambda a: +a,      'strong', 'func', 'Positition'),
+    Token(imp, lambda a, b: a * b, 'normal', 'oper', 'Implicit multiplication',
+          order='reverse'),
+    Token(vec, Vector.join,        'light', 'oper', 'Argument separator'),
+    Token('/', lambda a, b: a / b, 'light', 'oper', 'Fraction bar'),
+    Token('sqrt', square_root,     'strong', 'func', 'Square root'),
     Token.wrap(glob_pi, name='pi', ht='The number pi'),
     Token.wrap(glob_e,  name='e',  ht='The number e'),
     # Alternative names
     Token.wrap(glob_pi, name='π',  ht='The number pi'),
-    Token('√', lambda a: a ** Decimal('0.5'), 4, 1, 'func',
+    Token('√', square_root,        'strong', 'func',
           'Square root'),
 }

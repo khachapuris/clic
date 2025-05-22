@@ -39,6 +39,8 @@ def greek_completer(text, state):
 
 
 PROMPT = '\033[1;32mclic:\033[0m '
+LINE_UP = '\033[1A'
+LINE_CLEAR = '\x1b[2K'
 
 
 def prompt():
@@ -73,6 +75,34 @@ def prompt():
         print()
 
 
+def single_prompt():
+    """A nice single line one-time prompt."""
+    helptext = '''
+,~~~~~~~~~~~~~~~~ Basic help ~~~~~~~~~~~~~~~~,
+| exit -- exit the calculator                |
+| help -- display this help                  |
+| list -- list available functions & units   |
+| help <NAME> -- help on a specific function |
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
+    ctor = Calculator(helptext=helptext)
+    try:
+        print(LINE_UP, end=LINE_CLEAR)
+        exp = input(PROMPT)
+    except (KeyboardInterrupt, EOFError):
+        print()
+        print(LINE_UP, end=LINE_CLEAR)
+        sys.exit()
+    ctor.calculate(exp)
+    flag, ans = ctor.get_answer()
+    if flag:
+        print(f'! {ans}')
+    elif ctor.silent:
+        pass
+    else:
+        print(LINE_UP, end=LINE_CLEAR)
+        print(f'{PROMPT}{exp} = {ans}')
+
+
 def command_line_calc():
     """Calculate using command line arguments."""
     ctor = Calculator()
@@ -95,4 +125,4 @@ if __name__ == '__main__':
         readline.parse_and_bind('tab: complete')
         readline.set_completer_delims('0123456789!@#$%^&*()-+=`~\'"<,.>/?:;| ')
         readline.set_completer(greek_completer)
-        prompt()
+        single_prompt()

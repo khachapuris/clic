@@ -76,5 +76,5 @@ def mass(cp):
 
 
 exporttokens = [
-    Token('M', mass, 3, 1, 'func', 'Molar mass of compound'),
+    Token('M', mass, 'normal', 'func', 'Molar mass of compound'),
 ]

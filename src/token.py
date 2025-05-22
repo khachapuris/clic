@@ -13,7 +13,22 @@ from mathclasses import Quantity, Vector
 class Token:
     """Token objects are data storage and data transformation elements."""
 
-    def __init__(self, name, calc, pref, ltor, kind, ht=''):
+    pref_verbose = {
+        'light': 0,
+        'addition': 1,
+        'mul-tion': 2,
+        'normal': 3,
+        'strong': 4,
+        'strongest': 5,
+        'static': 10,
+    }
+
+    ltor_verbose = {
+        'ltor': 1,
+        'rtol': 0,
+    }
+
+    def __init__(self, name, calc, pref, kind, ht='', order='regular'):
         """The initialiser of the class.
 
         Arguments:
@@ -34,8 +49,14 @@ class Token:
             self.arg_num = 2
         else:
             self.arg_num = 0
-        self.pref = pref
-        self.ltor = ltor
+        if kind in ('func', 'doub'):
+            self.ltor = 1 if order == 'regular' else 0
+        else:
+            self.ltor = 0 if order == 'regular' else 1
+        if isinstance(pref, str):
+            self.pref = Token.pref_verbose[pref]
+        else:
+            self.pref = pref
         self.kind = kind
         self.ht = ht
 

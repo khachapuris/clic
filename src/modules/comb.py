@@ -90,9 +90,9 @@ def prime_factorization(n):
 
 
 exporttokens = [
-    Token('!', factorial,    4, 0, 'sign', 'Factorial'),
-    Token('perm', permutations, 3, 1, 'func', 'Number of permutations'),
-    Token('comb', combinations, 3, 1, 'func', 'Number of combinations'),
-    Token('mod', lambda a, b: a % b, 2, 0, 'oper', 'Modulo'),
-    Token('pf', prime_factorization, 3, 1, 'func', 'Prime factorization'),
+    Token('!', factorial, 'strong', 'sign', 'Factorial'),
+    Token('perm', permutations, 'normal', 'func', 'Number of permutations'),
+    Token('comb', combinations, 'normal', 'func', 'Number of combinations'),
+    Token('mod', lambda a, b: a % b, 'mul-tion', 'oper', 'Modulo'),
+    Token('pf', prime_factorization, 'normal', 'func', 'Prime factorization'),
 ]
