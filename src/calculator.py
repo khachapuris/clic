@@ -367,7 +367,7 @@ class Calculator:
         output -- the error / answer (as a string).
         """
         if self.err:
-            if CONFIG['show_debug']:
+            if CONFIG['global']['show_debug']:
                 raise self.err
             return (True, f'{str(self.err)}')
         ans = self.vars[CONFIG['system']['answer_name']].calc()
