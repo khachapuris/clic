@@ -8,11 +8,11 @@ from token import Token
 from decimal import Decimal
 from mathclasses import Vector
 from mathclasses import glob_pi, glob_e
-from config import config as CONFIG
+from config import CONFIG
 
 
-imp = CONFIG['implicit_mul_name']
-vec = CONFIG['vector_separator']
+imp = CONFIG['system']['implicit_mul_name']
+vec = CONFIG['expression']['vector_separator']
 square_root = (lambda a: a ** Decimal('0.5'))
 
 

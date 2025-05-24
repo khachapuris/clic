@@ -18,7 +18,7 @@ from mathclasses import UnknownName
 from token import Token
 from setup import exporttokens as default_tokens
 
-from config import config as CONFIG
+from config import CONFIG
 
 import importlib
 import os
@@ -27,6 +27,9 @@ import os.path as os_path
 # The default help text
 HELP_TEXT = "This is clic calculator. \
 Type 'exit' to quit, please see MANUAL.md"
+
+QUOTE = CONFIG['system']['quote']
+ASSIGNMENT_OPERATOR = CONFIG['system']['assignment_operator']
 
 
 class Calculator:
@@ -41,7 +44,7 @@ class Calculator:
     def __init__(self, helptext=HELP_TEXT):
         """The initialiser of the class."""
         self.err = None
-        self.link = CONFIG['answer_name']
+        self.link = CONFIG['expression']['answer_name']
         self.silent = False
         self.reset_vars()
         self.update_modules()
@@ -83,13 +86,13 @@ class Calculator:
             for token in exporttokens:
                 self.vars.update({token.name: token})
 
-    def assign_ans(self, ans, link=CONFIG['system_answer_name']):
+    def assign_ans(self, ans, link=CONFIG['system']['answer_name']):
         """Set variable with name link to a token containing ans."""
         self.vars |= {link: Token.wrap(ans, name=link)}
 
     def isalphaplus(self, x):
         """Return whether x is alphabetical / semi-alphabetical or not."""
-        return x.isalpha() or x in CONFIG['alphabet_extra']
+        return x.isalpha() or x in CONFIG['system']['alphabet_extra']
 
     def split(self, string):
         """Split the given string expression."""
@@ -111,7 +114,7 @@ class Calculator:
             else:
                 ans[-1][-1] += c
 
-        for expr in string.split(CONFIG['expression_separator']):
+        for expr in string.split(CONFIG['expression']['expression_separator']):
             ans.append([])
             for char in expr:
                 if ans[-1]:
@@ -119,7 +122,7 @@ class Calculator:
                 else:
                     last = ' '
                 # Quote:
-                if char == CONFIG['quote']:
+                if char == QUOTE:
                     # Is it an opening quote
                     condition = not in_string
                     new_word_if(condition, char)
@@ -178,9 +181,9 @@ class Calculator:
                 self.assign_ans(self.helptext)
                 self.silent = False
                 return True
-            if len(ls) == 2 and ls[1].strip(CONFIG['quote']) in self.vars:
+            if len(ls) == 2 and ls[1].strip(QUOTE) in self.vars:
                 self.assign_ans(
-                    self.vars[ls[1].strip(CONFIG['quote'])].get_help()
+                    self.vars[ls[1].strip(QUOTE)].get_help()
                 )
             else:
                 self.assign_ans(f"Could not find help on '{' '.join(ls[1:])}'")
@@ -193,28 +196,28 @@ class Calculator:
     def perform_assignment(self, ls):
         """Change the assignment link according to a list of strings."""
         # simple assignment (x = 1)
-        if len(ls) > 2 and ls[1] == CONFIG['assignment_operator']:
+        if len(ls) > 2 and ls[1] == ASSIGNMENT_OPERATOR:
             name = ls[0]
             if name in self.vars and self.vars[name].kind != 'var':
                 raise Calculator.CompilationError('assignment error')
             self.link = name
             return ls[2:]
         # compound assignment (x += 1)
-        if len(ls) > 2 and ls[2] == CONFIG['assignment_operator']:
+        if len(ls) > 2 and ls[2] == ASSIGNMENT_OPERATOR:
             name = ls[0]
             if name not in self.vars:
                 raise Calculator.CompilationError('compound assignment error')
             self.link = name
             return ls[:2] + ls[3:]
-        self.link = CONFIG['answer_name']
+        self.link = CONFIG['expression']['answer_name']
         return ls
 
     def tokenize(self, ls):
         """Transform a list of strings to a list of Token objects."""
         ans = []
         for word in ls:
-            if word[0] == CONFIG['quote']:
-                get = Token.give(word.strip(CONFIG['quote']))
+            if word[0] == QUOTE:
+                get = Token.give(word.strip(QUOTE))
                 ans.append(Token(word, get, 10, 0, 'str'))
             elif word[0].isdigit() or word[0] == '.':
                 num = Decimal(word)
@@ -367,7 +370,7 @@ class Calculator:
             if CONFIG['show_debug']:
                 raise self.err
             return (True, f'{str(self.err)}')
-        ans = self.vars[CONFIG['system_answer_name']].calc()
+        ans = self.vars[CONFIG['system']['answer_name']].calc()
         if ans is None:
             return (True, '')
         ans = self.object_to_string(ans)

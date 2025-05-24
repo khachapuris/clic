@@ -1,0 +1,24 @@
+global.show_debug = false
+
+# Number notation options:
+# - classic (engineering + scientific)
+# - engineering
+# - scientific
+# - normal (no exponent)
+number.notation = "classic"
+number.decimal_separators = "."
+number.thousands_separators = "_"
+
+modules.load_all = true
+modules.load = []
+modules.exclude = []
+
+expression.vector_separator = ","
+expression.expression_separator = ";"
+expression.answer_name = "ans"
+
+view.oneline = true
+view.replace_console_prompt = true
+view.quit_after_first_input = true
+# Colors in bash color codes
+view.prompt_color = "1;32"

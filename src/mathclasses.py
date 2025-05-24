@@ -4,7 +4,7 @@ from decimal import Decimal
 import decimal
 from math import asin, acos, atan
 
-from config import config as CONFIG
+from config import CONFIG
 
 
 glob_pi = Decimal('3.1415926535897932384626433833')
@@ -380,7 +380,7 @@ class Vector:
 
     def __repr__(self):
         """String representation of vectors."""
-        vector_separator = CONFIG['vector_separator'] + ' '
+        vector_separator = CONFIG['expression']['vector_separator'] + ' '
         return '(' + vector_separator.join([str(x) for x in self.ls]) + ')'
 
 

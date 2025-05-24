@@ -6,6 +6,7 @@ It runs the calculator with a prompt.
 """
 
 from calculator import Calculator
+from config import CONFIG
 import sys
 
 
@@ -28,17 +29,22 @@ def greek_completer(text, state):
         # Other
         'deg':     '°', 'sqrt':  '√', 'sigmaf':  'ς',
     }
+    # With backslash
     for word in vocab:
         if text.endswith('\\' + word):
             start = '\\'.join(text.split('\\')[:-1])
             return [start + vocab[word]][state]
+    # Without backslash
+    for word in vocab:
+        if text == word:
+            return [vocab[word]][state]
     return None
     # if text in vocab:
     #     return [vocab[text], None][state]
     # return None
 
 
-PROMPT = '\033[1;32mclic:\033[0m '
+PROMPT = f'\033[{CONFIG["view"]["prompt_color"]}mclic:\033[0m '
 LINE_UP = '\033[1A'
 LINE_CLEAR = '\x1b[2K'
 
@@ -86,7 +92,8 @@ def single_prompt():
 '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
     ctor = Calculator(helptext=helptext)
     try:
-        print(LINE_UP, end=LINE_CLEAR)
+        if CONFIG['view']['replace_console_prompt']:
+            print(LINE_UP, end=LINE_CLEAR)
         exp = input(PROMPT)
     except (KeyboardInterrupt, EOFError):
         print()
@@ -99,8 +106,11 @@ def single_prompt():
     elif ctor.silent:
         pass
     else:
-        print(LINE_UP, end=LINE_CLEAR)
-        print(f'{PROMPT}{exp} = {ans}')
+        if CONFIG['view']['oneline']:
+            print(LINE_UP, end=LINE_CLEAR)
+            print(f'{PROMPT}{exp} = {ans}')
+        else:
+            print(f'= {ans}')
 
 
 def command_line_calc():
@@ -125,4 +135,8 @@ if __name__ == '__main__':
         readline.parse_and_bind('tab: complete')
         readline.set_completer_delims('0123456789!@#$%^&*()-+=`~\'"<,.>/?:;| ')
         readline.set_completer(greek_completer)
-        single_prompt()
+        if CONFIG['view']['quit_after_first_input']:
+            single_prompt()
+        else:
+            while True:
+                single_prompt()
