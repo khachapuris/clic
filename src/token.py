@@ -75,7 +75,7 @@ class Token:
     @staticmethod
     def wrap(obj, name='', ht='Variable'):
         """Return a token that wraps obj."""
-        return Token(name, Token.give(obj), 10, 0, 'var', ht)
+        return Token(name, Token.give(obj), 'static', 'var', ht)
 
     def get_help(self):
         if self.kind == 'func':

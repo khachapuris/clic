@@ -218,10 +218,10 @@ class Calculator:
         for word in ls:
             if word[0] == QUOTE:
                 get = Token.give(word.strip(QUOTE))
-                ans.append(Token(word, get, 10, 0, 'str'))
+                ans.append(Token(word, get, 'static', 'str'))
             elif word[0].isdigit() or word[0] == '.':
                 num = Decimal(word)
-                ans.append(Token(word, Token.give(num), 10, 0, 'num'))
+                ans.append(Token(word, Token.give(num), 'static', 'num'))
             elif word in self.vars:
                 ans.append(self.vars[word])
             else:
@@ -251,10 +251,15 @@ class Calculator:
                 case ('num', 'num'):
                     ans += [token]
                 case ('var' | ')' | 'num', 'var' | '(' | 'num' | 'func'):
-                    ans += [self.vars[CONFIG['implicit_mul_name']], token]
+                    ans += [
+                        self.vars[CONFIG['system']['implicit_mul_name']],
+                        token
+                    ]
                 case _:
                     ans += [token]
             last = ans[-1]
+        print(ans)
+        print([a.kind for a in ans])
         return ans
 
     def shunting_yard_algorithm(self, ls):
