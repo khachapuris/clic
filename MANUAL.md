@@ -105,6 +105,8 @@ with name `name` type `help name`
 1. The configuration is stored in `.clic/config.toml` file in your home directory.
 2. This is the default configuration:
 ```toml
+global.show_debug = false
+
 # Number notation options:
 # - classic (engineering + scientific)
 # - engineering
@@ -118,10 +120,15 @@ modules.load_all = true
 modules.load = []
 modules.exclude = []
 
-vector_separator = ","
-expression_separator = ";"
-show_debug = false
-answer_name = "ans"
+expression.vector_separator = ","
+expression.expression_separator = ";"
+expression.answer_name = "ans"
+
+view.oneline = true
+view.replace_console_prompt = true
+view.quit_after_first_input = true
+# Colors in bash color codes
+view.prompt_color = "1;32"
 ```
 
 3. Note that there is a difference between decimal / thousands separators
@@ -133,12 +140,6 @@ and vector / expression separators.
     + The vector and expression separators can be a word,
     i.e. `expression_separator = "AND"` will make the word `AND`
     an expression separator.
-
-## Interactive input
-
-1. Run `python src/cli.py`
-2. Type in the expression / command and press Enter
-3. To exit type `exit` and press Enter
 
 ### Special character insertion
 
@@ -152,43 +153,7 @@ To input a special character, type:
 5. Square root sign -> `\sqrt`
 
 Press tab, and what you typed is replaced with the symbol.
-
-### Example
-
-Get the number of molecules of a hydrocarbon with
-8 single bonds and 2 double bonds.
-
-```
-% "1st number in the vector is the amount of carbon";
-% "2nd number in the vector is the amount of hydrogen";
-%
-% methane = (1, 4);
-%
-% single = (1,  2);
-% double = (1,  0);
-% triple = (1, -2);
-%
-% methane + 8 single + 2 double
-= (11, 20)
-%
-% exit
-```
-
-Answer: 11 carbon atoms and 20 hydrogen atoms.
-
-## Non-interactive input
-
-1. Run `python src/cli.py 'your expression here'`
-
-### Example
-
-Get the sine of 100 degrees
-
-```
-[user@host]$ python src/cli.py 'sin 100deg'
-= 984.8077530122080593667430247 * 10^-3
-```
-Answer: 0.98
+Note: the backslash before the character name is optional.
 
 ## Writing an extension
 

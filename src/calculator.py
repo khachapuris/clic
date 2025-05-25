@@ -258,8 +258,6 @@ class Calculator:
                 case _:
                     ans += [token]
             last = ans[-1]
-        print(ans)
-        print([a.kind for a in ans])
         return ans
 
     def shunting_yard_algorithm(self, ls):
