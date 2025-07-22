@@ -81,7 +81,7 @@ def prompt():
         print()
 
 
-def single_prompt():
+def single_prompt(ctor=None):
     """A nice single line one-time prompt."""
     helptext = '''
 ,~~~~~~~~~~~~~~~~ Basic help ~~~~~~~~~~~~~~~~,
@@ -90,7 +90,8 @@ def single_prompt():
 | list -- list available functions & units   |
 | help <NAME> -- help on a specific function |
 '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
-    ctor = Calculator(helptext=helptext)
+    if ctor is None:
+        ctor = Calculator(helptext=helptext)
     try:
         if CONFIG['view']['replace_console_prompt']:
             print(LINE_UP, end=LINE_CLEAR)
@@ -111,6 +112,7 @@ def single_prompt():
             print(f'{PROMPT}{exp} = {ans}')
         else:
             print(f'= {ans}')
+    return ctor
 
 
 def command_line_calc():
@@ -138,5 +140,6 @@ if __name__ == '__main__':
         if CONFIG['view']['quit_after_first_input']:
             single_prompt()
         else:
+            ctor = single_prompt()
             while True:
-                single_prompt()
+                single_prompt(ctor)
