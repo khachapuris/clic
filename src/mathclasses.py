@@ -177,7 +177,7 @@ class Quantity:
             if units:
                 return Quantity(value, units)
             return value
-        return Quantity(self.value * other, self.units)
+        return Quantity(self.value / other, self.units)
 
     def __add__(self, other):
         """Addition of quantities."""

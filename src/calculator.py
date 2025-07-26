@@ -154,6 +154,8 @@ class Calculator:
                     in_name = False
         if in_string:
             raise ValueError('unclosed quotes')
+        if CONFIG['global']['show_debug']:
+            print('splitted:          ', ans)
         return ans
 
     def run_command(self, ls):
@@ -230,6 +232,8 @@ class Calculator:
                     name=f'<?{word}?>'
                 ))
                 # raise Calculator.CompilationError(f"unknown name: '{word}'")
+        if CONFIG['global']['show_debug']:
+            print('tokenized:         ', ans)
         return ans
 
     def complete_infix_notation(self, ls):
@@ -258,6 +262,8 @@ class Calculator:
                 case _:
                     ans += [token]
             last = ans[-1]
+        if CONFIG['global']['show_debug']:
+            print('completed:         ', ans)
         return ans
 
     def shunting_yard_algorithm(self, ls):
@@ -281,7 +287,11 @@ class Calculator:
                         and token.pref <= oper_stack[-1].pref:
                     output.append(oper_stack.pop())
                 oper_stack.append(token)
-        return output + oper_stack[::-1]
+        ans = output + oper_stack[::-1]
+        if CONFIG['global']['show_debug']:
+            print('postfix notation:  ', ans)
+            print()
+        return ans
 
     def perform_operations(self, ls):
         """Perform postfix notation operations."""
