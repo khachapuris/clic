@@ -108,7 +108,8 @@ def single_prompt(ctor=None):
         pass
     else:
         if CONFIG['view']['oneline']:
-            print(LINE_UP, end=LINE_CLEAR)
+            if not CONFIG['global']['show_debug']:
+                print(LINE_UP, end=LINE_CLEAR)
             print(f'{PROMPT}{exp} = {ans}')
         else:
             print(f'= {ans}')

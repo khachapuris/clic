@@ -96,10 +96,11 @@ class Calculator:
 
     def split(self, string):
         """Split the given string expression."""
-        ans = []
+        ans = [[]]
         space = True
         in_string = False
         in_name = False
+        parenthesis_level = 0
 
         def new_word_if(divide, c):
             """Add a new word / character to ans.
@@ -114,46 +115,57 @@ class Calculator:
             else:
                 ans[-1][-1] += c
 
-        for expr in string.split(CONFIG['expression']['expression_separator']):
-            ans.append([])
-            for char in expr:
-                if ans[-1]:
-                    last = ans[-1][-1][-1]
-                else:
-                    last = ' '
-                # Quote:
-                if char == QUOTE:
-                    # Is it an opening quote
-                    condition = not in_string
-                    new_word_if(condition, char)
-                    in_string = not in_string
-                # Character inside a calculator string
-                elif in_string:
-                    new_word_if(False, char)
-                # Space
-                elif char == ' ':
-                    space = True
-                    in_name = False
-                # Decimal separator:
-                elif char in CONFIG['number']['decimal_separators']:
-                    new_word_if(space, '.')
-                # Thousands separator:
-                elif char in CONFIG['number']['thousands_separators']:
-                    new_word_if(space, '' if last.isdigit() else char)
-                # Letter:
-                elif self.isalphaplus(char):
-                    new_word_if(not in_name, char)
-                    in_name = True
-                # Digit:
-                elif char.isdigit():
-                    new_word_if(space, char)
-                # Symbol:
-                else:
-                    new_word_if(True, char)
-                    space = True
-                    in_name = False
+        for char in string:
+            if ans[-1]:
+                last = ans[-1][-1][-1]
+            else:
+                last = ' '
+            # Quote:
+            if char == QUOTE:
+                # Is it an opening quote
+                condition = not in_string
+                new_word_if(condition, char)
+                in_string = not in_string
+            # Character inside a calculator string
+            elif in_string:
+                new_word_if(False, char)
+            # Space
+            elif char == ' ':
+                space = True
+                in_name = False
+            # Expression separator
+            elif char == CONFIG['expression']['expression_separator'] \
+                    and parenthesis_level == 0:
+                ans.append([])
+            # Decimal separator:
+            elif char in CONFIG['number']['decimal_separators']:
+                new_word_if(space, '.')
+            # Thousands separator:
+            elif char in CONFIG['number']['thousands_separators']:
+                new_word_if(space, '' if last.isdigit() else char)
+            # Letter:
+            elif self.isalphaplus(char):
+                new_word_if(not in_name, char)
+                in_name = True
+            # Digit:
+            elif char.isdigit():
+                new_word_if(space, char)
+            # Symbol:
+            else:
+                # Watch out for unmatched parentheses
+                if char == '(':
+                    parenthesis_level += 1
+                if char == ')':
+                    parenthesis_level -= 1
+                    if parenthesis_level < 0:
+                        raise ValueError('unmatched paretheses')
+                new_word_if(True, char)
+                space = True
+                in_name = False
+        if parenthesis_level != 0:
+            raise ValueError('unmatched paretheses')
         if in_string:
-            raise ValueError('unclosed quotes')
+            raise ValueError('unclosed quote')
         if CONFIG['global']['show_debug']:
             print('splitted:          ', ans)
         return ans
@@ -290,7 +302,6 @@ class Calculator:
         ans = output + oper_stack[::-1]
         if CONFIG['global']['show_debug']:
             print('postfix notation:  ', ans)
-            print()
         return ans
 
     def perform_operations(self, ls):
@@ -339,8 +350,13 @@ class Calculator:
             new = Vector()
             for a2, i2 in zip(a, i):
                 Vector.join(new, type_test(a2, i2))
-            return new
-        return type_test(a, i)
+            ans = new
+        else:
+            ans = type_test(a, i)
+        if CONFIG['global']['show_debug']:
+            print('answer:            ', ans)
+            print()
+        return ans
 
     def object_to_string(self, obj):
         """Represent obj as a string."""
