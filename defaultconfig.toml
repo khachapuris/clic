@@ -1,11 +1,10 @@
 global.show_debug = false
 
-# Number notation options:
-# - classic (engineering + scientific)
-# - engineering
-# - scientific
-# - normal (no exponent)
-number.notation = "classic"
+# Use one of the following number notations:
+number.notation = "classic" # (engineering + scientific)
+# number.notation = "engineering"
+# number.notation = "scientific"
+# number.notation = "normal" # (no exponent)
 number.decimal_separators = "."
 number.thousands_separators = "_"
 
