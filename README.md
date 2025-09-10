@@ -15,7 +15,8 @@ similar way on other platforms
 1. Make sure you have Python installed
 2. `cd` to a place where you decide to keep the source code
 3. Use `git clone` to copy the git repository to your computer.
-4. Create a symbolic link in your `$PATH` (remember to replace `your_place`!)
+4. Create a symbolic link in your `$PATH`<br>
+   (remember to replace `your_place` with the folder with the source code!)
 ```bash
 ln -s your_place/clic/cli.py ~/.local/bin/clic
 ```
@@ -23,7 +24,7 @@ ln -s your_place/clic/cli.py ~/.local/bin/clic
 
 ## Usage
 
-Basic arithmetics
+Here is a brief overview of what clic can do:
 
 | algebraic notation | expression in clic | answer        |
 | ------------------ | ------------------ | ------------- |
@@ -34,6 +35,10 @@ Basic arithmetics
 | $a^b - \sqrt{b+5}$ | `a^b - √(b+5)`     | `78`          |
 | $sin^2{60\degree}$ | `sin^2 60°`        | `750 * 10^-3` |
 | $7! - 5!$          | `7! - 5!`          | `4.92 * 10^3` |
+| vector notation —  | `(1, 2) + (-5, 6.4)` | `(-4, 8.4)` |
+
+In case you are wondering how did `√` and `°` get here, check out
+the ["Inserting special characters"](#inserting-special-characters) section.
 
 Advanced math and exotic functions
 
@@ -53,7 +58,9 @@ Commands
 | `list`        | list all variables, functions and operators |
 | `help <NAME>` | show help on a specific function            |
 
-Inserting special symbols (`<Tab>` is the `Tab` key)
+### Inserting special symbols
+
+(`<Tab>` is the tab key)
 
 | keypresses   | result |
 | ------------ | ------ |
@@ -68,12 +75,11 @@ directory. This is the default config:
 ```toml
 global.show_debug = false
 
-# Number notation options:
-# - classic (engineering + scientific)
-# - engineering
-# - scientific
-# - normal (no exponent)
-number.notation = "classic"
+# Use one of the following number notations:
+number.notation = "classic" # (engineering + scientific)
+# number.notation = "engineering"
+# number.notation = "scientific"
+# number.notation = "normal" # (no exponent)
 number.decimal_separators = "."
 number.thousands_separators = "_"
 

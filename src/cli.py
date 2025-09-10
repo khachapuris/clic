@@ -118,6 +118,13 @@ def single_prompt(ctor=None):
 
 def command_line_calc():
     """Calculate using command line arguments."""
+    if sys.argv[1] == '--help':
+        print('CLIC command-line calculator')
+        print('Usage:  clic [--help,--version] [expression]')
+        sys.exit()
+    elif sys.argv[1] == '--version':
+        print('clic 1')
+        sys.exit()
     ctor = Calculator()
     ctor.calculate(''.join(sys.argv[1:]))
     flag, ans = ctor.get_answer()
