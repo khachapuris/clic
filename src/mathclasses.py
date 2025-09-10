@@ -327,21 +327,31 @@ class Vector:
 
     def __add__(self, other):
         """Addition of vectors."""
-        if isinstance(other, Vector) and len(other.ls) == len(self.ls):
-            ans = Vector()
-            for a, b in zip(self.ls, other.ls):
-                Vector.join(ans, a + b)
-            return ans
-        raise Vector.OperationError('addition of different sizes')
+        if isinstance(other, Vector):
+            if len(other.ls) == len(self.ls):
+                ans = Vector()
+                for a, b in zip(self.ls, other.ls):
+                    Vector.join(ans, a + b)
+                return ans
+            raise Vector.OperationError('addition of different sizes')
+        ans = Vector()
+        for a in self.ls:
+            Vector.join(ans, a + other)
+        return ans
 
     def __sub__(self, other):
         """Subtraction of vectors."""
-        if isinstance(other, Vector) and len(other.ls) == len(self.ls):
-            ans = Vector()
-            for a, b in zip(self.ls, other.ls):
-                Vector.join(ans, a - b)
-            return ans
-        raise Vector.OperationError('subtraction of different sizes')
+        if isinstance(other, Vector):
+            if len(other.ls) == len(self.ls):
+                ans = Vector()
+                for a, b in zip(self.ls, other.ls):
+                    Vector.join(ans, a - b)
+                return ans
+            raise Vector.OperationError('subtraction of different sizes')
+        ans = Vector()
+        for a in self.ls:
+            Vector.join(ans, a - other)
+        return ans
 
     def __mul__(self, other):
         """Multiplication of vectors."""
@@ -373,6 +383,13 @@ class Vector:
 
     def __rmul__(self, other):
         return self * other
+
+    def __rtruediv__(self, other):
+        """Division of vectors."""
+        ans = Vector()
+        for a in self.ls:
+            Vector.join(ans, other / a)
+        return ans
 
     def __iter__(self):
         """Return an iterator over a vector."""
