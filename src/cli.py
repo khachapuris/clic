@@ -10,19 +10,27 @@ from config import CONFIG
 import sys
 
 
+def overlap(a, b):
+    # print(a, b)
+    for i in range(0, len(a)):
+        if b.startswith(a[-i-1:]):
+            return i
+    return 0
+
+
 def greek_completer(text, state):
     vocab = {
         # Greek alphabet (uppercase)
         'Alpha':   'Α', 'Beta':  'Β', 'Gamma':   'Γ', 'Delta':   'Δ',
         'Epsilon': 'Ε', 'Zeta':  'Ζ', 'Eta':     'Η', 'Theta':   'Θ',
-        'Iotta':   'Ι', 'Kappa': 'Κ', 'Lambda':  'Λ', 'Mu':      'Μ',
+        'Iota':    'Ι', 'Kappa': 'Κ', 'Lambda':  'Λ', 'Mu':      'Μ',
         'Nu':      'Ν', 'Xi':    'Ξ', 'Omicron': 'Ο', 'Pi':      'Π',
         'Rho':     'Ρ', 'Sigma': 'Σ', 'Tau':     'Τ', 'Upsilon': 'Υ',
         'Phi':     'Φ', 'Chi':   'Χ', 'Psi':     'Ψ', 'Omega':   'Ω',
         # Greek alphabet (lowercase)
         'alpha':   'α', 'beta':  'β', 'gamma':   'γ', 'delta':   'δ',
         'epsilon': 'ε', 'zeta':  'ζ', 'eta':     'η', 'theta':   'θ',
-        'iotta':   'ι', 'kappa': 'κ', 'lambda':  'λ', 'mu':      'μ',
+        'iota':    'ι', 'kappa': 'κ', 'lambda':  'λ', 'mu':      'μ',
         'nu':      'ν', 'xi':    'ξ', 'omicron': 'ο', 'pi':      'π',
         'rho':     'ρ', 'sigma': 'σ', 'tau':     'τ', 'upsilon': 'υ',
         'phi':     'φ', 'chi':   'χ', 'psi':     'ψ', 'omega':   'ω',
@@ -31,7 +39,7 @@ def greek_completer(text, state):
     }
     # With backslash
     for word in vocab:
-        if text.endswith('\\' + word):
+        if overlap(text[-10:], '\\' + word):
             start = '\\'.join(text.split('\\')[:-1])
             return [start + vocab[word]][state]
     # Without backslash
@@ -39,9 +47,6 @@ def greek_completer(text, state):
         if text == word:
             return [vocab[word]][state]
     return None
-    # if text in vocab:
-    #     return [vocab[text], None][state]
-    # return None
 
 
 PROMPT = f'\033[{CONFIG["view"]["prompt_color"]}mclic:\033[0m '

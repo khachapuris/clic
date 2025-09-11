@@ -339,6 +339,9 @@ class Vector:
             Vector.join(ans, a + other)
         return ans
 
+    def __radd__(self, other):
+        return self + other
+
     def __sub__(self, other):
         """Subtraction of vectors."""
         if isinstance(other, Vector):
@@ -352,6 +355,9 @@ class Vector:
         for a in self.ls:
             Vector.join(ans, a - other)
         return ans
+
+    def __rsub__(self, other):
+        return -self + other
 
     def __mul__(self, other):
         """Multiplication of vectors."""
@@ -390,6 +396,15 @@ class Vector:
         for a in self.ls:
             Vector.join(ans, other / a)
         return ans
+
+    def __ne__(self):
+        ans = Vector()
+        for a in self.ls:
+            Vector.join(ans, -a)
+        return ans
+
+    def __len__(self):
+        return len(self.ls)
 
     def __iter__(self):
         """Return an iterator over a vector."""

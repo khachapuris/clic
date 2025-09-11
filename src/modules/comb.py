@@ -2,6 +2,8 @@
 
 from token import Token
 from decimal import Decimal
+from mathclasses import Vector
+from math import prod
 
 
 def factorial(x):

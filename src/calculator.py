@@ -92,7 +92,8 @@ class Calculator:
 
     def isalphaplus(self, x):
         """Return whether x is alphabetical / semi-alphabetical or not."""
-        return x.isalpha() or x in CONFIG['system']['alphabet_extra']
+        return (x.isalpha() and x.isascii()) \
+            or x in CONFIG['system']['alphabet_extra']
 
     def split(self, string):
         """Split the given string expression."""

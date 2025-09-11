@@ -77,6 +77,22 @@ class Token:
         """Return a token that wraps obj."""
         return Token(name, Token.give(obj), 'static', 'var', ht)
 
+    @staticmethod
+    def with_alt(names, calc, pref, kind, ht='', order='regular'):
+        """Create a token with alternative names (as a tuple)."""
+        return (
+            Token(name, calc, pref, kind, ht, order)
+            for name in names
+        )
+
+    @staticmethod
+    def wrap_with_alt(obj, names, ht='Variable', alt=''):
+        """Create a token with wrap and alternative names (as a tuple)."""
+        return (
+            Token.wrap(obj, name, ht)
+            for name in names
+        )
+
     def get_help(self):
         if self.kind == 'func':
             return f'{self.ht} function'

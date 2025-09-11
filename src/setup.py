@@ -13,7 +13,7 @@ from config import CONFIG
 
 imp = CONFIG['system']['implicit_mul_name']
 vec = CONFIG['expression']['vector_separator']
-square_root = (lambda a: a ** Decimal('0.5'))
+sq_root = (lambda a: a ** Decimal('0.5'))
 
 
 exporttokens = {
@@ -32,11 +32,7 @@ exporttokens = {
           order='reverse'),
     Token(vec, Vector.join,        'light', 'oper', 'Argument separator'),
     Token('/', lambda a, b: a / b, 'light', 'oper', 'Fraction bar'),
-    Token('sqrt', square_root,     'strong', 'func', 'Square root'),
-    Token.wrap(glob_pi, name='pi', ht='The number pi'),
+    *Token.with_alt(['√', 'sqrt'], sq_root, 'strong', 'func', 'Square root'),
+    *Token.wrap_with_alt(glob_pi, names=['π', 'pi'], ht='The number pi'),
     Token.wrap(glob_e,  name='e',  ht='The number e'),
-    # Alternative names
-    Token.wrap(glob_pi, name='π',  ht='The number pi'),
-    Token('√', square_root,        'strong', 'func',
-          'Square root'),
 }
