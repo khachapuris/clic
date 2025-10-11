@@ -7,7 +7,6 @@ from mathclasses import Quantity, glob_pi
 
 
 exporttokens = [
-    # Default tokens
     Token('sin',    Quantity.sin,    'normal', 'func', 'Sine'),
     Token('cos',    Quantity.cos,    'normal', 'func', 'Cosine'),
     *Token.with_alt(['tan', 'tg'],
@@ -24,3 +23,7 @@ exporttokens = [
                          names=['°', 'deg'], ht='Degree'),
     Token.wrap(Quantity(Decimal(1), {'rad': 1}), name='rad', ht='Radian'),
 ]
+
+exportmappings = {
+    'deg': '°',
+}

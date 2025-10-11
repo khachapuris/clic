@@ -28,7 +28,8 @@ class Token:
         'rtol': 0,
     }
 
-    def __init__(self, name, calc, pref, kind, ht='', order='regular'):
+    def __init__(self, name, calc, pref, kind, ht='', order='regular',
+                 closes=None):
         """The initialiser of the class.
 
         Arguments:
@@ -43,7 +44,7 @@ class Token:
         """
         self.name = name
         self.calc = calc
-        if kind in ('func', 'sign'):
+        if kind in ('func', 'sign', 'open'):
             self.arg_num = 1
         elif kind in ('oper', 'doub'):
             self.arg_num = 2
@@ -59,6 +60,7 @@ class Token:
             self.pref = pref
         self.kind = kind
         self.ht = ht
+        self.closes = closes
 
     @staticmethod
     def give(obj):
@@ -100,6 +102,10 @@ class Token:
             return f'{self.ht} operator'
         if self.kind == 'sign':
             return f'{self.ht} sign'
+        if self.kind == 'open':
+            return f'Opens a {self.ht}; to close use {self.closes} '
+        if self.kind == 'clos':
+            return f'Closes a {self.ht}; to open use {self.closes} '
         return f'{self.ht}'
 
     def __repr__(self):

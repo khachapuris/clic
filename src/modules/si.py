@@ -78,3 +78,8 @@ si(Quantity(Decimal('60'),    {'s': 1}), 'min', [0])      # minute
 si(Quantity(Decimal('3600'),  {'s': 1}), 'h',   [0])      # hour
 si(Quantity(Decimal('86400'), {'s': 1}), 'day', [0])      # day
 si(Quantity(Decimal('31557600'), {'s': 1}), 'year', [0])  # year
+
+
+exportmappings = {
+    'ohm': 'Ω', 'micro': 'μ',
+}

@@ -32,7 +32,28 @@ exporttokens = {
           order='reverse'),
     Token(vec, Vector.join,        'light', 'oper', 'Argument separator'),
     Token('/', lambda a, b: a / b, 'light', 'oper', 'Fraction bar'),
-    *Token.with_alt(['√', 'sqrt'], sq_root, 'strong', 'func', 'Square root'),
+    Token('sqrt', sq_root, 'strong', 'func', 'Square root'),
     *Token.wrap_with_alt(glob_pi, names=['π', 'pi'], ht='The number pi'),
     Token.wrap(glob_e,  name='e',  ht='The number e'),
+    Token('√', sq_root,      'static', 'open', 'Square root', closes="'"),
+    Token("'", lambda: None, 'static', 'clos', 'Square root', closes='√'),
+}
+
+exportmappings = {
+    # Greek alphabet (uppercase)
+    'Alpha':   'Α', 'Beta':  'Β', 'Gamma':   'Γ', 'Delta':   'Δ',
+    'Epsilon': 'Ε', 'Zeta':  'Ζ', 'Eta':     'Η', 'Theta':   'Θ',
+    'Iota':    'Ι', 'Kappa': 'Κ', 'Lambda':  'Λ', 'Mu':      'Μ',
+    'Nu':      'Ν', 'Xi':    'Ξ', 'Omicron': 'Ο', 'Pi':      'Π',
+    'Rho':     'Ρ', 'Sigma': 'Σ', 'Tau':     'Τ', 'Upsilon': 'Υ',
+    'Phi':     'Φ', 'Chi':   'Χ', 'Psi':     'Ψ', 'Omega':   'Ω',
+    # Greek alphabet (lowercase)
+    'alpha':   'α', 'beta':  'β', 'gamma':   'γ', 'delta':   'δ',
+    'epsilon': 'ε', 'zeta':  'ζ', 'eta':     'η', 'theta':   'θ',
+    'iota':    'ι', 'kappa': 'κ', 'lambda':  'λ', 'mu':      'μ',
+    'nu':      'ν', 'xi':    'ξ', 'omicron': 'ο', 'pi':      'π',
+    'rho':     'ρ', 'sigma': 'σ', 'tau':     'τ', 'upsilon': 'υ',
+    'phi':     'φ', 'chi':   'χ', 'psi':     'ψ', 'omega':   'ω',
+    # Function-specific
+    'sqrt':  '√', 'sigmaf':  'ς', 'pm':      '±',
 }

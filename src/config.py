@@ -26,6 +26,8 @@ system_config = {
     'assignment_operator': '=',
     'answer_name': '_',
     'implicit_mul_name': 'dot',
+    'opening_braces': '([{',
+    'closing_braces': '}])',
 }
 
 CONFIG = dict()

@@ -17,6 +17,7 @@ from mathclasses import UnknownName
 
 from token import Token
 from setup import exporttokens as default_tokens
+from setup import exportmappings as default_mappings
 
 from config import CONFIG
 
@@ -56,6 +57,7 @@ class Calculator:
         self.assign_ans(Decimal(0))
         for token in default_tokens:
             self.vars.update({token.name: token})
+        self.completion = default_mappings
 
     def update_modules(self):
         """Update the list of all modules."""
@@ -83,6 +85,14 @@ class Calculator:
                 raise Calculator.CompilationError(
                     f"invalid module: '{module}'",
                 )
+            try:
+                exportmappings = getattr(
+                    importlib.import_module(f'modules.{module}'),
+                    'exportmappings',
+                )
+                self.completion.update(exportmappings)
+            except AttributeError:
+                pass
             for token in exporttokens:
                 self.vars.update({token.name: token})
 
@@ -102,6 +112,7 @@ class Calculator:
         in_string = False
         in_name = False
         parenthesis_level = 0
+        braces_level = 0
 
         def new_word_if(divide, c):
             """Add a new word / character to ans.
@@ -136,7 +147,7 @@ class Calculator:
                 in_name = False
             # Expression separator
             elif char == CONFIG['expression']['expression_separator'] \
-                    and parenthesis_level == 0:
+                    and braces_level == 0:
                 ans.append([])
             # Decimal separator:
             elif char in CONFIG['number']['decimal_separators']:
@@ -153,6 +164,11 @@ class Calculator:
                 new_word_if(space, char)
             # Symbol:
             else:
+                # Count open braces (for correct expression splitting)
+                if char in CONFIG['system']['opening_braces']:
+                    braces_level += 1
+                if char in CONFIG['system']['closing_braces']:
+                    braces_level -= 1
                 # Watch out for unmatched parentheses
                 if char == '(':
                     parenthesis_level += 1
@@ -234,6 +250,12 @@ class Calculator:
             if word[0] == QUOTE:
                 get = Token.give(word.strip(QUOTE))
                 ans.append(Token(word, get, 'static', 'str'))
+            # # HACK: Create a standard for opening & closing operators
+            # elif word[0] == '√':
+            #     ans.append(self.vars[word])
+            #     ans.append(self.vars['('])
+            # elif word == "'":
+            #     ans.append(self.vars[')'])
             elif word[0].isdigit() or word[0] == '.':
                 num = Decimal(word)
                 ans.append(Token(word, Token.give(num), 'static', 'num'))
@@ -253,12 +275,33 @@ class Calculator:
         """Add omited operators to a list of tokens."""
         last = self.vars['(']
         ans = []
+        pairs = []
         for token in ls:
             if last.name + ' ' + token.name in list(self.vars):
                 ans[-1] = self.vars[last.name + ' ' + token.name]
                 last = ans[-1]
                 continue
             match (last.kind, token.kind):
+                case (_, 'open'):
+                    pairs += token.name
+                    ans += [
+                        token,
+                        self.vars['(']
+                    ]
+                case (_, 'clos'):
+                    if not pairs:
+                        raise Calculator.CompilationError(
+                            f"unclosed '{token.name}'"
+                        )
+                    elif token.closes == pairs[-1]:
+                        pairs.pop()
+                    else:
+                        raise Calculator.CompilationError(
+                            f"unclosed '{token.closes}'"
+                        )
+                    ans += [
+                        self.vars[')']
+                    ]
                 case ('(' | 'oper' | 'func', 'oper'):
                     alt = ' ' + token.name
                     if alt in self.vars:
@@ -277,6 +320,8 @@ class Calculator:
             last = ans[-1]
         if CONFIG['global']['show_debug']:
             print('completed:         ', ans)
+        if pairs:
+            raise Calculator.CompilationError(f"unclosed '{pairs[-1]}'")
         return ans
 
     def shunting_yard_algorithm(self, ls):

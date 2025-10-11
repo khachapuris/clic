@@ -387,6 +387,36 @@ class Vector:
             Vector.join(ans, a / other)
         return ans
 
+    def __mod__(self, other):
+        """Modulo division of vectors."""
+        if isinstance(other, Vector):
+            if len(other.ls) == len(self.ls):
+                ans = 0
+                for a, b in zip(self.ls, other.ls):
+                    ans += a % b
+                return ans
+            raise Vector.OperationError('division of different sizes')
+        ans = Vector()
+        for a in self.ls:
+            Vector.join(ans, int(a) % int(other))
+        return ans
+
+    def __pow__(self, other):
+        """Exponentiation of vectors."""
+        if isinstance(other, Vector):
+            raise Vector.OperationError('raising a vector to a vector power')
+        ans = Vector()
+        for a in self.ls:
+            Vector.join(ans, a ** other)
+        return ans
+
+    def __rpow__(self, other):
+        """Exponentiation of vectors."""
+        ans = Vector()
+        for a in self.ls:
+            Vector.join(ans, other ** a)
+        return ans
+
     def __rmul__(self, other):
         return self * other
 
@@ -397,7 +427,14 @@ class Vector:
             Vector.join(ans, other / a)
         return ans
 
-    def __ne__(self):
+    def __rmod__(self, other):
+        """Division of vectors."""
+        ans = Vector()
+        for a in self.ls:
+            Vector.join(ans, int(other) % int(a))
+        return ans
+
+    def __neg__(self):
         ans = Vector()
         for a in self.ls:
             Vector.join(ans, -a)
@@ -435,3 +472,5 @@ class UnknownName():
     __rdiv__ = raise_error
     __rtruediv__ = raise_error
     __str__ = raise_error
+    __neg__ = raise_error
+    __pos__ = raise_error
