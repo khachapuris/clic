@@ -282,6 +282,13 @@ class Calculator:
                 last = ans[-1]
                 continue
             match (last.kind, token.kind):
+                case ('var' | ')' | 'num' | 'clos', 'open'):
+                    pairs += token.name
+                    ans += [
+                        self.vars[CONFIG['system']['implicit_mul_name']],
+                        token,
+                        self.vars['(']
+                    ]
                 case (_, 'open'):
                     pairs += token.name
                     ans += [
@@ -310,7 +317,10 @@ class Calculator:
                         ans += [token]
                 case ('num', 'num'):
                     ans += [token]
-                case ('var' | ')' | 'num', 'var' | '(' | 'num' | 'func'):
+                case (
+                    'var' | ')' | 'num' | 'clos',
+                    'var' | '(' | 'num' | 'func'
+                ):
                     ans += [
                         self.vars[CONFIG['system']['implicit_mul_name']],
                         token
