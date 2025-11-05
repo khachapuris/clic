@@ -94,6 +94,7 @@ class Calculator:
             except AttributeError:
                 pass
             for token in exporttokens:
+                token.module = module
                 self.vars.update({token.name: token})
 
     def assign_ans(self, ans, link=CONFIG['system']['answer_name']):

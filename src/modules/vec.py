@@ -49,8 +49,6 @@ exporttokens = [
     Token('[', lambda a: Array(*a), 'static', 'open', 'Open an array',
           closes=']'),
     Token(']', lambda: None, 'static', 'clos', 'Close an array', closes='['),
-    Token('ι', lambda a: Array(*range(1, int(a) + 1)), 'strong', 'func',
-          'Create an array by length'),
 ]
 
 exportmappings = {

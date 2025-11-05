@@ -61,6 +61,7 @@ class Token:
         self.kind = kind
         self.ht = ht
         self.closes = closes
+        self.module = None
 
     @staticmethod
     def give(obj):
@@ -96,17 +97,31 @@ class Token:
         )
 
     def get_help(self):
+        kind_name = ''
+        line1 = ''
+        # Match self.kind
         if self.kind == 'func':
-            return f'{self.ht} function'
+            kind_name = 'function'
         if self.kind == 'oper':
-            return f'{self.ht} operator'
+            kind_name = 'operator'
         if self.kind == 'sign':
-            return f'{self.ht} sign'
+            kind_name = 'sign'
         if self.kind == 'open':
-            return f'Opens a {self.ht}; to close use {self.closes} '
+            line1 = f'{self.name} ... {self.closes}   --  {self.ht} notation'
         if self.kind == 'clos':
-            return f'Closes a {self.ht}; to open use {self.closes} '
-        return f'{self.ht}'
+            line1 = f'{self.closes} ... {self.name}  --  {self.ht} notation'
+        # The default first line
+        if not line1:
+            line1 = f'{self.name}  --  {self.ht} {kind_name}'
+        # The module
+        if self.module is None:
+            line2 = 'Part of the default setup'
+        else:
+            line2 = f'Part of the {self.module} module'
+        return f'''
+| {line1}
+| {line2}
+'''
 
     def __repr__(self):
         """String representation of tokens."""
