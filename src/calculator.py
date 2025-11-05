@@ -11,7 +11,7 @@ import sys
 
 import decimal
 from decimal import Decimal
-from mathclasses import Quantity, Vector
+from mathclasses import Quantity, Vector, Array
 from mathclasses import decimal_to_string
 from mathclasses import UnknownName
 
@@ -250,12 +250,6 @@ class Calculator:
             if word[0] == QUOTE:
                 get = Token.give(word.strip(QUOTE))
                 ans.append(Token(word, get, 'static', 'str'))
-            # # HACK: Create a standard for opening & closing operators
-            # elif word[0] == '√':
-            #     ans.append(self.vars[word])
-            #     ans.append(self.vars['('])
-            # elif word == "'":
-            #     ans.append(self.vars[')'])
             elif word[0].isdigit() or word[0] == '.':
                 num = Decimal(word)
                 ans.append(Token(word, Token.give(num), 'static', 'num'))
@@ -406,6 +400,11 @@ class Calculator:
             new = Vector()
             for a2, i2 in zip(a, i):
                 Vector.join(new, type_test(a2, i2))
+            ans = new
+        elif isinstance(a, Array):
+            new = Array()
+            for a2, i2 in zip(a, i):
+                Array.join(new, type_test(a2, i2))
             ans = new
         else:
             ans = type_test(a, i)

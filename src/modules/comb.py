@@ -20,12 +20,12 @@ def permutations(args=None, n=None, k=None):
     """Return the number of k-permutations on a set of n elements."""
     if args:
         n, k = tuple(args)
-    ans = 1
-    i = 0
+    ans = Decimal('1')
+    i = Decimal('0')
     while i < k:
         ans *= (n - i)
         i += 1
-    return Decimal(ans)
+    return ans
 
 
 def combinations(args=None, n=None, k=None):

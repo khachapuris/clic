@@ -3,7 +3,7 @@
 from token import Token
 
 from decimal import Decimal
-from mathclasses import Vector
+from mathclasses import Vector, Array
 
 
 def cdot(a, b):
@@ -46,6 +46,11 @@ exporttokens = [
     *Token.with_alt([' ±', ' plus_or_minus'], plus_or_minus, 'strong',
                     'func', 'Positive-or-negative'),
     Token('dist', distance, 'normal', 'func', 'Length of vector'),
+    Token('[', lambda a: Array(*a), 'static', 'open', 'Open an array',
+          closes=']'),
+    Token(']', lambda: None, 'static', 'clos', 'Close an array', closes='['),
+    Token('ι', lambda a: Array(*range(1, int(a) + 1)), 'strong', 'func',
+          'Create an array by length'),
 ]
 
 exportmappings = {

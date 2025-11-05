@@ -333,14 +333,7 @@ class Vector:
                 for a, b in zip(self.ls, other.ls):
                     Vector.join(ans, a + b)
                 return ans
-            raise Vector.OperationError('addition of different sizes')
-        ans = Vector()
-        for a in self.ls:
-            Vector.join(ans, a + other)
-        return ans
-
-    def __radd__(self, other):
-        return self + other
+        raise Vector.OperationError('addition of different sizes')
 
     def __sub__(self, other):
         """Subtraction of vectors."""
@@ -350,14 +343,7 @@ class Vector:
                 for a, b in zip(self.ls, other.ls):
                     Vector.join(ans, a - b)
                 return ans
-            raise Vector.OperationError('subtraction of different sizes')
-        ans = Vector()
-        for a in self.ls:
-            Vector.join(ans, a - other)
-        return ans
-
-    def __rsub__(self, other):
-        return -self + other
+        raise Vector.OperationError('subtraction of different sizes')
 
     def __mul__(self, other):
         """Multiplication of vectors."""
@@ -387,20 +373,6 @@ class Vector:
             Vector.join(ans, a / other)
         return ans
 
-    def __mod__(self, other):
-        """Modulo division of vectors."""
-        if isinstance(other, Vector):
-            if len(other.ls) == len(self.ls):
-                ans = 0
-                for a, b in zip(self.ls, other.ls):
-                    ans += a % b
-                return ans
-            raise Vector.OperationError('division of different sizes')
-        ans = Vector()
-        for a in self.ls:
-            Vector.join(ans, int(a) % int(other))
-        return ans
-
     def __pow__(self, other):
         """Exponentiation of vectors."""
         if isinstance(other, Vector):
@@ -408,13 +380,6 @@ class Vector:
         ans = Vector()
         for a in self.ls:
             Vector.join(ans, a ** other)
-        return ans
-
-    def __rpow__(self, other):
-        """Exponentiation of vectors."""
-        ans = Vector()
-        for a in self.ls:
-            Vector.join(ans, other ** a)
         return ans
 
     def __rmul__(self, other):
@@ -425,13 +390,6 @@ class Vector:
         ans = Vector()
         for a in self.ls:
             Vector.join(ans, other / a)
-        return ans
-
-    def __rmod__(self, other):
-        """Division of vectors."""
-        ans = Vector()
-        for a in self.ls:
-            Vector.join(ans, int(other) % int(a))
         return ans
 
     def __neg__(self):
@@ -451,6 +409,166 @@ class Vector:
         """String representation of vectors."""
         vector_separator = CONFIG['expression']['vector_separator'] + ' '
         return '(' + vector_separator.join([str(x) for x in self.ls]) + ')'
+
+
+class Array:
+    """The creation of the Array object and the related functionality."""
+
+    class OperationError(ArithmeticError):
+        """An operation error class for arrays."""
+        pass
+
+    def __init__(self, *args):
+        """The initialiser of the class.
+
+        Arguments:
+        *args -- elements of the array.
+        """
+        self.ls = list(args)
+
+    @staticmethod
+    def join(a, b):
+        """Create arrays by joining elements.
+
+        >>> a = Array.join(1, 2)  # (1; 2)
+        >>> b = Array.join(a, 3)  # (1; 2; 3)
+        """
+        if isinstance(a, Array):
+            a.ls.append(b)
+            return a
+        return Array(a, b)
+
+    def __add__(self, other):
+        """Addition of arrays."""
+        if isinstance(other, Array):
+            if len(other.ls) == len(self.ls):
+                ans = Array()
+                for a, b in zip(self.ls, other.ls):
+                    Array.join(ans, a + b)
+                return ans
+            raise Array.OperationError('addition of different sizes')
+        ans = Array()
+        for a in self.ls:
+            Array.join(ans, a + other)
+        return ans
+
+    def __radd__(self, other):
+        return self + other
+
+    def __sub__(self, other):
+        """Subtraction of arrays."""
+        if isinstance(other, Array):
+            if len(other.ls) == len(self.ls):
+                ans = Array()
+                for a, b in zip(self.ls, other.ls):
+                    Array.join(ans, a - b)
+                return ans
+            raise Array.OperationError('subtraction of different sizes')
+        ans = Array()
+        for a in self.ls:
+            Array.join(ans, a - other)
+        return ans
+
+    def __rsub__(self, other):
+        return -self + other
+
+    def __mul__(self, other):
+        """Multiplication of arrays."""
+        if isinstance(other, Array):
+            if len(other.ls) == len(self.ls):
+                ans = Array()
+                for a, b in zip(self.ls, other.ls):
+                    Array.join(ans, a * b)
+                return ans
+            raise Array.OperationError('multiplication of different sizes')
+        ans = Array()
+        for a in self.ls:
+            Array.join(ans, a * other)
+        return ans
+
+    def __rmul__(self, other):
+        return self * other
+
+    def __truediv__(self, other):
+        """Division of arrays."""
+        if isinstance(other, Array):
+            if len(other.ls) == len(self.ls):
+                ans = Array()
+                for a, b in zip(self.ls, other.ls):
+                    Array.join(ans, a / b)
+                return ans
+            raise Array.OperationError('division of different sizes')
+        ans = Array()
+        for a in self.ls:
+            Array.join(ans, a / other)
+        return ans
+
+    def __mod__(self, other):
+        """Modulo division of arrays."""
+        if isinstance(other, Array):
+            if len(other.ls) == len(self.ls):
+                ans = Array()
+                for a, b in zip(self.ls, other.ls):
+                    Array.join(ans, int(a) % int(b))
+                return ans
+            raise Array.OperationError('division of different sizes')
+        ans = Array()
+        for a in self.ls:
+            Array.join(ans, int(a) % int(other))
+        return ans
+
+    def __pow__(self, other):
+        """Exponentiation of arrays."""
+        if isinstance(other, Array):
+            if len(other.ls) == len(self.ls):
+                ans = Array()
+                for a, b in zip(self.ls, other.ls):
+                    Array.join(ans, a ** b)
+                return ans
+            raise Array.OperationError('exponentiation of different sizes')
+        ans = Array()
+        for a in self.ls:
+            Array.join(ans, a ** other)
+        return ans
+
+    def __rpow__(self, other):
+        """Exponentiation of arrays."""
+        ans = Array()
+        for a in self.ls:
+            Array.join(ans, other ** a)
+        return ans
+
+    def __rtruediv__(self, other):
+        """Division of arrays."""
+        ans = Array()
+        for a in self.ls:
+            Array.join(ans, other / a)
+        return ans
+
+    def __rmod__(self, other):
+        """Division of arrays."""
+        ans = Array()
+        for a in self.ls:
+            Array.join(ans, int(other) % int(a))
+        return ans
+
+    def __neg__(self):
+        ans = Array()
+        for a in self.ls:
+            Array.join(ans, -a)
+        return ans
+
+    def __len__(self):
+        return len(self.ls)
+
+    def __iter__(self):
+        """Return an iterator over a array."""
+        return self.ls.__iter__()
+
+    def __repr__(self):
+        """String representation of arrays."""
+        vector_separator = CONFIG['expression']['vector_separator'] + ' '
+        return '[' + vector_separator.join([str(x) for x in self.ls]) + ']'
 
 
 class UnknownName():
