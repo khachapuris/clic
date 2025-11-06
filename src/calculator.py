@@ -27,7 +27,7 @@ import os.path as os_path
 
 # The default help text
 HELP_TEXT = "This is clic calculator. \
-Type 'exit' to quit, please see MANUAL.md"
+Type 'exit' to quit, please see README.md"
 
 QUOTE = CONFIG['system']['quote']
 ASSIGNMENT_OPERATOR = CONFIG['system']['assignment_operator']

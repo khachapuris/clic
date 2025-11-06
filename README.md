@@ -1,7 +1,7 @@
 # clic
 
 CLIC
-is a clean, compact, customizable command line calculator
+is a clean syntax, compact, customizable command line calculator
 written in Python.
 
 
@@ -9,64 +9,71 @@ written in Python.
 
 ## Installation
 
-This instruction is for Linux; the same can be achieved in a
-similar way on other platforms
-
 1. Make sure you have Python installed
 2. `cd` to a place where you decide to keep the source code
 3. Use `git clone` to copy the git repository to your computer.
-4. Create a symbolic link in your `$PATH`<br>
-   (remember to replace `your_place` with the folder with the source code!)
+4. Create a symbolic link to `src/cli.py` in your execution path.<br>
+Here's an example for Linux:
 ```bash
-ln -s your_place/clic/cli.py ~/.local/bin/clic
+ln -s ./clic/src/cli.py ~/.local/bin/clic
 ```
-5. Run the calculator with `clic`
+5. Run the calculator with `clic '<expression>'`
+or `clic` (for interactive mode)
 
 ## Usage
 
-Here is a brief overview of what clic can do:
+When in interactive mode, you can enter an expression or a command.
+If you use non-interactive mode, just put the same expression or command
+in single quotes as an argument and press Enter.
 
-| algebraic notation | expression in clic | answer        |
-| ------------------ | ------------------ | ------------- |
-| let $a=3$, $b=4$   | `a = 3; b = 4;`    |               |
-| $3a + 5$           | `3a + 5`           | `14`          |
-| $2\cdot3 - 6:0.3$  | `2*3 - 6:0.3`      | `-14`         |
-| $\frac {5+16} {7}$ | `5+16 / 7`         | `3`           |
-| $a^b - \sqrt{b+5}$ | `a^b - √a+6'`      | `78`          |
-| $sin^2{60\degree}$ | `sin^2 60°`        | `750 * 10^-3` |
-| $7! - 5!$          | `7! - 5!`          | `4.92 * 10^3` |
-| vector notation —  | `(1, 2) + (-5, 6.4)` | `(-4, 8.4)` |
+### Expressions
+
+The following are examples of valid expressions:
+
+| algebraic notation  | expression in clic   | answer            |
+| ------------------- | -------------------- | ----------------- |
+| let $a=3$, $b=4$    | `a = 3; b = 4;`      |                   |
+| $3a + 5$            | `3a + 5`             | `14`              |
+| $2\cdot3 - 6:0.3$   | `2 * 3 - 6 : 0.3`    | `-14`             |
+| $\frac {5+16} {7}$  | `5+16 / 7`           | `3`               |
+| $a^b - \sqrt{b+5}$  | `a^b - √b+5'`        | `78`              |
+| $sin^2{60\degree}$  | `sin^2 60°`          | `750 * 10^-3`     |
+| $7! - 5!$           | `7! - 5!`            | `4.92 * 10^3`     |
+| Vector operations   | `(1, 2) + (-5, 6.4)` | `(-4, 8.4)`       |
+| SI units            | `m^3 + 3l`           | `1.003 m^3`       |
+| Prime factorization | `pf 103456`          | `"2^5 * 53 * 61"` |
+| Mass of compound    | `M "H2SO4"`          | `98`              |
+
+All the functions and variables and their definitions can be found with the
+`list` and `help` commands explained in the section below.
 
 In case you are wondering how did `√` and `°` get here, check out
 the ["Inserting special characters"](#inserting-special-characters) section.
 
-Advanced math and exotic functions
+### Commands
 
-| description         | expression in clic   | answer            |
-| ------------------- | -------------------- | ----------------- |
-| vectors             | `(1, 2) + (-5, 6.4)` | `(-4, 8.4)`       |
-| SI units            | `m^3 + 3l`           | `1.003 m^3`       |
-| prime factorization | `pf 103456`          | `"2^5 * 53 * 61"` |
-| mass of compound    | `M "H2SO4"`          | `98`              |
+These commands can help you navigate the calculator:
 
-Commands
-
-| command       | description                                 |
-| ------------- | ------------------------------------------- |
-| `exit`        | exit the calculator                         |
-| `help`        | view basic help                             |
-| `list`        | list all variables, functions and operators |
-| `help <NAME>` | show help on a specific function            |
+| command                     | description                                 |
+|-----------------------------|---------------------------------------------|
+| `exit` (`Ctrl-C`, `Ctrl-D`) | exit the interactive mode                   |
+| `help`                      | view basic help                             |
+| `list`                      | list all functions, variables and mappings  |
+| `help <NAME>`               | show help on a specific function / variable |
 
 ### Inserting special symbols
 
-(`<Tab>` is the tab key)
+To enhance the experience, CLIC provides a way to enter non-ASCII characters
+via completion. Use this in one of the two possible ways:
 
-| keypresses   | result |
-| ------------ | ------ |
-| `deg<Tab>`   | `°`    |
-| `sqrt<Tab>`  | `√`    |
-| `beta<Tab>`  | `β`    |
+1. Type a backslash, followed by the name of the mapping & hit Tab (`\sqrt<Tab>`).
+This way is less ambiguous and allows unfinished mappings (`\sq<Tab>`)
+
+2. The same without typing a backslash. This requires you type it to the end
+(`deg<Tab>`)
+
+Your mapping text will be replaced with the corresponding symbol.
+To see all available mappings, use the `list` command described above.
 
 ## Configuration
 
@@ -98,5 +105,6 @@ view.quit_after_first_input = true
 view.prompt_color = "1;32"
 ```
 
-If you know Python you can write additional functions for the calculator.
-For more details see MANUAL.md
+Note, that `replace_console_prompt` will erase the last line of your console
+(the one that you called CLIC from) and replace it with the CLIC prompt.
+If you don't want this behavior, set it to `false`.

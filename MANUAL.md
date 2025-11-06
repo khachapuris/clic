@@ -55,7 +55,7 @@ type `list`
 2. To type in a function
     + with one argument, write the function name
     followed by the argument (`sin x`)
-    + with ambigous argument, write the function name
+    + with ambiguous argument, write the function name
     followed by the argument in parenthesis (`sin(x + y)`)
     + with more than one argument, write the function name with the
     arguments in parenthesis, separated with commas (`function_name(10, 11)`)
@@ -146,8 +146,8 @@ and vector / expression separators.
 CLIC offers a Julia REPL like method of entering special characters.
 To input a special character, type:
 
-1. Small greek letter -> `\` + it's name in lowercase
-2. Capital greek letter -> `\` + it's name capitalised
+1. Small Greek letter -> `\` + it's name in lowercase
+2. Capital Greek letter -> `\` + it's name capitalised
 3. Final sigma -> `\sigmaf`
 4. Degree sign -> `\deg`
 5. Square root sign -> `\sqrt`
@@ -171,7 +171,7 @@ values (see the decimal docs at https://docs.python.org/3/library/decimal.html)
 - If the function will be an operator, it should accept two arguments
 - If the function will be a function, it should accept one argument
 - NOTE: if `func(arg1, arg2, arg3)` is entered in the calculator,
-the function `func` will recieve one vector argument: `(arg1, arg2, arg3)`;
+the function `func` will receive one vector argument: `(arg1, arg2, arg3)`;
 to use it in the function, iterate over it
 
 ### Step 2: Register functions
@@ -187,9 +187,9 @@ from token import Token
 exporttokens = [
     # If you want a simple function, insert this
     Token('example_name_a', example_function_a, 'normal', 'func', 'Help text'),
-    # If you want an operator with preference x, insert this
+    # If you want an operator, insert this
     Token('example_name_b', example_function_b, 'mul-tion', 'oper', 'Help text'),
-    # If you want a sign with preference x, insert this
+    # If you want a sign, insert this
     Token('example_name_c', example_function_c, 'strong', 'sign', 'Help text'),
     # Create and register as much functions as you want
 ]
