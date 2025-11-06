@@ -12,7 +12,7 @@ written in Python.
 1. Make sure you have Python installed
 2. `cd` to a place where you decide to keep the source code
 3. Use `git clone` to copy the git repository to your computer.
-4. Create a symbolic link to `src/cli.py` in your execution path.<br>
+4. Create a symbolic link to `src/cli.py` in your execution path.
 Here's an example for Linux:
 ```bash
 ln -s ./clic/src/cli.py ~/.local/bin/clic
@@ -52,7 +52,7 @@ the ["Inserting special characters"](#inserting-special-characters) section.
 
 ### Commands
 
-These commands can help you navigate the calculator:
+These commands will help you navigate the calculator:
 
 | command                     | description                                 |
 |-----------------------------|---------------------------------------------|
@@ -63,7 +63,7 @@ These commands can help you navigate the calculator:
 
 ### Inserting special symbols
 
-To enhance the experience, CLIC provides a way to enter non-ASCII characters
+To enhance the experience, clic provides a way to enter non-ASCII characters
 via completion. Use this in one of the two possible ways:
 
 1. Type a backslash, followed by the name of the mapping & hit Tab (`\sqrt<Tab>`).
@@ -106,5 +106,5 @@ view.prompt_color = "1;32"
 ```
 
 Note, that `replace_console_prompt` will erase the last line of your console
-(the one that you called CLIC from) and replace it with the CLIC prompt.
+(the one that you called clic from) and replace it with the clic prompt.
 If you don't want this behavior, set it to `false`.
