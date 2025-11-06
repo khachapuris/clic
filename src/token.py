@@ -112,7 +112,10 @@ class Token:
             line1 = f'{self.closes} ... {self.name}  --  {self.ht} notation'
         # The default first line
         if not line1:
-            line1 = f'{self.name}  --  {self.ht} {kind_name}'
+            if self.name.startswith(' '):
+                line1 = f'UNARY{self.name}  --  {self.ht} {kind_name}'
+            else:
+                line1 = f'{self.name}  --  {self.ht} {kind_name}'
         # The module
         if self.module is None:
             line2 = 'Part of the default setup'
@@ -123,7 +126,7 @@ class Token:
 | {line2}
 '''
 
-    def __repr__(self):
+    def __str__(self):
         """String representation of tokens."""
         if self.name:
             return self.name

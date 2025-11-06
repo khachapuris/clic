@@ -41,9 +41,9 @@ def distance(a):
 
 
 exporttokens = [
-    *Token.with_alt(['±', 'plus_or_minus'], plus_or_minus, 'addition',
+    *Token.with_alt(['±', 'pm'], plus_or_minus, 'addition',
                     'oper', 'Plus-or-minus'),
-    *Token.with_alt([' ±', ' plus_or_minus'], plus_or_minus, 'strong',
+    *Token.with_alt([' ±', ' pm'], plus_or_minus, 'strong',
                     'func', 'Positive-or-negative'),
     Token('dist', distance, 'normal', 'func', 'Length of vector'),
     Token('[', lambda a: Array(*a), 'static', 'open', 'Open an array',

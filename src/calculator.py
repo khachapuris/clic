@@ -204,21 +204,32 @@ class Calculator:
             sys.exit()
         # list all variables
         elif ls[0] == 'list':
-            self.assign_ans('  '.join([str(v) for v in list(self.vars)]))
+            vrs = [str(v) for v in self.vars.values() if v.kind == 'var']
+            vrs = [v for v in vrs if not v.startswith(' ')]
+            fns = [str(v) for v in self.vars.values() if v.kind != 'var']
+            fns = [v for v in fns if not v.startswith(' ')]
+            cmp = [f'{self.completion[c]} {c}' for c in self.completion]
+            self.assign_ans(
+                '\nFUNCTIONS:\n' + '  '.join(fns)
+                + '\n\nVARIABLES:\n' + '  '.join(vrs)
+                + '\n\nMAPPINGS:\n' + '  '.join(cmp)
+            )
             self.silent = False
             return True
         # help
         elif ls[0] == 'help':
+            ans = ''
+            if len(ls) > 1:
+                arg = ' '.join(ls[1:]).strip(QUOTE + ' ')
             if len(ls) == 1:
-                self.assign_ans(self.helptext)
-                self.silent = False
-                return True
-            if len(ls) == 2 and ls[1].strip(QUOTE) in self.vars:
-                self.assign_ans(
-                    self.vars[ls[1].strip(QUOTE)].get_help()
-                )
-            else:
-                self.assign_ans(f"Could not find help on '{' '.join(ls[1:])}'")
+                ans += self.helptext
+            if len(ls) > 1 and arg in self.vars:
+                ans += self.vars[arg].get_help()
+            if len(ls) > 1 and ' ' + arg in self.vars:
+                ans += self.vars[' ' + arg].get_help()
+            if not ans:
+                ans = f"Could not find help on '{' '.join(ls[1:])}'"
+            self.assign_ans(ans)
             self.silent = False
             return True
         # not a command
