@@ -3,9 +3,11 @@
 from token import Token
 from decimal import Decimal
 from mathclasses import Vector
+from mathclasses import generalize_array_input
 from math import prod
 
 
+@generalize_array_input
 def factorial(x):
     """Return the factorial of x."""
     ans = 1
@@ -16,6 +18,7 @@ def factorial(x):
     return Decimal(ans)
 
 
+@generalize_array_input
 def permutations(args=None, n=None, k=None):
     """Return the number of k-permutations on a set of n elements."""
     if args:
@@ -28,6 +31,7 @@ def permutations(args=None, n=None, k=None):
     return ans
 
 
+@generalize_array_input
 def combinations(args=None, n=None, k=None):
     """Return the number of k-combinations on a set of n elements."""
     if args:
@@ -93,8 +97,8 @@ def prime_factorization(n):
 
 exporttokens = [
     Token('!', factorial, 'strong', 'sign', 'Factorial'),
-    Token('perm', permutations, 'normal', 'func', 'Number of permutations'),
-    Token('comb', combinations, 'normal', 'func', 'Number of combinations'),
+    Token('nPr', permutations, 'normal', 'func', '# of permutations'),
+    Token('nCr', combinations, 'normal', 'func', '# of combinations'),
     Token('mod', lambda a, b: a % b, 'mul-tion', 'oper', 'Modulo'),
     Token('pf', prime_factorization, 'normal', 'func', 'Prime factorization'),
 ]

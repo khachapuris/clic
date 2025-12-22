@@ -135,3 +135,6 @@ class Token:
         if self.kind:
             return self.kind
         return '<?>'
+
+    def __repr__(self):
+        return str(self)

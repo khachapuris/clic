@@ -571,6 +571,52 @@ class Array:
         return '[' + vector_separator.join([str(x) for x in self.ls]) + ']'
 
 
+def generalize_array_input(function):
+    """A decorator that generalizes the function on arrays (elementwise).
+
+    Note: this implementation does not cover unordered keyword variables.
+    """
+    def wrapper(*args, **kwargs):
+        # Unpack if arguments are in vector form
+        vector_form = False
+        if len(args + tuple(kwargs)) == 1 and isinstance(args[0], Vector):
+            args = tuple(args[0])
+            vector_form = True
+        # Find out the length of the arrays in the calculator
+        array_length = 0  # No arrays yet
+        for arg in args + tuple(kwargs):
+            if isinstance(arg, Array):
+                if array_length == 0:
+                    array_length = len(arg)
+                elif array_length != len(arg):
+                    raise ValueError("operating on arrays of different length")
+        # Behave normally without arrays inputed
+        if array_length == 0:
+            return function(*args, **kwargs)
+        # Calculate elementwise if arrays were found
+        new_args = []
+        for arg in args + tuple(kwargs):
+            if isinstance(arg, Array):
+                new_args.append(arg.ls)
+            else:
+                new_args.append([arg for a in range(array_length)])
+        ans = Array()
+        if vector_form:  # Use the same form as in the input
+            for array_member in range(array_length):
+                Array.join(
+                    ans,
+                    function(Vector(*[row[array_member] for row in new_args]))
+                )
+        else:
+            for array_member in range(array_length):
+                Array.join(
+                    ans,
+                    function(*[row[array_member] for row in new_args])
+                )
+        return ans
+    return wrapper
+
+
 class UnknownName():
     """A place to keep unknown names before raising an error."""
     def __init__(self, name):
