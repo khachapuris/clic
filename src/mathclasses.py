@@ -438,6 +438,24 @@ class Array:
             return a
         return Array(a, b)
 
+    @staticmethod
+    def from_range(a, b):
+        """Create arrays by an inclusive range of values.
+
+        >>> Array.from_range(1, 5)  # (1; 2; 3; 4; 5)
+        >>> Array.from_range(8, 6)  # (8; 7; 6)
+        """
+        ans = Array()
+        if a < b:
+            while a <= b:
+                Array.join(ans, a)
+                a += 1
+        else:
+            while a >= b:
+                Array.join(ans, a)
+                a -= 1
+        return ans
+
     def __add__(self, other):
         """Addition of arrays."""
         if isinstance(other, Array):

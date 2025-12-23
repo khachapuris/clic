@@ -262,6 +262,15 @@ class Calculator:
             if word[0] == QUOTE:
                 get = Token.give(word.strip(QUOTE))
                 ans.append(Token(word, get, 'static', 'str'))
+            elif '..' in word:
+                num1, num2 = word.split('..')
+                num1 = Decimal(num1)
+                num2 = Decimal(num2)
+                ans.append(Token(
+                    word,
+                    Token.give(Array.from_range(num1, num2)),
+                    'static', 'num'
+                ))
             elif word[0].isdigit() or word[0] == '.':
                 num = Decimal(word)
                 ans.append(Token(word, Token.give(num), 'static', 'num'))

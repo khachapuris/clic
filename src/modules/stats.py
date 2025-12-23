@@ -4,6 +4,7 @@ from token import Token
 
 from decimal import Decimal
 from mathclasses import Vector, Array
+from math import prod
 
 
 def plus_or_minus(a, b=None):
@@ -60,7 +61,10 @@ exporttokens = [
     *Token.with_alt([' ±', ' pm'], plus_or_minus, 'strong',
                     'func', 'Positive-or-negative'),
     Token('dist', distance, 'normal', 'func', 'Length of vector'),
-    Token('SUM', lambda a: sum(a), 'normal', 'func', 'Sum of array elements'),
+    *Token.with_alt(['Σ', 'SUM'], lambda a: sum(a), 'mul-tion',
+                    'func', 'Sum of array elements'),
+    *Token.with_alt(['Π', 'PROD'], lambda a: prod(a), 'mul-tion',
+                    'func', 'Sum of array elements'),
     Token('LEN', lambda a: len(a), 'normal', 'func', '# of array elements'),
     Token('SORT', array_sort, 'normal', 'func', 'Sorted version of array'),
     Token('MEAN', mean, 'normal', 'func', 'Mean of array'),
