@@ -9,6 +9,7 @@ from config import CONFIG
 
 glob_pi = Decimal('3.1415926535897932384626433833')
 glob_e = Decimal('2.7182818284590452353602874714')
+glob_inf = Decimal('999')
 
 
 def normalize_fraction(d):

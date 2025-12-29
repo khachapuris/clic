@@ -263,14 +263,16 @@ class Calculator:
                 get = Token.give(word.strip(QUOTE))
                 ans.append(Token(word, get, 'static', 'str'))
             elif '..' in word:
-                num1, num2 = word.split('..')
-                num1 = Decimal(num1)
-                num2 = Decimal(num2)
-                ans.append(Token(
-                    word,
-                    Token.give(Array.from_range(num1, num2)),
-                    'static', 'num'
-                ))
+                n1, n2 = word.split('..')
+                if n1:
+                    ans.append(
+                        Token(n1, Token.give(Decimal(n1)), 'static', 'num'),
+                    )
+                ans.append(self.vars['..'])
+                if n2:
+                    ans.append(
+                        Token(n2, Token.give(Decimal(n2)), 'static', 'num'),
+                    )
             elif word[0].isdigit() or word[0] == '.':
                 num = Decimal(word)
                 ans.append(Token(word, Token.give(num), 'static', 'num'))

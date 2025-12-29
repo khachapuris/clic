@@ -39,6 +39,7 @@ def combinations(args=None, n=None, k=None):
     return permutations(n=n, k=k) / factorial(k)
 
 
+@generalize_array_input
 def prime_factorization(n):
     """Return the prime factorisation of n."""
     primes = []

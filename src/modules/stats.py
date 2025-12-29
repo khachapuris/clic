@@ -5,6 +5,7 @@ from token import Token
 from decimal import Decimal
 from mathclasses import Vector, Array
 from math import prod
+import math
 
 
 def plus_or_minus(a, b=None):
@@ -55,6 +56,18 @@ def deviation(array):
     return variance(array) ** Decimal('0.5')
 
 
+def normalcdf_phi(x):
+    return (
+        Decimal('1') + Decimal(math.erf(x / 2 ** Decimal('0.5')))
+    ) / Decimal('2')
+
+
+def normalcdf(array):
+    """Find the cumulative distribution for the standard normal distr."""
+    minx, maxx = tuple(array)
+    return abs(normalcdf_phi(maxx) - normalcdf_phi(minx))
+
+
 exporttokens = [
     *Token.with_alt(['±', 'pm'], plus_or_minus, 'addition',
                     'oper', 'Plus-or-minus'),
@@ -71,6 +84,7 @@ exporttokens = [
     Token('MEDIAN', median, 'normal', 'func', 'Median of array'),
     Token('VARIANCE', variance, 'normal', 'func', 'Variance of data in array'),
     Token('DEVIATION', deviation, 'normal', 'func', 'Standard deviation'),
+    Token('normalcdf', normalcdf, 'normal', 'func', 'Cumulative distribution'),
     Token('[', lambda a: Array(*a), 'static', 'open', 'Array', closes=']'),
     Token(']', lambda: None, 'static', 'clos', 'Array', closes='['),
 ]

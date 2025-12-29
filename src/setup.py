@@ -6,8 +6,8 @@ To register custom functions add corresponding tokens to the list.
 from token import Token
 
 from decimal import Decimal
-from mathclasses import Vector
-from mathclasses import glob_pi, glob_e
+from mathclasses import Vector, Array
+from mathclasses import glob_pi, glob_e, glob_inf
 from config import CONFIG
 
 
@@ -33,10 +33,12 @@ exporttokens = {
     Token(vec, Vector.join,        'light', 'oper', 'Argument separator'),
     Token('/', lambda a, b: a / b, 'light', 'oper', 'Fraction bar'),
     Token('sqrt', sq_root, 'strong', 'func', 'Square root'),
+    *Token.wrap_with_alt(glob_inf, names=['∞', 'INF'], ht='Infinity'),
     *Token.wrap_with_alt(glob_pi, names=['π', 'pi'], ht='The number pi'),
     Token.wrap(glob_e,  name='e',  ht='The number e'),
     Token('√', sq_root,      'static', 'open', 'Square root', closes="'"),
     Token("'", lambda: None, 'static', 'clos', 'Square root', closes='√'),
+    Token('..', Array.from_range, 'strong', 'oper', 'Create array by range'),
 }
 
 exportmappings = {
@@ -55,5 +57,5 @@ exportmappings = {
     'rho':     'ρ', 'sigma': 'σ', 'tau':     'τ', 'upsilon': 'υ',
     'phi':     'φ', 'chi':   'χ', 'psi':     'ψ', 'omega':   'ω',
     # Function-specific
-    'sqrt':  '√', 'sigmaf':  'ς', 'pm':      '±',
+    'sqrt':  '√', 'sigmaf':  'ς', 'pm':      '±', 'infty':   '∞',
 }
