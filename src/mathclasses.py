@@ -611,6 +611,8 @@ def generalize_array_input(function):
                     raise ValueError("operating on arrays of different length")
         # Behave normally without arrays inputed
         if array_length == 0:
+            if vector_form:
+                return function(Vector(*args), **kwargs)
             return function(*args, **kwargs)
         # Calculate elementwise if arrays were found
         new_args = []
