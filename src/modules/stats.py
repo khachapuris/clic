@@ -80,6 +80,8 @@ exporttokens = [
                     'func', 'Sum of array elements'),
     Token('LEN', lambda a: len(a), 'normal', 'func', '# of array elements'),
     Token('SORT', array_sort, 'normal', 'func', 'Sorted version of array'),
+    Token('MIN', min, 'normal', 'func', 'Mean of array'),
+    Token('MAX', max, 'normal', 'func', 'Mean of array'),
     Token('MEAN', mean, 'normal', 'func', 'Mean of array'),
     Token('MEDIAN', median, 'normal', 'func', 'Median of array'),
     Token('VARIANCE', variance, 'normal', 'func', 'Variance of data in array'),
