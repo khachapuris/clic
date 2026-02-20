@@ -18,17 +18,22 @@ def overlap(a, b):
     return 0
 
 
-def create_completer(vocab):
+def create_completer(bindings, vocab):
     def completer(text, state):
         # With backslash
-        for word in vocab:
+        for word in bindings:
             if overlap(text[-10:], '\\' + word):
                 start = '\\'.join(text.split('\\')[:-1])
-                return [start + vocab[word]][state]
+                return [start + bindings[word]][state]
         # Without backslash
-        for word in vocab:
+        for word in bindings:
             if text == word:
-                return [vocab[word]][state]
+                return [bindings[word]][state]
+        # Variable completion
+        if state == 0 and len(text) > 0:
+            matches = [c for c in vocab if c.startswith(text)]
+            if len(matches) == 1:
+                return matches[0] + " "
         return None
 
     return completer
@@ -137,7 +142,10 @@ if __name__ == '__main__':
         import readline
         readline.parse_and_bind('tab: complete')
         readline.set_completer_delims('0123456789!@#$%^&*()-+=`~\'"<,.>/?:;| ')
-        readline.set_completer(create_completer(ctor.completion))
+        readline.set_completer(create_completer(
+            ctor.completion,
+            ctor.vars | {'help': 'help', 'exit': 'exit', 'list': 'list'}
+        ))
         if CONFIG['view']['quit_after_first_input']:
             single_prompt(ctor)
         else:
