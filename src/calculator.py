@@ -186,6 +186,8 @@ class Calculator:
             raise ValueError('unclosed quote')
         if CONFIG['global']['show_debug']:
             print('splitted:          ', ans)
+        if CONFIG['expression']['reverse_expression_order']:
+            return ans[::-1]
         return ans
 
     def run_command(self, ls):
@@ -333,6 +335,10 @@ class Calculator:
                     else:
                         ans += [token]
                 case ('num', 'num'):
+                    if pairs:
+                        ans += [self.vars[
+                            CONFIG['expression']['vector_separator']
+                        ]]
                     ans += [token]
                 case (
                     'var' | ')' | 'num' | 'clos',

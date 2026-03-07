@@ -19,6 +19,14 @@ def plus_or_minus(a, b=None):
     return Array.join(Array.join(ans, a + b), a - b)
 
 
+def push(array, element):
+    ans = Array()
+    for el in array:
+        Array.join(ans, el)
+    Array.join(ans, element)
+    return ans
+
+
 def distance(a):
     if isinstance(a, Vector):
         return (a * a) ** Decimal('0.5')
@@ -78,6 +86,8 @@ exporttokens = [
                     'func', 'Sum of array elements'),
     *Token.with_alt(['Π', 'PROD'], lambda a: prod(a), 'mul-tion',
                     'func', 'Sum of array elements'),
+    *Token.with_alt(['←', 'leftarrow'], push, 'mul-tion',
+                    'oper', 'Push element to array'),
     Token('LEN', lambda a: len(a), 'normal', 'func', '# of array elements'),
     Token('SORT', array_sort, 'normal', 'func', 'Sorted version of array'),
     Token('MIN', min, 'normal', 'func', 'Mean of array'),
@@ -93,4 +103,5 @@ exporttokens = [
 
 exportmappings = {
     'pm': '±',
+    'leftarrow': '←',
 }
