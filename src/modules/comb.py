@@ -1,9 +1,9 @@
 """Module with combiantorics and number theory math."""
 
-from token import Token
+from clic.token import Token
 from decimal import Decimal
-from mathclasses import Vector
-from mathclasses import generalize_array_input
+from clic.mathclasses import Vector
+from clic.mathclasses import generalize_array_input
 from math import prod
 
 

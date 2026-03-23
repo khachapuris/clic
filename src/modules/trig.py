@@ -1,9 +1,9 @@
 """Module with trigonometric functions."""
 
-from token import Token
+from clic.token import Token
 
 from decimal import Decimal
-from mathclasses import Quantity, glob_pi
+from clic.mathclasses import Quantity, glob_pi
 
 
 exporttokens = [

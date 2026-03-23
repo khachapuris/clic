@@ -1,0 +1,26 @@
+[build-system]
+requires = ["uv_build >= 0.10.7, <0.11.0"]
+build-backend = "uv_build"
+
+[project]
+name = "clic"
+version = "0.0.1"
+authors = [
+  { name="John Raugas", email="didaskolia@gmail.com" },
+]
+description = "A command line calculator"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/khachapuris/clic"
+Issues = "https://github.com/kahchapuris/clic/issues"
+
+[project.scripts]
+clic = "clic.cli:app"

@@ -7,7 +7,7 @@ the list of tokens used in the calculator see functions.py.
 
 import copy
 from decimal import Decimal
-from mathclasses import Quantity, Vector
+from clic.mathclasses import Quantity, Vector
 
 
 class Token:

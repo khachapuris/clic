@@ -4,7 +4,7 @@ from decimal import Decimal
 import decimal
 from math import asin, acos, atan
 
-from config import CONFIG
+from clic.config import CONFIG
 
 
 glob_pi = Decimal('3.1415926535897932384626433833')
@@ -659,3 +659,14 @@ class UnknownName():
     __str__ = raise_error
     __neg__ = raise_error
     __pos__ = raise_error
+
+
+def allow_unknown_name(function):
+    """A wrapper to allow string input without string literals."""
+
+    def wrapper(name, *args, **kwargs):
+        if isinstance(name, UnknownName):
+            return function(name.name, *args, **kwargs)
+        return function(name, *args, **kwargs)
+
+    return wrapper

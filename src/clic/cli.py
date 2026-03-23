@@ -5,8 +5,8 @@
 It runs the calculator with a prompt.
 """
 
-from calculator import Calculator
-from config import CONFIG
+from clic.calculator import Calculator
+from clic.config import CONFIG
 import sys
 
 
@@ -133,7 +133,7 @@ def command_line_calc():
         print(f'= {ans}')
 
 
-if __name__ == '__main__':
+def app():
     if len(sys.argv) > 1:
         command_line_calc()
     else:
@@ -151,3 +151,7 @@ if __name__ == '__main__':
         else:
             while True:
                 single_prompt(ctor)
+
+
+if __name__ == '__main__':
+    app()

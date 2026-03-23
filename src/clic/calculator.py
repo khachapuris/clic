@@ -11,15 +11,15 @@ import sys
 
 import decimal
 from decimal import Decimal
-from mathclasses import Quantity, Vector, Array
-from mathclasses import decimal_to_string
-from mathclasses import UnknownName
+from clic.mathclasses import Quantity, Vector, Array
+from clic.mathclasses import decimal_to_string
+from clic.mathclasses import UnknownName
 
-from token import Token
-from setup import exporttokens as default_tokens
-from setup import exportmappings as default_mappings
+from clic.token import Token
+from clic.setup import exporttokens as default_tokens
+from clic.setup import exportmappings as default_mappings
 
-from config import CONFIG
+from clic.config import CONFIG
 
 import importlib
 import os
@@ -62,7 +62,10 @@ class Calculator:
     def update_modules(self):
         """Update the list of all modules."""
         load_all = CONFIG['modules']['load_all']
-        path_to_modules = os_path.join(os_path.dirname(__file__), 'modules')
+        path_to_modules = os_path.join(
+            os_path.dirname(os_path.dirname(__file__)),
+            'modules'
+        )
         for filename in os.listdir(path_to_modules):
             # Directories
             if not os_path.isfile(os_path.join(path_to_modules, filename)):

@@ -3,12 +3,12 @@
 To register custom functions add corresponding tokens to the list.
 """
 
-from token import Token
+from clic.token import Token
 
 from decimal import Decimal
-from mathclasses import Vector, Array
-from mathclasses import glob_pi, glob_e, glob_inf
-from config import CONFIG
+from clic.mathclasses import Vector, Array
+from clic.mathclasses import glob_pi, glob_e, glob_inf
+from clic.config import CONFIG
 
 
 imp = CONFIG['system']['implicit_mul_name']

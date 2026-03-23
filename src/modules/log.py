@@ -1,8 +1,8 @@
 """This module defines logarithms."""
 
-from token import Token
+from clic.token import Token
 
-from mathclasses import Vector
+from clic.mathclasses import Vector
 
 
 def logarithm(args):

@@ -1,9 +1,9 @@
 """Module with SI units."""
 
 from decimal import Decimal
-from mathclasses import Quantity
+from clic.mathclasses import Quantity
 
-from token import Token
+from clic.token import Token
 
 
 def one(unit):
@@ -77,6 +77,7 @@ si(der(0,  0, -1,  0), 'Bq', [0, 3, 6, 9],                ht='becquerrel')
 si(der(0,  2, -2,  0), 'Gy', [-6, -3, -2, 0],             ht='gray')
 
 si(Quantity(Decimal('0.001'), {'m': 3}), 'l', [-3, 0],    ht='litre')
+si(Quantity(Decimal('0.001'), {'m': 3}), 'L', [-3, 0],    ht='litre')
 si(Quantity(Decimal('10000'), {'m': 2}), 'a', [2], ht_overwrite='One hectare')
 
 # These tokens can be moved to 'time' module later

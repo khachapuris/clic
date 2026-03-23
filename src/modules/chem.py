@@ -1,6 +1,7 @@
 """Module with chemical functions."""
 
-from token import Token
+from clic.token import Token
+from clic.mathclasses import allow_unknown_name
 from decimal import Decimal
 
 D = Decimal
@@ -176,6 +177,7 @@ def mass_precision(precision=None):
 
     def wrapper(compound):
         import re
+        compound = re.sub(r'\_', r'', compound)
         compound = re.sub(r'([A-Z()\[\]*])', r' \1', compound)[1:]
         m = [0, 0, 0, 0]
         level = 1
@@ -204,7 +206,10 @@ def mass_precision(precision=None):
 
 
 exporttokens = [
-    Token('M', mass_precision(2), 'normal', 'func', 'Molar mass of compound'),
-    Token.wrap(Decimal('6.02214076e23'), name='NA', ht="Avogadro's constant"),
-    Token.wrap(Decimal('22.4'), name='Vm', ht='Molar volume at STP'),
+    Token('M', allow_unknown_name(mass_precision(2)), 'normal', 'func',
+          'Molar mass of compound'),
+    *Token.wrap_with_alt(Decimal('6.02214076e23'), names=['NA', 'N_A'],
+                         ht="Avogadro's constant"),
+    *Token.wrap_with_alt(Decimal('22.4'), names=['Vm', 'V_m'],
+                         ht='Molar volume at STP'),
 ]

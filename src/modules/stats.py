@@ -1,9 +1,9 @@
 """Module with statistics functions."""
 
-from token import Token
+from clic.token import Token
 
 from decimal import Decimal
-from mathclasses import Vector, Array
+from clic.mathclasses import Vector, Array
 from math import prod
 import math
 
