@@ -127,8 +127,8 @@ expression.reverse_expression_order = false
 expression.answer_name = "ans"
 
 view.oneline = true
-view.replace_console_prompt = true
-view.quit_after_first_input = true
+view.replace_console_prompt = false
+view.quit_after_first_input = false
 # Colors in bash color codes
 view.prompt_color = "1;32"
 ```
