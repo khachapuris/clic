@@ -57,5 +57,7 @@ exportmappings = {
     'rho':     'ρ', 'sigma': 'σ', 'tau':     'τ', 'upsilon': 'υ',
     'phi':     'φ', 'chi':   'χ', 'psi':     'ψ', 'omega':   'ω',
     # Function-specific
-    'sqrt':  '√', 'sigmaf':  'ς', 'pm':      '±', 'infty':   '∞',
+    'sqrt':   '√', 'sigmaf': 'ς', 'pm':      '±', 'infty':   '∞',
+    # Shortcuts
+    'ee': ' * 10^',
 }

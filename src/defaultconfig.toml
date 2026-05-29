@@ -5,14 +5,14 @@ number.notation = "classic" # (engineering + scientific)
 # number.notation = "engineering"
 # number.notation = "scientific"
 # number.notation = "normal" # (no exponent)
-number.decimal_separators = "."
+number.decimal_separators = ".,"
 number.thousands_separators = "_"
 
 modules.load_all = true
 modules.load = []
 modules.exclude = []
 
-expression.vector_separator = ","
+expression.vector_separator = ";"
 expression.expression_separator = ";"
 expression.reverse_expression_order = false
 expression.answer_name = "ans"

@@ -83,6 +83,7 @@ si(Quantity(Decimal('10000'), {'m': 2}), 'a', [2], ht_overwrite='One hectare')
 # These tokens can be moved to 'time' module later
 si(Quantity(Decimal('60'),    {'s': 1}), 'min', [0],      ht='minute')
 si(Quantity(Decimal('3600'),  {'s': 1}), 'h',   [0],      ht='hour')
+si(Quantity(Decimal('3600'),  {'s': 1}), 'hr',  [0],      ht='hour')
 si(Quantity(Decimal('86400'), {'s': 1}), 'day', [0],      ht='day')
 si(Quantity(Decimal('31557600'), {'s': 1}), 'year', [0],  ht='year')
 
