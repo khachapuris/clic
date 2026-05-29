@@ -172,7 +172,8 @@ By default, the vector and expression separators are both set to be a semicolon
 ### View
 
 You can experiment with `view` entries to find what fits you best. In short,
-they will hide certain parts of the prompt to make the experience more compact.
+they will hide certain parts of the prompt to make the experience more compact;
+be careful though, as some of them do not work together and may break the view.
 
 ## Writing extensions
 
