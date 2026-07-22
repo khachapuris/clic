@@ -206,7 +206,7 @@ def mass_precision(precision=None):
 
 
 exporttokens = [
-    Token('M', allow_unknown_name(mass_precision(2)), 'normal', 'func',
+    Token('M', allow_unknown_name(mass_precision(0)), 'normal', 'func',
           'Molar mass of compound'),
     *Token.wrap_with_alt(Decimal('6.02214076e23'), names=['NA', 'N_A'],
                          ht="Avogadro's constant"),
