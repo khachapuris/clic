@@ -33,7 +33,13 @@ your $PATH with the following contents:
 # Activate the virtual environment
 cd <the-actual-path>/clic-calculator
 source .venv/bin/activate
-python3 -m clic ''"$@"''  # Run the calculator with all arguments provided
+
+# Run the calculator with all arguments provided
+if [ -z "$@" ]; then
+    python -m clic
+else
+    python -m clic ''"$@"''
+fi
 
 # Close everything when finished
 deactivate
