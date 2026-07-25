@@ -56,7 +56,7 @@ class Calculator:
         self.vars = dict()
         self.assign_ans(Decimal(0))
         for token_args in default_token_args:
-            tokens = Token.with_alt(*token_args)
+            tokens = Token.from_config(*token_args)
             for token in tokens:
                 self.vars.update({token.name: token})
         self.completion = default_mappings
@@ -99,7 +99,7 @@ class Calculator:
             except AttributeError:
                 pass
             for token_args in exporttokens:
-                tokens = Token.with_alt(*token_args)
+                tokens = Token.from_config(*token_args)
                 for token in tokens:
                     token.module = module
                     self.vars.update({token.name: token})

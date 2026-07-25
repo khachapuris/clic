@@ -1,9 +1,8 @@
 """Module with units that are not a part of SI."""
 
 from decimal import Decimal
+from copy import deepcopy
 from clic.mathclasses import Quantity
-
-from clic.token import Token
 
 
 # Helper functions
@@ -97,25 +96,25 @@ pound = few(Decimal("0.45359237"), "kg")
 
 
 exporttokens = [
-    Token('degF', absolute_fahrenheit, 'strong', 'sign',
-          'Absolute temperature in degrees Fahrenheit'),
-    Token('degC', absolute_celcius, 'strong', 'sign',
-          'Absolute temperature in degrees Celcius'),
-    Token('Fdeg', delta_fahrenheit, 'strong', 'sign',
-          'Temperature change in degrees Fahrenheit'),
-    Token('Cdeg', delta_celcius, 'strong', 'sign',
-          'Temperature change in degrees Celcius'),
-    Token('to_degF', to_absolute_fahrenheit, 'light', 'sign',
-          'Absolute temperature in degrees Fahrenheit'),
-    Token('to_degC', to_absolute_celcius, 'light', 'sign',
-          'Absolute temperature in degrees Celcius'),
-    Token('to_Fdeg', to_delta_fahrenheit, 'light', 'sign',
-          'Temperature change in degrees Fahrenheit'),
-    Token('to_Cdeg', to_delta_celcius, 'light', 'sign',
-          'Temperature change in degrees Celcius'),
-    Token.wrap(inch, 'in', ht='One inch'),
-    Token.wrap(foot, 'ft', ht='One foot'),
-    Token.wrap(yard, 'yd', ht='One yard'),
-    Token.wrap(mile, 'mi', ht='One mile'),
-    Token.wrap(pound, 'lb', ht='One pound'),
+    [['degF'], absolute_fahrenheit, 'strong sign',
+     'Absolute temperature in degrees Fahrenheit'],
+    [['degC'], absolute_celcius, 'strong sign',
+     'Absolute temperature in degrees Celcius'],
+    [['Fdeg'], delta_fahrenheit, 'strong sign',
+     'Temperature change in degrees Fahrenheit'],
+    [['Cdeg'], delta_celcius, 'strong sign',
+     'Temperature change in degrees Celcius'],
+    [['to_degF'], to_absolute_fahrenheit, 'light sign',
+     'To absolute temperature in degrees Fahrenheit'],
+    [['to_degC'], to_absolute_celcius, 'light sign',
+     'To absolute temperature in degrees Celcius'],
+    [['to_Fdeg'], to_delta_fahrenheit, 'light sign',
+     'To temperature change in degrees Fahrenheit'],
+    [['to_Cdeg'], to_delta_celcius, 'light sign',
+     'To temperature change in degrees Celcius'],
+    [['in'], lambda: deepcopy(inch), 'static var', 'One inch'],
+    [['ft'], lambda: deepcopy(foot), 'static var', 'One foot'],
+    [['yd'], lambda: deepcopy(yard), 'static var', 'One yard'],
+    [['mi'], lambda: deepcopy(mile), 'static var', 'One mile'],
+    [['lb'], lambda: deepcopy(pound), 'static var', 'One pound'],
 ]

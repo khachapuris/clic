@@ -1,13 +1,8 @@
 """Module with combiantorics and number theory math."""
 
-from clic.token import Token
 from decimal import Decimal
-from clic.mathclasses import Vector
-from clic.mathclasses import generalize_array_input
-from math import prod
 
 
-@generalize_array_input
 def factorial(x):
     """Return the factorial of x."""
     ans = 1
@@ -18,7 +13,6 @@ def factorial(x):
     return Decimal(ans)
 
 
-@generalize_array_input
 def permutations(args=None, n=None, k=None):
     """Return the number of k-permutations on a set of n elements."""
     if args:
@@ -31,7 +25,6 @@ def permutations(args=None, n=None, k=None):
     return ans
 
 
-@generalize_array_input
 def combinations(args=None, n=None, k=None):
     """Return the number of k-combinations on a set of n elements."""
     if args:
@@ -39,7 +32,6 @@ def combinations(args=None, n=None, k=None):
     return permutations(n=n, k=k) / factorial(k)
 
 
-@generalize_array_input
 def prime_factorization(n):
     """Return the prime factorisation of n."""
     primes = []
@@ -97,9 +89,12 @@ def prime_factorization(n):
 
 
 exporttokens = [
-    Token('!', factorial, 'strong', 'sign', 'Factorial'),
-    Token('nPr', permutations, 'normal', 'func', '# of permutations'),
-    Token('nCr', combinations, 'normal', 'func', '# of combinations'),
-    Token('mod', lambda a, b: a % b, 'mul-tion', 'oper', 'Modulo'),
-    Token('pf', prime_factorization, 'normal', 'func', 'Prime factorization'),
+    [['mod'], lambda a, b: a % b, 'mul-tion oper', 'Modulo'],
+    [['!'], factorial, 'strong sign', 'Factorial', {'array_input': True}],
+    [['nPr'], permutations, 'normal func', 'Number of permutations',
+     {'array_input': True}],
+    [['nCr'], combinations, 'normal func', 'Number of combinations',
+     {'array_input': True}],
+    [['pf'], prime_factorization, 'normal func', 'Prime factorization',
+     {'array_input': True}],
 ]

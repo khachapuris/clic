@@ -1,10 +1,10 @@
 """Module with chemical functions."""
 
-from clic.token import Token
-from clic.mathclasses import allow_unknown_name
 from decimal import Decimal
 
 D = Decimal
+N_AVOGADRO = Decimal('6.02214076e23')
+MOLAR_VOLUME = Decimal('22.4')
 
 TABLE = {
     'H': D('1.00794'),
@@ -206,10 +206,8 @@ def mass_precision(precision=None):
 
 
 exporttokens = [
-    Token('M', allow_unknown_name(mass_precision(0)), 'normal', 'func',
-          'Molar mass of compound'),
-    *Token.wrap_with_alt(Decimal('6.02214076e23'), names=['NA', 'N_A'],
-                         ht="Avogadro's constant"),
-    *Token.wrap_with_alt(Decimal('22.4'), names=['Vm', 'V_m'],
-                         ht='Molar volume at STP'),
+    [['M'], mass_precision(0), 'normal func', 'Molar mass of compound',
+     {'unknown_name_input': True}],
+    [['NA', 'N_A'], lambda: N_AVOGADRO, 'static var', "Avogadro's constant"],
+    [['Vm', 'V_m'], lambda: MOLAR_VOLUME, 'static var', "Molar volume at STP"],
 ]

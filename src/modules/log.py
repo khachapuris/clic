@@ -1,9 +1,5 @@
 """This module defines logarithms."""
 
-from clic.token import Token
-
-from clic.mathclasses import Vector
-
 
 def logarithm(args):
     if type(args).__name__ == 'Vector':
@@ -13,6 +9,6 @@ def logarithm(args):
 
 
 exporttokens = [
-    Token('log', logarithm, 'normal', 'func', 'Logarithm'),
-    Token('ln', lambda a: a.ln(), 'normal', 'func', 'Natural logarithm'),
+    [['log'], logarithm, 'normal func', 'Logarithm'],
+    [['ln'], lambda a: a.ln(), 'normal func', 'Natural logarithm'],
 ]

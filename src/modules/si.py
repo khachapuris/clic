@@ -1,9 +1,8 @@
 """Module with SI units."""
 
 from decimal import Decimal
+from copy import deepcopy
 from clic.mathclasses import Quantity
-
-from clic.token import Token
 
 
 def one(unit):
@@ -30,6 +29,12 @@ verbal = {-9: 'nano', -6: 'micro', -3: 'milli', -2: 'centi', -1: 'deci',
           0: '', 1: 'deca', 2: 'hecto', 3: 'kilo', 6: 'mega', 9: 'giga'}
 
 
+def give_function(obj):
+    def wrapper():
+        return deepcopy(obj)
+    return wrapper
+
+
 def si(unit, name, exps=None, ht='unit', ht_overwrite=None):
     """Add SI units to the units dictionary.
 
@@ -46,11 +51,15 @@ def si(unit, name, exps=None, ht='unit', ht_overwrite=None):
         ht1 = 'One ' + verbal[exp] + ht
         if ht_overwrite:
             ht1 = ht_overwrite
-        exporttokens.append(Token.wrap(unit1, name=name1, ht=ht1))
+        exporttokens.append(
+            [[name1], give_function(unit1), 'static var', ht1]
+        )
         # Alternative micro prefix
         if exp == -6:
             name1 = 'μ' + name
-            exporttokens.append(Token.wrap(unit1, name=name1, ht=ht1))
+            exporttokens.append(
+                [[name1], give_function(unit1), 'static var', ht1]
+            )
 
 
 # Add SI units
@@ -87,6 +96,8 @@ si(Quantity(Decimal('3600'),  {'s': 1}), 'hr',  [0],      ht='hour')
 si(Quantity(Decimal('86400'), {'s': 1}), 'day', [0],      ht='day')
 si(Quantity(Decimal('31557600'), {'s': 1}), 'year', [0],  ht='year')
 
+for token in exporttokens:
+    print(token)
 
 exportmappings = {
     'ohm': 'Ω', 'micro': 'μ',

@@ -8,6 +8,10 @@ the list of tokens used in the calculator see functions.py.
 import copy
 from decimal import Decimal
 from clic.mathclasses import Quantity, Vector
+from clic.mathclasses import (
+    allow_unknown_name,
+    generalize_array_input,
+)
 
 
 class Token:
@@ -28,8 +32,8 @@ class Token:
         'rtol': 0,
     }
 
-    def __init__(self, name, calc, pref, kind, ht='', order='regular',
-                 closes=None):
+    def __init__(self, name, calc, pref, kind, ht='', reverse=False,
+                 closes=None, array_input=False, unknown_name_input=False):
         """The initialiser of the class.
 
         Arguments:
@@ -38,10 +42,18 @@ class Token:
         pref -- the token's preference,
         kind -- the kind of the token,
         ht -- the help text for the token (optional),
-        order -- if set to anything but `regular`, calculate
-          the token from right to left (optional).
+        reverse -- whether a row of identical tokens should be calculated
+          in reverse order (optional),
+        closes -- the closing/opening pair of the token (optional),
+        array_input -- whether to explicitly manage array calculations,
+        unknown_name_input -- whether to allow unknown names to be used
+          instead of text input (optional).
         """
         self.name = name
+        if array_input:
+            calc = generalize_array_input(calc)
+        if unknown_name_input:
+            calc = allow_unknown_name(calc)
         self.calc = calc
         if kind in ('func', 'sign', 'open'):
             self.arg_num = 1
@@ -50,9 +62,9 @@ class Token:
         else:
             self.arg_num = 0
         if kind in ('func', 'doub'):
-            self.ltor = 1 if order == 'regular' else 0
+            self.ltor = 0 if reverse else 1
         else:
-            self.ltor = 0 if order == 'regular' else 1
+            self.ltor = 1 if reverse else 0
         if isinstance(pref, str):
             self.pref = Token.pref_verbose[pref]
         else:
@@ -80,10 +92,19 @@ class Token:
         return Token(name, Token.give(obj), 'static', 'var', ht)
 
     @staticmethod
-    def with_alt(names, calc, pref, kind, ht='', order='regular', closes=None):
+    def with_alt(names, calc, pref, kind, ht='', reverse=False, closes=None):
         """Create a token with alternative names (as a tuple)."""
         return (
-            Token(name, calc, pref, kind, ht, order, closes)
+            Token(name, calc, pref, kind, ht, reverse, closes)
+            for name in names
+        )
+
+    @staticmethod
+    def from_config(names, calc, kind, ht='', options={}):
+        """Create a tuple of tokens using configuration setup."""
+        pref, kind = kind.split(' ')
+        return (
+            Token(name, calc, pref, kind, ht, **options)
             for name in names
         )
 
