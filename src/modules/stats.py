@@ -9,7 +9,7 @@ import math
 
 
 def plus_or_minus(a, b=None):
-    if isinstance(a, Vector) or isinstance(b, Vector):
+    if type(a).__name__ == 'Vector' or type(b).__name__ == 'Vector':
         raise ValueError('Plus-or-minus on vectors not implemented yet')
     ans = Array()
     if b is None:
@@ -28,7 +28,7 @@ def push(array, element):
 
 
 def distance(a):
-    if isinstance(a, Vector):
+    if type(a).__name__ == 'Vector':
         return (a * a) ** Decimal('0.5')
     return abs(a)
 

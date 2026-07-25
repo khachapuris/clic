@@ -307,7 +307,7 @@ class Vector:
         pass
 
     def __init__(self, *args):
-        """The initialiser of the class.
+        """The initializer of the class.
 
         Arguments:
         *args -- elements of the vector.

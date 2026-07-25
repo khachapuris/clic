@@ -16,7 +16,7 @@ from clic.mathclasses import decimal_to_string
 from clic.mathclasses import UnknownName
 
 from clic.token import Token
-from clic.setup import exporttokens as default_tokens
+from clic.setup import exporttokens as default_token_args
 from clic.setup import exportmappings as default_mappings
 
 from clic.config import CONFIG
@@ -55,8 +55,10 @@ class Calculator:
         """Reset all variables."""
         self.vars = dict()
         self.assign_ans(Decimal(0))
-        for token in default_tokens:
-            self.vars.update({token.name: token})
+        for token_args in default_token_args:
+            tokens = Token.with_alt(*token_args)
+            for token in tokens:
+                self.vars.update({token.name: token})
         self.completion = default_mappings
 
     def update_modules(self):
@@ -96,9 +98,11 @@ class Calculator:
                 self.completion.update(exportmappings)
             except AttributeError:
                 pass
-            for token in exporttokens:
-                token.module = module
-                self.vars.update({token.name: token})
+            for token_args in exporttokens:
+                tokens = Token.with_alt(*token_args)
+                for token in tokens:
+                    token.module = module
+                    self.vars.update({token.name: token})
 
     def assign_ans(self, ans, link=CONFIG['system']['answer_name']):
         """Set variable with name link to a token containing ans."""

@@ -33,14 +33,13 @@ class Token:
         """The initialiser of the class.
 
         Arguments:
-        name -- the name of the token (optional),
+        name -- the name of the token,
         calc -- the token's function,
-        arg_num -- number of arguments of calc,
         pref -- the token's preference,
-        ltor -- a truthy value, if tokens with the same pref
-          should be calculated left-to-right, falsy otherwise,
         kind -- the kind of the token,
-        ht -- the help text for the token (optional).
+        ht -- the help text for the token (optional),
+        order -- if set to anything but `regular`, calculate
+          the token from right to left (optional).
         """
         self.name = name
         self.calc = calc
@@ -81,10 +80,10 @@ class Token:
         return Token(name, Token.give(obj), 'static', 'var', ht)
 
     @staticmethod
-    def with_alt(names, calc, pref, kind, ht='', order='regular'):
+    def with_alt(names, calc, pref, kind, ht='', order='regular', closes=None):
         """Create a token with alternative names (as a tuple)."""
         return (
-            Token(name, calc, pref, kind, ht, order)
+            Token(name, calc, pref, kind, ht, order, closes)
             for name in names
         )
 

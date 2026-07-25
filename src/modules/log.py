@@ -6,7 +6,7 @@ from clic.mathclasses import Vector
 
 
 def logarithm(args):
-    if isinstance(args, Vector):
+    if type(args).__name__ == 'Vector':
         args = list(args)
         return args[1].log10() / args[0].log10()
     return args.log10()
