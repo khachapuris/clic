@@ -326,79 +326,6 @@ class Vector:
             return a
         return Vector(a, b)
 
-    def __add__(self, other):
-        """Addition of vectors."""
-        if isinstance(other, Vector):
-            if len(other.ls) == len(self.ls):
-                ans = Vector()
-                for a, b in zip(self.ls, other.ls):
-                    Vector.join(ans, a + b)
-                return ans
-        raise Vector.OperationError('addition of different sizes')
-
-    def __sub__(self, other):
-        """Subtraction of vectors."""
-        if isinstance(other, Vector):
-            if len(other.ls) == len(self.ls):
-                ans = Vector()
-                for a, b in zip(self.ls, other.ls):
-                    Vector.join(ans, a - b)
-                return ans
-        raise Vector.OperationError('subtraction of different sizes')
-
-    def __mul__(self, other):
-        """Multiplication of vectors."""
-        if isinstance(other, Vector):
-            if len(other.ls) == len(self.ls):
-                ans = 0
-                for a, b in zip(self.ls, other.ls):
-                    ans += a * b
-                return ans
-            raise Vector.OperationError('multiplication of different sizes')
-        ans = Vector()
-        for a in self.ls:
-            Vector.join(ans, a * other)
-        return ans
-
-    def __truediv__(self, other):
-        """Division of vectors."""
-        if isinstance(other, Vector):
-            if len(other.ls) == len(self.ls):
-                ans = 0
-                for a, b in zip(self.ls, other.ls):
-                    ans += a / b
-                return ans
-            raise Vector.OperationError('division of different sizes')
-        ans = Vector()
-        for a in self.ls:
-            Vector.join(ans, a / other)
-        return ans
-
-    def __pow__(self, other):
-        """Exponentiation of vectors."""
-        if isinstance(other, Vector):
-            raise Vector.OperationError('raising a vector to a vector power')
-        ans = Vector()
-        for a in self.ls:
-            Vector.join(ans, a ** other)
-        return ans
-
-    def __rmul__(self, other):
-        return self * other
-
-    def __rtruediv__(self, other):
-        """Division of vectors."""
-        ans = Vector()
-        for a in self.ls:
-            Vector.join(ans, other / a)
-        return ans
-
-    def __neg__(self):
-        ans = Vector()
-        for a in self.ls:
-            Vector.join(ans, -a)
-        return ans
-
     def __len__(self):
         return len(self.ls)
 
@@ -579,6 +506,20 @@ class Array:
 
     def __len__(self):
         return len(self.ls)
+
+    def dot_product(self, other):
+        """Dot product of arrays."""
+        if isinstance(other, Array):
+            if len(other.ls) == len(self.ls):
+                ans = 0
+                for a, b in zip(self.ls, other.ls):
+                    ans += a * b
+                return ans
+            raise Array.OperationError('multiplication of different sizes')
+        ans = Array()
+        for a in self.ls:
+            Array.join(ans, a * other)
+        return ans
 
     def __iter__(self):
         """Return an iterator over a array."""

@@ -31,8 +31,8 @@ def push(array, element):
 
 
 def distance(a):
-    if type(a).__name__ == 'Vector':
-        return (a * a) ** Decimal('0.5')
+    if type(a).__name__ == 'Array':
+        return (a.dot_product(a)) ** Decimal('0.5')
     return abs(a)
 
 
