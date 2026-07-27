@@ -4,8 +4,6 @@ from decimal import Decimal
 
 
 # Use the META variable to get Quantity functions
-degree = (lambda META: META.Quantity(META.glob_pi / Decimal(180), {'rad': 1}))
-radian = (lambda META: META.Quantity(Decimal(1), {'rad': 1}))
 sin = (lambda a, META: META.Quantity.sin(a))
 cos = (lambda a, META: META.Quantity.cos(a))
 tan = (lambda a, META: META.Quantity.tan(a))
@@ -15,15 +13,28 @@ arctan = (lambda a, META: META.Quantity.arctan(a))
 
 
 def sin_exp(a, b, META):
+    """Exponentiation shorthand for the sine function."""
     return META.Quantity.sin(b) ** a
 
 
 def cos_exp(a, b, META):
+    """Exponentiation shorthand for the cosine function."""
     return META.Quantity.cos(b) ** a
 
 
 def tan_exp(a, b, META):
+    """Exponentiation shorthand for the tangent function."""
     return META.Quantity.tan(b) ** a
+
+
+def degree(META):
+    """Return a quantity representing one degree."""
+    return META.Quantity(META.glob_pi / Decimal(180), {'rad': 1})
+
+
+def radian(META):
+    """Return a quantity representing one radian."""
+    return META.Quantity(Decimal(1), {'rad': 1})
 
 
 exporttokens = [
