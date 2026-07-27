@@ -2,22 +2,18 @@
 
 from decimal import Decimal
 from copy import deepcopy
-from clic.mathclasses import Quantity
+
+D = Decimal
 
 
-def one(unit):
-    """Return a quantity of type '1 unit'."""
-    return Quantity(Decimal(1), {unit: 1})
+def lazy_quantity(*args, **kwargs):
+    """Return a function that will create a new quantity when called."""
 
+    def give_quantity(META):
+        quantity = META.Quantity(*args, **kwargs)
+        return quantity
 
-def few(a, unit):
-    """Return a quantity of type 'a units'."""
-    return Quantity(a, {unit: 1})
-
-
-def der(kg, m, s, a):
-    """Return a unit derived from basic si units."""
-    return Quantity(Decimal(1), {'kg': kg, 'm': m, 's': s, 'A': a})
+    return give_quantity
 
 
 exporttokens = []
@@ -29,75 +25,78 @@ verbal = {-9: 'nano', -6: 'micro', -3: 'milli', -2: 'centi', -1: 'deci',
           0: '', 1: 'deca', 2: 'hecto', 3: 'kilo', 6: 'mega', 9: 'giga'}
 
 
-def give_function(obj):
-    def wrapper():
-        return deepcopy(obj)
-    return wrapper
-
-
-def si(unit, name, exps=None, ht='unit', ht_overwrite=None):
-    """Add SI units to the units dictionary.
+def si(ht, numerical, units, names, exps=None, ht_overwrite=None):
+    """Append SI units to the exporttokens list of the module.
 
     Arguments:
-    unit -- the unit,
-    name -- the name of that unit,
-    exps -- a list of numbers representing prefixes.
+    numerical -- the numerical part of the quantity,
+    units -- the units part of the quantity,
+    name -- the name of that unit for the calculator,
+    exps -- a list of numbers representing prefixes,
+    ht -- the name of the unit for the helptext (optional),
+    ht_overwrite -- a custom overwrite of the helptext (optional).
     """
+    if isinstance(units, tuple):
+        units = dict(zip(('kg', 'm', 's', 'A'), units))
     if not exps:
         exps = [-9, -6, -3, 0, 3, 6, 9]
     for exp in exps:
-        name1 = prefixes[exp] + name
-        unit1 = unit * (Decimal('10') ** exp)
-        ht1 = 'One ' + verbal[exp] + ht
+        new_names = [prefixes[exp] + name for name in names]
+        new_numerical = numerical * (Decimal('10') ** exp)
+        new_ht = 'One ' + verbal[exp] + ht
         if ht_overwrite:
-            ht1 = ht_overwrite
-        exporttokens.append(
-            [[name1], give_function(unit1), 'static var', ht1]
-        )
+            new_ht = ht_overwrite
+        exporttokens.append([
+            new_names,
+            lazy_quantity(new_numerical, units=units),
+            'static var',
+            new_ht,
+            {'use_meta': True}
+        ])
         # Alternative micro prefix
         if exp == -6:
-            name1 = 'μ' + name
-            exporttokens.append(
-                [[name1], give_function(unit1), 'static var', ht1]
-            )
+            new_names = ['μ' + name for name in names]
+            exporttokens.append([
+                new_names,
+                lazy_quantity(new_numerical, units=units),
+                'static var',
+                new_ht,
+                {'use_meta': True}
+            ])
 
 
 # Add SI units
 
-si(few(Decimal('0.001'), 'kg'), 'g', [-9, -6, -3, 0, 3],  ht='gramm')
-si(few(Decimal('1000'),  'kg'), 't', [0, 3, 6, 9],        ht='tonne')
-si(one('m'), 'm', [-9, -6, -3, -2, -1, 0, 3],             ht='meter')
-si(one('s'), 's', [-9, -6, -3, 0],                        ht='second')
-si(one('A'), 'A',                                         ht='ampere')
-si(one('K'), 'K',                                         ht='kelvin')
-si(one('mol'), 'mol',                                     ht='mole')
-si(one('rad'), 'rad', [0],                                ht='radian')
+si('gramm',  D('0.001'), {'kg': 1},  ['g'], [-9, -6, -3, 0, 3])
+si('tonne',  D('1000'),  {'kg': 1},  ['t'], [0, 3, 6, 9])
+si('meter',  D('1'), {'m': 1},   ['m'], [-9, -6, -3, -2, -1, 0, 3])
+si('second', D('1'), {'s': 1},   ['s'], [-9, -6, -3, 0])
+si('ampere', D('1'), {'A': 1},   ['A'])
+si('kelvin', D('1'), {'K': 1},   ['K'])
+si('mole',   D('1'), {'mol': 1}, ['mol'])
+si('radian', D('1'), {'rad': 1}, ['rad'], [0])
 
-si(der(0,  0, -1,  0), 'Hz',  ht='herz')
-si(der(1,  1, -2,  0), 'N',   ht='newton')
-si(der(1,  2, -2,  0), 'J',   ht='joule')
-si(der(1,  2, -3,  0), 'W',   ht='watt')
-si(der(0,  0,  1,  1), 'C',   ht='couloumb')
-si(der(1,  2, -3, -1), 'V',   ht='volt')
-si(der(1,  2, -3, -2), 'ohm', ht='ohm')
-si(der(1,  2, -3, -2), 'Ω',   ht='ohm')
-si(der(1, -1, -2,  0), 'Pa', [-9, -6, -3, 0, 2, 3, 6, 9], ht='pascal')
-si(der(0,  0, -1,  0), 'Bq', [0, 3, 6, 9],                ht='becquerrel')
-si(der(0,  2, -2,  0), 'Gy', [-6, -3, -2, 0],             ht='gray')
+si('herz',       D('1'), (0,  0, -1,  0), ['Hz'])
+si('newton',     D('1'), (1,  1, -2,  0), ['N'])
+si('joule',      D('1'), (1,  2, -2,  0), ['J'])
+si('watt',       D('1'), (1,  2, -3,  0), ['W'])
+si('couloumb',   D('1'), (0,  0,  1,  1), ['C'])
+si('volt',       D('1'), (1,  2, -3, -1), ['V'])
+si('ohm',        D('1'), (1,  2, -3, -2), ['ohm'])
+si('ohm',        D('1'), (1,  2, -3, -2), ['Ω'])
+si('pascal',     D('1'), (1, -1, -2,  0), ['Pa'], [-9, -6, -3, 0, 2, 3, 6, 9])
+si('becquerrel', D('1'), (0,  0, -1,  0), ['Bq'], [0, 3, 6, 9])
+si('gray',       D('1'), (0,  2, -2,  0), ['Gy'], [-6, -3, -2, 0])
 
-si(Quantity(Decimal('0.001'), {'m': 3}), 'l', [-3, 0],    ht='litre')
-si(Quantity(Decimal('0.001'), {'m': 3}), 'L', [-3, 0],    ht='litre')
-si(Quantity(Decimal('10000'), {'m': 2}), 'a', [2], ht_overwrite='One hectare')
+si('litre', D('0.001'), {'m': 3}, ['l', 'L'], [-3, 0])
+si('hectare', D('10000'), {'m': 2}, ['a'], [2], ht_overwrite='One hectare')
 
 # These tokens can be moved to 'time' module later
-si(Quantity(Decimal('60'),    {'s': 1}), 'min', [0],      ht='minute')
-si(Quantity(Decimal('3600'),  {'s': 1}), 'h',   [0],      ht='hour')
-si(Quantity(Decimal('3600'),  {'s': 1}), 'hr',  [0],      ht='hour')
-si(Quantity(Decimal('86400'), {'s': 1}), 'day', [0],      ht='day')
-si(Quantity(Decimal('31557600'), {'s': 1}), 'year', [0],  ht='year')
-
-for token in exporttokens:
-    print(token)
+si('minute', D('60'),       {'s': 1}, ['min'],  [0])
+si('hour',   D('3600'),     {'s': 1}, ['h'],    [0])
+si('hour',   D('3600'),     {'s': 1}, ['hr'],   [0])
+si('day',    D('86400'),    {'s': 1}, ['day'],  [0])
+si('year',   D('31557600'), {'s': 1}, ['year'], [0])
 
 exportmappings = {
     'ohm': 'Ω', 'micro': 'μ',

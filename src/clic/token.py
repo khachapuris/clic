@@ -6,12 +6,22 @@ the list of tokens used in the calculator see functions.py.
 """
 
 import copy
+import clic.mathclasses as mathclasses
 from decimal import Decimal
 from clic.mathclasses import Quantity, Vector
 from clic.mathclasses import (
     allow_unknown_name,
     generalize_array_input,
 )
+
+
+def define_meta(function):
+    """A wrapper to provide functions in distant modules with math classes."""
+
+    def wrapper(*args, **kwargs):
+        return function(*args, META=mathclasses, **kwargs)
+
+    return wrapper
 
 
 class Token:
@@ -33,7 +43,8 @@ class Token:
     }
 
     def __init__(self, name, calc, pref, kind, ht='', reverse=False,
-                 closes=None, array_input=False, unknown_name_input=False):
+                 closes=None, array_input=False, unknown_name_input=False,
+                 use_meta=False):
         """The initialiser of the class.
 
         Arguments:
@@ -54,6 +65,8 @@ class Token:
             calc = generalize_array_input(calc)
         if unknown_name_input:
             calc = allow_unknown_name(calc)
+        if use_meta:
+            calc = define_meta(calc)
         self.calc = calc
         if kind in ('func', 'sign', 'open'):
             self.arg_num = 1
