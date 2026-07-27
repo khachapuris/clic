@@ -90,8 +90,6 @@ def create_calculator():
 def single_prompt(ctor):
     """A nice single line one-time prompt."""
     try:
-        if CONFIG['view']['replace_console_prompt']:
-            print(LINE_UP, end=LINE_CLEAR)
         exp = input(PROMPT)
     except (KeyboardInterrupt, EOFError):
         print()
@@ -146,11 +144,11 @@ def app():
             ctor.completion,
             ctor.vars | {'help': 'help', 'exit': 'exit', 'list': 'list'}
         ))
-        if CONFIG['view']['quit_after_first_input']:
-            single_prompt(ctor)
-        else:
+        if CONFIG['view']['loop']:
             while True:
                 single_prompt(ctor)
+        else:
+            single_prompt(ctor)
 
 
 if __name__ == '__main__':

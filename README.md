@@ -133,9 +133,8 @@ expression.reverse_expression_order = false
 expression.answer_name = "ans"
 
 view.oneline = true
-view.replace_console_prompt = false
-view.quit_after_first_input = false
-# Colors in bash color codes
+view.loop = true
+# Colors in ANSI color codes
 view.prompt_color = "1;32"
 ```
 
@@ -177,9 +176,11 @@ By default, the vector and expression separators are both set to be a semicolon
 
 ### View
 
-You can experiment with `view` entries to find what fits you best. In short,
-they will hide certain parts of the prompt to make the experience more compact;
-be careful though, as some of them do not work together and may break the view.
+1. `view.oneline`: write the answer to the same line as the expression
+2. `view.loop`: stay in interactive mode until the user explicitly quits
+    (when turned off, clic quits after the first calculation is made)
+3. `view.prompt_color`: the ANSI color code used for the prompt
+    (green by default)
 
 ## Writing extensions
 
