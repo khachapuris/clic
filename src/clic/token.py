@@ -19,7 +19,7 @@ def define_meta(function):
     """A wrapper to provide functions in distant modules with math classes."""
 
     def wrapper(*args, **kwargs):
-        return function(*args, META=mathclasses, **kwargs)
+        return function(*args, **kwargs, META=mathclasses)
 
     return wrapper
 

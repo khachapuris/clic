@@ -1,30 +1,33 @@
 """Module with statistics functions."""
 
-from clic.token import Token
-
 from decimal import Decimal
-from clic.mathclasses import Vector, Array
 from math import prod
 import math
 
 
-def plus_or_minus(a, b=None):
+def plus_or_minus(a, b=None, META=None):
     if type(a).__name__ == 'Vector' or type(b).__name__ == 'Vector':
         raise ValueError('Plus-or-minus on vectors not implemented yet')
-    ans = Array()
+    ans = META.Array()
     if b is None:
         (a, b) = (Decimal('0'), a)
     if b >= 0:
-        return Array.join(Array.join(ans, a - b), a + b)
-    return Array.join(Array.join(ans, a + b), a - b)
+        return META.Array.join(META.Array.join(ans, a - b), a + b)
+    return META.Array.join(META.Array.join(ans, a + b), a - b)
+
+
+def create_array(a, META):
+    return META.Array(*a)
 
 
 def push(array, element):
-    ans = Array()
-    for el in array:
-        Array.join(ans, el)
-    Array.join(ans, element)
-    return ans
+    if type(array).__name__ == 'Array':
+        Array = type(array)
+        ans = Array()
+        for el in array:
+            Array.join(ans, el)
+        Array.join(ans, element)
+        return ans
 
 
 def distance(a):
@@ -34,19 +37,19 @@ def distance(a):
 
 
 def mean(a):
-    if isinstance(a, Array):
+    if type(a).__name__ == 'Array':
         return sum(a) / len(a)
     return 0
 
 
 def array_sort(a):
-    if isinstance(a, Array):
-        return Array(*sorted(list(a)))
+    if type(a).__name__ == 'Array':
+        return type(a)(*sorted(list(a)))
     raise TypeError('Cannot sort anything but arrays')
 
 
 def median(array):
-    if isinstance(array, Array):
+    if type(array).__name__ == 'Array':
         ls = sorted(list(array))
         a = len(array)
         if a % 2 == 0:
@@ -77,8 +80,10 @@ def normalcdf(array):
 
 
 exporttokens = [
-    [['±', 'pm'], plus_or_minus,   'addition oper', 'Plus-or-minus'],
-    [[' ±', ' pm'], plus_or_minus, 'strong func',   'Positive-or-negative'],
+    [['±', 'pm'], plus_or_minus, 'addition oper', 'Plus-or-minus',
+     {'use_meta': True}],
+    [[' ±', ' pm'], plus_or_minus, 'strong func', 'Positive-or-negative',
+     {'use_meta': True}],
     [['Σ', 'SUM'], sum,   'mul-tion func', 'Sum of array elements'],
     [['Π', 'PROD'], prod, 'mul-tion func', 'Product of array elements'],
     [['←', 'leftarrow'], push, 'mul-tion oper', 'Push element to array'],
@@ -92,8 +97,9 @@ exporttokens = [
     [['VARIANCE'], variance,    'normal func', 'Variance of data in array'],
     [['DEVIATION'], deviation,  'normal func', 'Standard deviation'],
     [['normalcdf'], normalcdf,  'normal func', 'Cumulative distribution'],
-    [['['], lambda a: Array(*a), 'static open', 'Array', {'closes': ']'}],
-    [[']'], lambda: None,        'static clos', 'Array', {'closes': '['}],
+    [['['], create_array, 'static open', 'Array', {'closes': ']',
+                                                   'use_meta': True}],
+    [[']'], lambda: None, 'static clos', 'Array', {'closes': '['}],
 ]
 
 exportmappings = {
