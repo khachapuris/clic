@@ -23,7 +23,6 @@ from clic.config import CONFIG
 
 import importlib
 import os
-import os.path as os_path
 
 # The default help text
 HELP_TEXT = "This is clic calculator. \
@@ -64,19 +63,23 @@ class Calculator:
     def update_modules(self):
         """Update the list of all modules."""
         load_all = CONFIG['modules']['load_all']
-        path_to_modules = os_path.join(
-            os_path.dirname(os_path.dirname(__file__)),
+        path_to_modules = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
             'modules'
         )
+        path_to_modules_config = os.path.join(
+            os.path.expanduser('~/.clic'),
+            'modules'
+        )
+        os.makedirs(path_to_modules_config, exist_ok=True)
         for filename in os.listdir(path_to_modules):
-            # Directories
-            if not os_path.isfile(os_path.join(path_to_modules, filename)):
+            # Skip all non-module files
+            if not os.path.isfile(os.path.join(path_to_modules, filename)):
                 continue
-            # Not python files
             if not filename.endswith('.py') or filename == '__init__.py':
                 continue
             module = filename[:-3]
-            # Ignored modules
+            # Skip ignored modules
             if load_all and module in CONFIG['modules']['exclude']:
                 continue
             if not load_all and module not in CONFIG['modules']['load']:
@@ -103,6 +106,41 @@ class Calculator:
                 for token in tokens:
                     token.module = module
                     self.vars.update({token.name: token})
+
+        for filename in os.listdir(path_to_modules_config):
+            # Skip all non-module files
+            if not os.path.isfile(os.path.join(path_to_modules_config,
+                                               filename)):
+                continue
+            if not filename.endswith('.py') or filename == '__init__.py':
+                continue
+            module_name = filename[:-3]
+            # Skip ignored modules
+            if load_all and module_name in CONFIG['modules']['exclude']:
+                continue
+            if not load_all and module_name not in CONFIG['modules']['load']:
+                continue
+            try:
+                # Import a module from the config directory
+                spec = importlib.util.spec_from_file_location(
+                    module_name,
+                    os.path.join(path_to_modules_config, filename)
+                )
+                module = importlib.util.module_from_spec(spec)
+                sys.modules[module_name] = module
+                spec.loader.exec_module(module)
+
+                for token_args in module.exporttokens:
+                    tokens = Token.from_config(*token_args)
+                    for token in tokens:
+                        token.module = module_name
+                        self.vars.update({token.name: token})
+                if hasattr(module, 'exportmappings'):
+                    self.completion.update(module.exportmappings)
+            except AttributeError:
+                raise ImportError(
+                    f"invalid module: '{module}'",
+                )
 
     def assign_ans(self, ans, link=CONFIG['system']['answer_name']):
         """Set variable with name link to a token containing ans."""
