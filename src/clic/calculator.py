@@ -63,7 +63,7 @@ class Calculator:
     def update_modules(self):
         """Update the list of all modules."""
         load_all = CONFIG['modules']['load_all']
-        path_to_modules = os.path.join(
+        path_to_modules_project = os.path.join(
             os.path.dirname(os.path.dirname(__file__)),
             'modules'
         )
@@ -72,75 +72,46 @@ class Calculator:
             'modules'
         )
         os.makedirs(path_to_modules_config, exist_ok=True)
-        for filename in os.listdir(path_to_modules):
-            # Skip all non-module files
-            if not os.path.isfile(os.path.join(path_to_modules, filename)):
-                continue
-            if not filename.endswith('.py') or filename == '__init__.py':
-                continue
-            module = filename[:-3]
-            # Skip ignored modules
-            if load_all and module in CONFIG['modules']['exclude']:
-                continue
-            if not load_all and module not in CONFIG['modules']['load']:
-                continue
-            try:
-                exporttokens = getattr(
-                    importlib.import_module(f'modules.{module}'),
-                    'exporttokens',
-                )
-            except AttributeError:
-                raise Calculator.CompilationError(
-                    f"invalid module: '{module}'",
-                )
-            try:
-                exportmappings = getattr(
-                    importlib.import_module(f'modules.{module}'),
-                    'exportmappings',
-                )
-                self.completion.update(exportmappings)
-            except AttributeError:
-                pass
-            for token_args in exporttokens:
-                tokens = Token.from_config(*token_args)
-                for token in tokens:
-                    token.module = module
-                    self.vars.update({token.name: token})
+        for path_to_modules in [
+            path_to_modules_project,
+            path_to_modules_config
+        ]:
+            for filename in os.listdir(path_to_modules):
+                # Skip all non-module files
+                filename_path = os.path.join(path_to_modules, filename)
+                if not os.path.isfile(os.path.join(filename_path)) \
+                        or not filename.endswith('.py') \
+                        or filename == '__init__.py':
+                    continue
+                module_name = filename[:-3]
+                # Skip ignored modules
+                if load_all \
+                        and module_name in CONFIG['modules']['exclude']:
+                    continue
+                if not load_all \
+                        and module_name not in CONFIG['modules']['load']:
+                    continue
+                try:
+                    # Import a module from the directory
+                    spec = importlib.util.spec_from_file_location(
+                        module_name,
+                        os.path.join(path_to_modules, filename)
+                    )
+                    module = importlib.util.module_from_spec(spec)
+                    sys.modules[module_name] = module
+                    spec.loader.exec_module(module)
 
-        for filename in os.listdir(path_to_modules_config):
-            # Skip all non-module files
-            if not os.path.isfile(os.path.join(path_to_modules_config,
-                                               filename)):
-                continue
-            if not filename.endswith('.py') or filename == '__init__.py':
-                continue
-            module_name = filename[:-3]
-            # Skip ignored modules
-            if load_all and module_name in CONFIG['modules']['exclude']:
-                continue
-            if not load_all and module_name not in CONFIG['modules']['load']:
-                continue
-            try:
-                # Import a module from the config directory
-                spec = importlib.util.spec_from_file_location(
-                    module_name,
-                    os.path.join(path_to_modules_config, filename)
-                )
-                module = importlib.util.module_from_spec(spec)
-                sys.modules[module_name] = module
-                spec.loader.exec_module(module)
-
-                for token_args in module.exporttokens:
-                    tokens = Token.from_config(*token_args)
-                    for token in tokens:
-                        token.module = module_name
-                        self.vars.update({token.name: token})
-                if hasattr(module, 'exportmappings'):
-                    self.completion.update(module.exportmappings)
-            except AttributeError:
-                raise ImportError(
-                    f"invalid module: '{module}'",
-                )
+                    for token_args in module.exporttokens:
+                        tokens = Token.from_config(*token_args)
+                        for token in tokens:
+                            token.module = module_name
+                            self.vars.update({token.name: token})
+                    if hasattr(module, 'exportmappings'):
+                        self.completion.update(module.exportmappings)
+                except AttributeError:
+                    raise Calculator.CompilationError(
+                        f"invalid module: '{module}'",
+                    )
 
     def assign_ans(self, ans, link=CONFIG['system']['answer_name']):
         """Set variable with name link to a token containing ans."""
