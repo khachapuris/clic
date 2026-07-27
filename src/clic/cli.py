@@ -124,11 +124,11 @@ def command_line_calc():
     ctor.calculate(' '.join(sys.argv[1:]))
     flag, ans = ctor.get_answer()
     if flag:
-        print(f'! {ans}')
+        print(ans, file=sys.stderr)
     elif ctor.silent:
         pass
     else:
-        print(f'= {ans}')
+        print(ans)
 
 
 def app():

@@ -35,7 +35,7 @@ cd <the-actual-path>/clic-calculator
 source .venv/bin/activate
 
 # Run the calculator with all arguments provided
-if [ -z "$@" ]; then
+if [[ -z "$@" ]]; then
     python -m clic
 else
     python -m clic ''"$@"''
