@@ -33,14 +33,14 @@ def combinations(args=None, n=None, k=None):
 
 
 def prime_factorization(n):
-    """Return the prime factorisation of n."""
+    """Return the prime factorization of the number n as a list of tuples."""
     primes = []
     ls = []
     n = int(n)
     if n == 1:
         return []
     if n < 1:
-        raise ValueError('nonpositive number pf')
+        raise ValueError('prime factorization of nonpositive number')
     x = 1
     power = 0
     while n % 2 == 0:
@@ -53,7 +53,7 @@ def prime_factorization(n):
         power = 0
         is_prime = True
         if x > 10000000:
-            raise ValueError('large number pf')
+            raise ValueError('prime factorization of large number')
         for a in primes:
             if a * a > x:
                 is_prime = True
@@ -72,6 +72,12 @@ def prime_factorization(n):
         if x * x > n and n != 1:
             ls.append((n, 1))
             break
+    return ls
+
+
+def pretty_prime_factorization(n):
+    """Display the prime factorization of n in a human-readable format."""
+    ls = prime_factorization(n)
     ans = ''
     if ls == []:
         return '1'
@@ -95,6 +101,6 @@ exporttokens = [
      {'array_input': True}],
     [['nCr'], combinations, 'normal func', 'Number of combinations',
      {'array_input': True}],
-    [['pf'], prime_factorization, 'normal func', 'Prime factorization',
+    [['pf'], pretty_prime_factorization, 'normal func', 'Prime factorization',
      {'array_input': True}],
 ]

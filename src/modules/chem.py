@@ -146,34 +146,36 @@ TABLE = {
 }
 
 
+def get_table_data(st, precision):
+    if st == 'Cl' and precision == 0:
+        return D('35.5')
+    if precision is None:
+        return TABLE[st]
+    return round(TABLE[st], precision)
+
+
+def f(st, precision):
+    if st.isalpha():
+        if st not in TABLE:
+            raise ValueError('incorrect compound name')
+        return get_table_data(st, precision)
+    else:
+        if len(st) < 2:
+            raise ValueError('incorrect compound name')
+        elif st[-2].isdigit():
+            st, n = st[:-2], st[-2:]
+        else:
+            st, n = st[:-1], st[-1:]
+        if st not in TABLE:
+            raise ValueError('incorrect compound name')
+        return get_table_data(st, precision) * int(n)
+
+
 def mass_precision(precision=None):
     """Find molar mass of compound to the given precision.
 
     Returns a function that takes the compound name & returns its molar mass.
     """
-
-    def get_table_data(st):
-        if st == 'Cl' and precision == 0:
-            return D('35.5')
-        if precision is None:
-            return TABLE[st]
-        return round(TABLE[st], precision)
-
-    def f(st):
-        if st.isalpha():
-            if st not in TABLE:
-                raise ValueError('incorrect compound name')
-            return get_table_data(st)
-        else:
-            if len(st) < 2:
-                raise ValueError('incorrect compound name')
-            elif st[-2].isdigit():
-                st, n = st[:-2], st[-2:]
-            else:
-                st, n = st[:-1], st[-1:]
-            if st not in TABLE:
-                raise ValueError('incorrect compound name')
-            return get_table_data(st) * int(n)
 
     def wrapper(compound):
         import re
@@ -195,7 +197,7 @@ def mass_precision(precision=None):
                 m[0] += m[1]
                 m[1] = 0
             else:
-                m[level] += f(el)
+                m[level] += f(el, precision)
         m[0] += m[1]
         m[1] = 0
         if m[1] + m[2] + m[3] != 0:

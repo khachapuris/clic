@@ -1,7 +1,6 @@
 """Module with SI units."""
 
 from decimal import Decimal
-from copy import deepcopy
 
 D = Decimal
 
