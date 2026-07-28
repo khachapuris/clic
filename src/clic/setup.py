@@ -2,13 +2,13 @@
 
 from decimal import Decimal
 
-from clic.mathclasses import Vector, Array
+from clic.mathclasses import ArgList, Array
 from clic.mathclasses import glob_pi, glob_e, glob_inf
 from clic.config import CONFIG
 
 
 imp = CONFIG['system']['implicit_mul_name']
-vec = CONFIG['expression']['vector_separator']
+vec = CONFIG['expression']['argument_separator']
 sq_root = (lambda a: a ** Decimal('0.5'))
 
 exporttokens = [
@@ -24,7 +24,7 @@ exporttokens = [
     [[' +'], lambda a: +a, 'strong func', 'Positition'],
     [[imp], lambda a, b: a * b, 'normal oper', 'Implicit multiplication',
      {'reverse': True}],
-    [[vec], Vector.join,         'light oper', 'Argument separator'],
+    [[vec], ArgList.join,        'light oper', 'Argument separator'],
     [['/'], lambda a, b: a / b,  'light oper', 'Fraction bar'],
     [['∞', 'INF'], lambda: glob_inf, 'static var', 'Infinity'],
     [['π', 'pi'], lambda: glob_pi,   'static var', 'The number pi'],

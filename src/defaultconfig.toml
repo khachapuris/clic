@@ -12,7 +12,7 @@ modules.load_all = true
 modules.load = []
 modules.exclude = []
 
-expression.vector_separator = ";"
+expression.argument_separator = ";"
 expression.expression_separator = ";"
 expression.reverse_expression_order = false
 expression.answer_name = "ans"

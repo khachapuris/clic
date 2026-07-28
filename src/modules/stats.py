@@ -6,8 +6,6 @@ import math
 
 
 def plus_or_minus(a, b=None, META=None):
-    if type(a).__name__ == 'Vector' or type(b).__name__ == 'Vector':
-        raise ValueError('Plus-or-minus on vectors not implemented yet')
     ans = META.Array()
     if b is None:
         (a, b) = (Decimal('0'), a)
@@ -87,7 +85,7 @@ exporttokens = [
     [['Σ', 'SUM'], sum,   'mul-tion func', 'Sum of array elements'],
     [['Π', 'PROD'], prod, 'mul-tion func', 'Product of array elements'],
     [['←', 'leftarrow'], push, 'mul-tion oper', 'Push element to array'],
-    [['dist'], distance,        'normal func', 'Length of vector'],
+    [['dist'], distance,        'normal func', 'Length of array'],
     [['LEN'], lambda a: len(a), 'normal func', 'Number of array elements'],
     [['SORT'], array_sort,      'normal func', 'Sorted version of array'],
     [['MIN'], min,              'normal func', 'Minimal value of array'],

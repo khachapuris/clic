@@ -7,8 +7,6 @@ the list of tokens used in the calculator see functions.py.
 
 import copy
 import clic.mathclasses as mathclasses
-from decimal import Decimal
-from clic.mathclasses import Quantity, Vector
 from clic.mathclasses import (
     allow_unknown_name,
     generalize_array_input,

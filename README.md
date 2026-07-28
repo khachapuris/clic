@@ -127,7 +127,7 @@ modules.load_all = true
 modules.load = []
 modules.exclude = []
 
-expression.vector_separator = ";"
+expression.argument_separator = ";"
 expression.expression_separator = ";"
 expression.reverse_expression_order = false
 expression.answer_name = "ans"
@@ -160,19 +160,20 @@ assign any symbol (or multiple symbols when allowed).
     - allows one or more symbols
     - used to separate the whole part from the decimal part of a number
     - the default `.,` will make `10.0` and `10,0` both signify the number ten
+    - the first character will be used in the calculator's output
 2. `number.thousands_separators`
     - allows one or more symbols
     - used to visualize the thousands in large numbers
     - the default `_` will make `12_000` mean `12000`
-3. `expression.vector_separator`
+3. `expression.argument_separator`
     - the symbol used to separate arguments of a function (`log(3; 5)`)
     and in bulk operations (`[1; 2; 5] - [1; 3; -3]`)
 4. `expression.expression_separator`
     - the symbol used to separate multiple expressions written on a single
     line, usually with assignments (`x = 5; 3x`)
 
-By default, the vector and expression separators are both set to be a semicolon
-(`;`); however, each one of them can be set individually
+By default, the argument and expression separators are both set to be a
+semicolon (`;`); however, each one of them can be set individually
 
 ### View
 

@@ -11,7 +11,7 @@ import sys
 
 import decimal
 from decimal import Decimal
-from clic.mathclasses import Quantity, Vector, Array
+from clic.mathclasses import ArgList, Quantity, Array
 from clic.mathclasses import decimal_to_string
 from clic.mathclasses import UnknownName
 
@@ -353,7 +353,7 @@ class Calculator:
                 case ('num', 'num'):
                     if pairs:
                         ans += [self.vars[
-                            CONFIG['expression']['vector_separator']
+                            CONFIG['expression']['argument_separator']
                         ]]
                     ans += [token]
                 case (
@@ -441,10 +441,10 @@ class Calculator:
         i = self.perform_operations(ls)
         i = self.require_one_answer(i)
         decimal.getcontext().prec += 5
-        if isinstance(a, Vector):
-            new = Vector()
+        if isinstance(a, ArgList):
+            new = ArgList()
             for a2, i2 in zip(a, i):
-                Vector.join(new, type_test(a2, i2))
+                ArgList.join(new, type_test(a2, i2))
             ans = new
         elif isinstance(a, Array):
             new = Array()

@@ -299,44 +299,44 @@ class Quantity:
         return Quantity.angle(Decimal(atan(x)))
 
 
-class Vector:
-    """The creation of the Vector object and the related functionality."""
+class ArgList:
+    """The creation of the ArgList object and the related functionality."""
 
     class OperationError(ArithmeticError):
-        """An operation error class for vectors."""
+        """An operation error class for arglists."""
         pass
 
     def __init__(self, *args):
         """The initializer of the class.
 
         Arguments:
-        *args -- elements of the vector.
+        *args -- elements of the arglist.
         """
         self.ls = list(args)
 
     @staticmethod
     def join(a, b):
-        """Create vectors by joining elements.
+        """Create arglists by joining elements.
 
-        >>> a = Vector.join(1, 2)  # (1; 2)
-        >>> b = Vector.join(a, 3)  # (1; 2; 3)
+        >>> a = ArgList.join(1, 2)  # (1; 2)
+        >>> b = ArgList.join(a, 3)  # (1; 2; 3)
         """
-        if isinstance(a, Vector):
+        if isinstance(a, ArgList):
             a.ls.append(b)
             return a
-        return Vector(a, b)
+        return ArgList(a, b)
 
     def __len__(self):
         return len(self.ls)
 
     def __iter__(self):
-        """Return an iterator over a vector."""
+        """Return an iterator over a arglist."""
         return self.ls.__iter__()
 
     def __repr__(self):
-        """String representation of vectors."""
-        vector_separator = CONFIG['expression']['vector_separator'] + ' '
-        return '(' + vector_separator.join([str(x) for x in self.ls]) + ')'
+        """String representation of arglists."""
+        argument_separator = CONFIG['expression']['argument_separator'] + ' '
+        return '(' + argument_separator.join([str(x) for x in self.ls]) + ')'
 
 
 class Array:
@@ -527,8 +527,8 @@ class Array:
 
     def __repr__(self):
         """String representation of arrays."""
-        vector_separator = CONFIG['expression']['vector_separator'] + ' '
-        return '[' + vector_separator.join([str(x) for x in self.ls]) + ']'
+        argument_separator = CONFIG['expression']['argument_separator'] + ' '
+        return '[' + argument_separator.join([str(x) for x in self.ls]) + ']'
 
 
 def generalize_array_input(function):
@@ -537,11 +537,11 @@ def generalize_array_input(function):
     Note: this implementation does not cover unordered keyword variables.
     """
     def wrapper(*args, **kwargs):
-        # Unpack if arguments are in vector form
-        vector_form = False
-        if len(args + tuple(kwargs)) == 1 and isinstance(args[0], Vector):
+        # Unpack if arguments are in arglist form
+        arglist_form = False
+        if len(args + tuple(kwargs)) == 1 and isinstance(args[0], ArgList):
             args = tuple(args[0])
-            vector_form = True
+            arglist_form = True
         # Find out the length of the arrays in the calculator
         array_length = 0  # No arrays yet
         for arg in args + tuple(kwargs):
@@ -552,8 +552,8 @@ def generalize_array_input(function):
                     raise ValueError("operating on arrays of different length")
         # Behave normally without arrays inputed
         if array_length == 0:
-            if vector_form:
-                return function(Vector(*args), **kwargs)
+            if arglist_form:
+                return function(ArgList(*args), **kwargs)
             return function(*args, **kwargs)
         # Calculate elementwise if arrays were found
         new_args = []
@@ -563,11 +563,11 @@ def generalize_array_input(function):
             else:
                 new_args.append([arg for a in range(array_length)])
         ans = Array()
-        if vector_form:  # Use the same form as in the input
+        if arglist_form:  # Use the same form as in the input
             for array_member in range(array_length):
                 Array.join(
                     ans,
-                    function(Vector(*[row[array_member] for row in new_args]))
+                    function(ArgList(*[row[array_member] for row in new_args]))
                 )
         else:
             for array_member in range(array_length):
