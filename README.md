@@ -78,10 +78,10 @@ as the first method will probably not work.
 
 ### Basic calculations
 
-One important thing is that clic has 2 different division operators: a colon
-(`:`) and a fraction bar (`/`). The order of operations with them is very
-different! As opposed to the colon, the fraction bar is calculated last
-(imagine that the whole thing is a large fraction). For example,
+A major feature of clic is having 2 distinct ways to write division: with
+a colon (`:`) and a fraction bar (`/`). These are not interchangable!
+The colon works like simple inline division, while the fraction bar separates
+the whole equation to form a large fraction. For example,
 - `1 + 5 : 5` ($1+5:5$) returns `2`
 - `1 + 5 / 5` ($\frac{1+5}{5}$) returns `1.2`
 - `1 + (5/5)` ($1+\frac{5}{5}$) returns `2`
@@ -142,7 +142,7 @@ view.prompt_color = "1;32"
 
 The modules section defines which parts of the calculator are loaded, and which
 are left out (use it if you want to hide some functionality). The `help <NAME>`
-command lets you see in which module is a specific function defined.
+command lets you see in which module any specific function is defined.
 
 - Hide any module by adding it to `modules.exclude`
 - Use only basic functionality by setting `modules.load_all` to `false`
