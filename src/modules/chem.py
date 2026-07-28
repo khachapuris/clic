@@ -146,29 +146,36 @@ TABLE = {
 }
 
 
-def get_table_data(st, precision):
-    if st == 'Cl' and precision == 0:
+def get_atomic_mass(element, precision):
+    """Get the atomic mass of an element with given precision."""
+    if element == 'Cl' and precision == 0:
         return D('35.5')
     if precision is None:
-        return TABLE[st]
-    return round(TABLE[st], precision)
+        return TABLE[element]
+    return round(TABLE[element], precision)
 
 
-def f(st, precision):
-    if st.isalpha():
-        if st not in TABLE:
+def get_few_atoms_mass(element, precision):
+    """Get the mass a few atoms of a single chemical element.
+
+    Arguments:
+    element -- the element and index (e.g. 'Cl2'),
+    precision -- the required precision.
+    """
+    if element.isalpha():
+        if element not in TABLE:
             raise ValueError('incorrect compound name')
-        return get_table_data(st, precision)
+        return get_atomic_mass(element, precision)
     else:
-        if len(st) < 2:
+        if len(element) < 2:
             raise ValueError('incorrect compound name')
-        elif st[-2].isdigit():
-            st, n = st[:-2], st[-2:]
+        elif element[-2].isdigit():
+            element, n = element[:-2], element[-2:]
         else:
-            st, n = st[:-1], st[-1:]
-        if st not in TABLE:
+            element, n = element[:-1], element[-1:]
+        if element not in TABLE:
             raise ValueError('incorrect compound name')
-        return get_table_data(st, precision) * int(n)
+        return get_atomic_mass(element, precision) * int(n)
 
 
 def mass_precision(precision=None):
@@ -179,30 +186,36 @@ def mass_precision(precision=None):
 
     def wrapper(compound):
         import re
+        # Ignore all underscores
         compound = re.sub(r'\_', r'', compound)
+        # Split the compound into 'digestable' parts
         compound = re.sub(r'([A-Z()\[\]*])', r' \1', compound)[1:]
-        m = [0, 0, 0, 0]
-        level = 1
-        for el in compound.split():
-            if el in ('(', '['):
-                level += 1
-            elif ')' in el or ']' in el:
+        # Go over all parts and find the total mass
+        mass_levels = [0, 0, 0, 0]
+        current_level = 1
+        for part in compound.split():
+            if part in ('(', '['):
+                current_level += 1
+            elif ')' in part or ']' in part:
                 n = 1
-                if len(el) > 1:
-                    n = int(el[1:])
-                m[level - 1] += m[level] * n
-                m[level] = 0
-                level -= 1
-            elif el == '*':
-                m[0] += m[1]
-                m[1] = 0
+                if len(part) > 1:
+                    n = int(part[1:])
+                mass_levels[current_level-1] += mass_levels[current_level] * n
+                mass_levels[current_level] = 0
+                current_level -= 1
+            elif part == '*':
+                mass_levels[0] += mass_levels[1]
+                mass_levels[1] = 0
             else:
-                m[level] += f(el, precision)
-        m[0] += m[1]
-        m[1] = 0
-        if m[1] + m[2] + m[3] != 0:
+                mass_levels[current_level] += get_few_atoms_mass(
+                    part,
+                    precision
+                )
+        mass_levels[0] += mass_levels[1]
+        mass_levels[1] = 0
+        if mass_levels[1] + mass_levels[2] + mass_levels[3] != 0:
             raise ValueError('incorrect compound name')
-        return m[0]
+        return mass_levels[0]
 
     return wrapper
 
