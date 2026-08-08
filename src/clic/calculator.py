@@ -244,7 +244,8 @@ class Calculator:
             if len(ls) > 1 and arg in self.vars:
                 ans += self.vars[arg].get_help()
             if len(ls) > 1 and ' ' + arg in self.vars:
-                ans += self.vars[' ' + arg].get_help()
+                if self.vars[' ' + arg].closes != arg:
+                    ans += self.vars[' ' + arg].get_help()
             if not ans:
                 ans = f"Could not find help on '{' '.join(ls[1:])}'"
             self.assign_ans(ans)
