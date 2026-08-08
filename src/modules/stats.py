@@ -84,7 +84,7 @@ exporttokens = [
      {'use_meta': True}],
     [['Σ', 'SUM'], sum,   'mul-tion func', 'Sum of array elements'],
     [['Π', 'PROD'], prod, 'mul-tion func', 'Product of array elements'],
-    [['←', 'leftarrow'], push, 'mul-tion oper', 'Push element to array'],
+    [['push'], push,      'mul-tion oper', 'Push element to array'],
     [['dist'], distance,        'normal func', 'Length of array'],
     [['LEN'], lambda a: len(a), 'normal func', 'Number of array elements'],
     [['SORT'], array_sort,      'normal func', 'Sorted version of array'],

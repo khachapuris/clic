@@ -32,6 +32,8 @@ exporttokens = [
     [['sqrt'], sq_root,   'strong func', 'Square root'],
     [['√'], sq_root,      'static open', 'Square root', {'closes': "'"}],
     [["'"], lambda: None, 'static clos', 'Square root', {'closes': '√'}],
+    [[' |'], abs,         'static open', 'Absolute value', {'closes': '|'}],
+    [['|'], lambda: None, 'static clos', 'Absolute value', {'closes': ' |'}],
     [['..'], Array.from_range, 'strong oper', 'Create array by range'],
 ]
 

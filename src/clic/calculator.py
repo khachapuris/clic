@@ -318,14 +318,26 @@ class Calculator:
                 continue
             match (last.kind, token.kind):
                 case ('var' | ')' | 'num' | 'clos', 'open'):
-                    pairs += token.name
+                    pairs.append(token.name)
                     ans += [
                         self.vars[CONFIG['system']['implicit_mul_name']],
                         token,
                         self.vars['(']
                     ]
+                case ('(' | 'oper' | 'func', 'oper' | 'clos'):
+                    alt = ' ' + token.name
+                    if alt in self.vars and self.vars[alt].kind == 'open':
+                        pairs.append(alt)
+                        ans += [
+                            self.vars[alt],
+                            self.vars['(']
+                        ]
+                    elif alt in self.vars:
+                        ans += [self.vars[alt]]
+                    else:
+                        ans += [token]
                 case (_, 'open'):
-                    pairs += token.name
+                    pairs.append(token.name)
                     ans += [
                         token,
                         self.vars['(']
@@ -344,12 +356,6 @@ class Calculator:
                     ans += [
                         self.vars[')']
                     ]
-                case ('(' | 'oper' | 'func', 'oper'):
-                    alt = ' ' + token.name
-                    if alt in self.vars:
-                        ans += [self.vars[alt]]
-                    else:
-                        ans += [token]
                 case ('num', 'num'):
                     if pairs:
                         ans += [self.vars[

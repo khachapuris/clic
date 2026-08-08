@@ -192,7 +192,7 @@ simple module on your own. Then, put it into the same folder and try it out.
 
 ### Not implemented yet
 
-These features are not yet implemented:
+These features are not implemented, but may follow in the future:
 
 - [ ] matrices
 - [ ] hyperbolic trigonometry
