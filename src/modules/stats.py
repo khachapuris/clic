@@ -6,12 +6,21 @@ import math
 
 
 def plus_or_minus(a, b=None, META=None):
-    ans = META.Array()
     if b is None:
         (a, b) = (Decimal('0'), a)
-    if b >= 0:
-        return META.Array.join(META.Array.join(ans, a - b), a + b)
-    return META.Array.join(META.Array.join(ans, a + b), a - b)
+    mask = META.Array()
+    META.Array.join(mask, Decimal('1'))
+    META.Array.join(mask, Decimal('-1'))
+    return a + b * mask
+
+
+def minus_or_plus(a, b=None, META=None):
+    if b is None:
+        (a, b) = (Decimal('0'), a)
+    mask = META.Array()
+    META.Array.join(mask, Decimal('-1'))
+    META.Array.join(mask, Decimal('1'))
+    return a + b * mask
 
 
 def create_array(a, META):
@@ -28,46 +37,45 @@ def push(array, element):
         return ans
 
 
-def distance(a):
-    if type(a).__name__ == 'Array':
-        return (a.dot_product(a)) ** Decimal('0.5')
-    return abs(a)
-
-
 def mean(a):
-    if type(a).__name__ == 'Array':
+    if type(a).__name__ in ['Array', 'ArgList']:
         return sum(a) / len(a)
-    return 0
+    return Decimal('0')
 
 
-def array_sort(a):
-    if type(a).__name__ == 'Array':
-        return type(a)(*sorted(list(a)))
+def array_sort(a, META):
+    if type(a).__name__ in ['Array', 'ArgList']:
+        return META.Array(*sorted(list(a)))
     raise TypeError('Cannot sort anything but arrays')
 
 
 def median(array):
-    if type(array).__name__ == 'Array':
+    if type(array).__name__ in ['Array', 'ArgList']:
         ls = sorted(list(array))
         a = len(array)
         if a % 2 == 0:
             return (ls[a // 2 - 1] + ls[a // 2]) / 2
         else:
             return ls[a // 2]
-    return 0
+    return Decimal('0')
 
 
 def variance(array):
-    return mean((mean(array) - array) ** 2)
+    return mean((mean(array) - array) ** Decimal('2'))
 
 
 def deviation(array):
     return variance(array) ** Decimal('0.5')
 
 
+def deviation_exp(a, b):
+    """Exponentiation shorthand for the deviation function."""
+    return deviation(b) ** a
+
+
 def normalcdf_phi(x):
     return (
-        Decimal('1') + Decimal(math.erf(x / 2 ** Decimal('0.5')))
+        Decimal('1') + Decimal(math.erf(x / Decimal('2') ** Decimal('0.5')))
     ) / Decimal('2')
 
 
@@ -82,19 +90,23 @@ exporttokens = [
      {'use_meta': True}],
     [[' ±', ' pm'], plus_or_minus, 'strong func', 'Positive-or-negative',
      {'use_meta': True}],
-    [['Σ', 'SUM'], sum,   'mul-tion func', 'Sum of array elements'],
-    [['Π', 'PROD'], prod, 'mul-tion func', 'Product of array elements'],
-    [['push'], push,      'mul-tion oper', 'Push element to array'],
-    [['dist'], distance,        'normal func', 'Length of array'],
-    [['LEN'], lambda a: len(a), 'normal func', 'Number of array elements'],
-    [['SORT'], array_sort,      'normal func', 'Sorted version of array'],
-    [['MIN'], min,              'normal func', 'Minimal value of array'],
-    [['MAX'], max,              'normal func', 'Maximum value of array'],
-    [['MEAN'], mean,            'normal func', 'Mean of array'],
-    [['MEDIAN'], median,        'normal func', 'Median of array'],
-    [['VARIANCE'], variance,    'normal func', 'Variance of data in array'],
-    [['DEVIATION'], deviation,  'normal func', 'Standard deviation'],
-    [['normalcdf'], normalcdf,  'normal func', 'Cumulative distribution'],
+    [['∓', 'mp'], minus_or_plus, 'addition oper', 'Plus-or-minus',
+     {'use_meta': True}],
+    [[' ∓', ' mp'], minus_or_plus, 'strong func', 'Positive-or-negative',
+     {'use_meta': True}],
+    [['SORT'], array_sort,   'normal func', 'Sorted version of array',
+     {'use_meta': True}],
+    [['PUSH'], push,       'mul-tion oper', 'Push element to array'],
+    [['Σ', 'Sum'], sum,    'mul-tion func', 'Sum of array elements'],
+    [['Π', 'Prod'], prod,  'mul-tion func', 'Product of array elements'],
+    [['Len'], len,           'normal func', 'Number of array elements'],
+    [['Min'], min,           'normal func', 'Minimal value'],
+    [['Max'], max,           'normal func', 'Maximum value'],
+    [['Avg'], mean,          'normal func', 'Arithmetic mean'],
+    [['Median'], median,     'normal func', 'Median'],
+    [['Variance'], variance, 'normal func', 'Variance'],
+    [['σ', 'Deviation'], deviation, 'normal func', 'Standard deviation'],
+    [['normalcdf'], normalcdf,      'normal func', 'Cumulative distribution'],
     [['['], create_array, 'static open', 'Array', {'closes': ']',
                                                    'use_meta': True}],
     [[']'], lambda: None, 'static clos', 'Array', {'closes': '['}],
@@ -102,5 +114,5 @@ exporttokens = [
 
 exportmappings = {
     'pm': '±',
-    'leftarrow': '←',
+    'mp': '∓',
 }

@@ -32,7 +32,7 @@ def combinations(args=None, n=None, k=None):
     return permutations(n=n, k=k) / factorial(k)
 
 
-def prime_factorization(n):
+def prime_factor(n):
     """Return the prime factorization of the number n as a list of tuples."""
     primes = []
     ls = []
@@ -75,9 +75,9 @@ def prime_factorization(n):
     return ls
 
 
-def pretty_prime_factorization(n):
+def pretty_prime_factor(n):
     """Display the prime factorization of n in a human-readable format."""
-    ls = prime_factorization(n)
+    ls = prime_factor(n)
     ans = ''
     if ls == []:
         return '1'
@@ -101,6 +101,6 @@ exporttokens = [
      {'array_input': True}],
     [['nCr'], combinations, 'normal func', 'Number of combinations',
      {'array_input': True}],
-    [['pf'], pretty_prime_factorization, 'normal func', 'Prime factorization',
+    [['pf'], pretty_prime_factor, 'normal func', 'Prime factorization',
      {'array_input': True}],
 ]

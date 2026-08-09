@@ -521,6 +521,10 @@ class Array:
             Array.join(ans, a * other)
         return ans
 
+    def __abs__(self):
+        """Return the euclidean norm of the array."""
+        return (self.dot_product(self)) ** Decimal('0.5')
+
     def __iter__(self):
         """Return an iterator over a array."""
         return self.ls.__iter__()
