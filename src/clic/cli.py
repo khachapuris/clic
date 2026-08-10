@@ -19,6 +19,7 @@ def overlap(a, b):
 
 
 def create_completer(bindings, vocab):
+    vocab = [word for word in vocab if ' ' not in word]
     bindlist = list(bindings)
     bindlist.sort(key=len, reverse=True)
 

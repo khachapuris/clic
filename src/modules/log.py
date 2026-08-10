@@ -8,7 +8,23 @@ def logarithm(args):
     return args.log10()
 
 
+def log_exp(a, b):
+    """Exponentiation shorthand for the log function."""
+    if a > 0:
+        return logarithm(b) ** a
+    raise ValueError('raising function to negative exponent')
+
+
+def ln_exp(a, b):
+    """Exponentiation shorthand for the ln function."""
+    if a > 0:
+        return b.ln() ** a
+    raise ValueError('raising function to negative exponent')
+
+
 exporttokens = [
     [['log'], logarithm, 'normal func', 'Logarithm'],
-    [['ln'], lambda a: a.ln(), 'normal func', 'Natural logarithm'],
+    [['log ^'], log_exp, 'normal doub', 'Logarithm'],
+    [['ln'], lambda a: a.ln(), 'normal func', ''],
+    [['ln ^'], ln_exp,         'normal doub', ''],
 ]
