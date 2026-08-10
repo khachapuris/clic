@@ -348,7 +348,6 @@ class Calculator:
                         self.vars['(']
                     ]
                 case (_, 'clos'):
-                    print(ans, pairs)
                     if not pairs:
                         raise Calculator.CompilationError(
                             f"unclosed '{token.name}'"

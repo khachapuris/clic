@@ -94,13 +94,14 @@ All other syntax is obvious from the examples below.
 - `√ 1024' + √ 3'`
 - `log(2; 8)`
 - `5!`
+- `||-1| - |8||` (absolute value)
 - `M("Al2(SO4)3")` (molar mass of compound)
 - `pf 9997` (prime factorization, returns `"13 * 69"`)
-- `variable = 5 + 4;` (assignes and outputs nothing)
+- `variable = 5 + 4;` (assignes but outputs nothing)
 - `variable + 1`
 - `x = 9; y = 4; x^3 - 10 x y`
 - `[1; 2; 6]^2` (bulk operation: returns `[1; 4; 36]`)
-- `SUM [1; 4; 36]` (statistics operation: returns `41`)
+- `Sum [1; 4; 36]` (statistics operation: returns `41`)
 - `ans` (returns the last answer, `41`)
 
 Note that the arguments in the logarithm and bulk operations are separated by
