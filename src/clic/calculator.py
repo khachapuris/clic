@@ -316,6 +316,10 @@ class Calculator:
             if last.name + ' ' + token.name in list(self.vars):
                 ans[-1] = self.vars[last.name + ' ' + token.name]
                 last = ans[-1]
+                if last.kind == 'doub':
+                    pairs.append('doub')
+                    ans += [self.vars['(']]
+                    last = self.vars['(']
                 continue
             match (last.kind, token.kind):
                 case ('var' | ')' | 'num' | 'clos', 'open'):
@@ -344,6 +348,7 @@ class Calculator:
                         self.vars['(']
                     ]
                 case (_, 'clos'):
+                    print(ans, pairs)
                     if not pairs:
                         raise Calculator.CompilationError(
                             f"unclosed '{token.name}'"
@@ -358,7 +363,10 @@ class Calculator:
                         self.vars[')']
                     ]
                 case ('num', 'num'):
-                    if pairs:
+                    if pairs and pairs[-1] == 'doub':
+                        pairs.pop()
+                        ans += [self.vars[')']]
+                    elif pairs:
                         ans += [self.vars[
                             CONFIG['expression']['argument_separator']
                         ]]
@@ -367,10 +375,14 @@ class Calculator:
                     'var' | ')' | 'num' | 'clos',
                     'var' | '(' | 'num' | 'func'
                 ):
-                    ans += [
-                        self.vars[CONFIG['system']['implicit_mul_name']],
-                        token
-                    ]
+                    if pairs and pairs[-1] == 'doub':
+                        pairs.pop()
+                        ans += [self.vars[')']]
+                    else:
+                        ans += [
+                            self.vars[CONFIG['system']['implicit_mul_name']],
+                        ]
+                    ans += [token]
                 case _:
                     ans += [token]
             last = ans[-1]
