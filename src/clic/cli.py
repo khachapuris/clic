@@ -21,16 +21,18 @@ def overlap(a, b):
 def create_completer(bindings, vocab):
     vocab = [word for word in vocab if ' ' not in word]
     bindlist = list(bindings)
-    bindlist.sort(key=len, reverse=True)
+    bindlist.sort(key=len, reverse=False)
+    bindlist_reverse = list(bindings)
+    bindlist_reverse.sort(key=len, reverse=True)
 
     def completer(text, state):
         # With backslash
         for word in bindlist:
-            if overlap(text[-len(bindlist[0]):], '\\' + word):
+            if overlap(text[-len(bindlist_reverse[0]):], '\\' + word):
                 start = '\\'.join(text.split('\\')[:-1])
                 return [start + bindings[word]][state]
         # Without backslash
-        for word in bindlist:
+        for word in bindlist_reverse:
             # if text == word:
             #     return [bindings[word]][state]
             if text.endswith(word):
@@ -145,7 +147,9 @@ def app():
         # impove standard UX
         import readline
         readline.parse_and_bind('tab: complete')
-        # readline.set_completer_delims('0123456789!@#$%^&*()-+=`~\'"<,.>/?:;| ')
+        # readline.set_completer_delims(
+        #     '0123456789!@#$%^&*()-+=`~\'"<,.>/?:;| '
+        # )
         readline.set_completer_delims(' ')
         readline.set_completer(create_completer(
             ctor.completion,
