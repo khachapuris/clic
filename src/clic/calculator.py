@@ -19,17 +19,8 @@ from clic.token import Token
 from clic.setup import exporttokens as default_token_args
 from clic.setup import exportmappings as default_mappings
 
-from clic.config import CONFIG
-
 import importlib
 import os
-
-# The default help text
-HELP_TEXT = "This is clic calculator. \
-Type 'exit' to quit, please see README.md"
-
-QUOTE = CONFIG['system']['quote']
-ASSIGNMENT_OPERATOR = CONFIG['system']['assignment_operator']
 
 
 class Calculator:
@@ -41,14 +32,19 @@ class Calculator:
     class EmptyOutputError(Exception):
         """An error to be raised for an empty output."""
 
-    def __init__(self, helptext=HELP_TEXT):
+    def __init__(self, config=None):
         """The initialiser of the class."""
+        if config is None:
+            from clic.config import CONFIG
+            self.config = CONFIG
+        else:
+            self.config = config
         self.err = None
-        self.link = CONFIG['expression']['answer_name']
+        self.link = '__ans__'
         self.silent = False
         self.reset_vars()
         self.update_modules()
-        self.helptext = helptext
+        self.helptext = config['system']['help_text']
 
     def reset_vars(self):
         """Reset all variables."""
@@ -62,7 +58,7 @@ class Calculator:
 
     def update_modules(self):
         """Update the list of all modules."""
-        load_all = CONFIG['modules']['load_all']
+        load_all = self.config['modules']['load_all']
         path_to_modules_project = os.path.join(
             os.path.dirname(os.path.dirname(__file__)),
             'modules'
@@ -86,10 +82,10 @@ class Calculator:
                 module_name = filename[:-3]
                 # Skip ignored modules
                 if load_all \
-                        and module_name in CONFIG['modules']['exclude']:
+                        and module_name in self.config['modules']['exclude']:
                     continue
                 if not load_all \
-                        and module_name not in CONFIG['modules']['load']:
+                        and module_name not in self.config['modules']['load']:
                     continue
                 try:
                     # Import a module from the directory
@@ -113,14 +109,16 @@ class Calculator:
                         f"invalid module: '{module}'",
                     )
 
-    def assign_ans(self, ans, link=CONFIG['system']['answer_name']):
+    def assign_ans(self, ans, link=None):
         """Set variable with name link to a token containing ans."""
+        if link is None:
+            link = '__ans__'
         self.vars |= {link: Token.wrap(ans, name=link)}
 
     def isalphaplus(self, x):
         """Return whether x is alphabetical / semi-alphabetical or not."""
         return (x.isalpha() and x.isascii()) \
-            or x in CONFIG['system']['alphabet_extra']
+            or x in self.config['system']['alphabet_extra']
 
     def split(self, string):
         """Split the given string expression."""
@@ -150,7 +148,7 @@ class Calculator:
             else:
                 last = ' '
             # Quote:
-            if char == QUOTE:
+            if char == self.config['system']['quote']:
                 # Is it an opening quote
                 condition = not in_string
                 new_word_if(condition, char)
@@ -163,14 +161,14 @@ class Calculator:
                 space = True
                 in_name = False
             # Expression separator
-            elif char == CONFIG['expression']['expression_separator'] \
+            elif char == self.config['expression']['expression_separator'] \
                     and braces_level == 0:
                 ans.append([])
             # Decimal separator:
-            elif char in CONFIG['number']['decimal_separators']:
+            elif char in self.config['number']['decimal_separators']:
                 new_word_if(space, '.')
             # Thousands separator:
-            elif char in CONFIG['number']['thousands_separators']:
+            elif char in self.config['number']['thousands_separators']:
                 new_word_if(space, '' if last.isdigit() else char)
             # Letter:
             elif self.isalphaplus(char):
@@ -182,9 +180,9 @@ class Calculator:
             # Symbol:
             else:
                 # Count open braces (for correct expression splitting)
-                if char in CONFIG['system']['opening_braces']:
+                if char in self.config['system']['opening_braces']:
                     braces_level += 1
-                if char in CONFIG['system']['closing_braces']:
+                if char in self.config['system']['closing_braces']:
                     braces_level -= 1
                 # Watch out for unmatched parentheses
                 if char == '(':
@@ -200,9 +198,9 @@ class Calculator:
             raise ValueError('unmatched paretheses')
         if in_string:
             raise ValueError('unclosed quote')
-        if CONFIG['global']['show_debug']:
+        if self.config['global']['show_debug']:
             print('splitted:          ', ans)
-        if CONFIG['expression']['reverse_expression_order']:
+        if self.config['expression']['reverse_expression_order']:
             return ans[::-1]
         return ans
 
@@ -238,7 +236,9 @@ class Calculator:
         elif ls[0] == 'help':
             ans = ''
             if len(ls) > 1:
-                arg = ' '.join(ls[1:]).strip(QUOTE + ' ')
+                arg = ' '.join(ls[1:]).strip(
+                    self.config['system']['quote'] + ' '
+                )
             if len(ls) == 1:
                 ans += self.helptext
             if len(ls) > 1 and arg in self.vars:
@@ -258,28 +258,28 @@ class Calculator:
     def perform_assignment(self, ls):
         """Change the assignment link according to a list of strings."""
         # simple assignment (x = 1)
-        if len(ls) > 2 and ls[1] == ASSIGNMENT_OPERATOR:
+        if len(ls) > 2 and ls[1] == self.config['system']['assignment_oper']:
             name = ls[0]
             if name in self.vars and self.vars[name].kind != 'var':
                 raise Calculator.CompilationError('assignment error')
             self.link = name
             return ls[2:]
         # compound assignment (x += 1)
-        if len(ls) > 2 and ls[2] == ASSIGNMENT_OPERATOR:
+        if len(ls) > 2 and ls[2] == self.config['system']['assignment_oper']:
             name = ls[0]
             if name not in self.vars:
                 raise Calculator.CompilationError('compound assignment error')
             self.link = name
             return ls[:2] + ls[3:]
-        self.link = CONFIG['expression']['answer_name']
+        self.link = '__ans__'
         return ls
 
     def tokenize(self, ls):
         """Transform a list of strings to a list of Token objects."""
         ans = []
         for word in ls:
-            if word[0] == QUOTE:
-                get = Token.give(word.strip(QUOTE))
+            if word[0] == self.config['system']['quote']:
+                get = Token.give(word.strip(self.config['system']['quote']))
                 ans.append(Token(word, get, 'static', 'str'))
             elif '..' in word:
                 n1, n2 = word.split('..')
@@ -295,6 +295,8 @@ class Calculator:
             elif word[0].isdigit() or word[0] == '.':
                 num = Decimal(word)
                 ans.append(Token(word, Token.give(num), 'static', 'num'))
+            elif word == self.config['expression']['argument_separator']:
+                ans.append(self.vars['__arg_sep__'])
             elif word in self.vars:
                 ans.append(self.vars[word])
             else:
@@ -303,7 +305,7 @@ class Calculator:
                     name=f'<?{word}?>'
                 ))
                 # raise Calculator.CompilationError(f"unknown name: '{word}'")
-        if CONFIG['global']['show_debug']:
+        if self.config['global']['show_debug']:
             print('tokenized:         ', ans)
         return ans
 
@@ -325,7 +327,7 @@ class Calculator:
                 case ('var' | ')' | 'num' | 'clos', 'open'):
                     pairs.append(token.name)
                     ans += [
-                        self.vars[CONFIG['system']['implicit_mul_name']],
+                        self.vars['__imp_mul__'],
                         token,
                         self.vars['(']
                     ]
@@ -366,9 +368,7 @@ class Calculator:
                         pairs.pop()
                         ans += [self.vars[')']]
                     elif pairs:
-                        ans += [self.vars[
-                            CONFIG['expression']['argument_separator']
-                        ]]
+                        ans += [self.vars['__arg_sep__']]
                     ans += [token]
                 case (
                     'var' | ')' | 'num' | 'clos',
@@ -378,14 +378,12 @@ class Calculator:
                         pairs.pop()
                         ans += [self.vars[')']]
                     else:
-                        ans += [
-                            self.vars[CONFIG['system']['implicit_mul_name']],
-                        ]
+                        ans += [self.vars['__imp_mul__']]
                     ans += [token]
                 case _:
                     ans += [token]
             last = ans[-1]
-        if CONFIG['global']['show_debug']:
+        if self.config['global']['show_debug']:
             print('completed:         ', ans)
         if pairs:
             raise Calculator.CompilationError(f"unclosed '{pairs[-1]}'")
@@ -413,7 +411,7 @@ class Calculator:
                     output.append(oper_stack.pop())
                 oper_stack.append(token)
         ans = output + oper_stack[::-1]
-        if CONFIG['global']['show_debug']:
+        if self.config['global']['show_debug']:
             print('postfix notation:  ', ans)
         return ans
 
@@ -471,23 +469,32 @@ class Calculator:
             ans = new
         else:
             ans = type_test(a, i)
-        if CONFIG['global']['show_debug']:
+        if self.config['global']['show_debug']:
             print('answer:            ', ans)
             print()
         return ans
 
     def object_to_string(self, obj):
         """Represent obj as a string."""
+        ans = ''
         if obj is None:
-            return ''
-        if isinstance(obj, UnknownName):
+            pass
+        elif isinstance(obj, UnknownName):
             obj.raise_error()
-        if isinstance(obj, str):
-            return f'"{obj}"'
-        if isinstance(obj, Decimal):
-            notation = CONFIG['number']['notation']
-            return decimal_to_string(obj, notation=notation)
-        return str(obj)
+        elif isinstance(obj, str):
+            ans = f'"{obj}"'
+        elif isinstance(obj, Decimal):
+            notation = self.config['number']['notation']
+            ans = decimal_to_string(obj, notation=notation)
+        else:
+            ans = str(obj)
+        return ans.replace(
+            '__arg_sep__',
+            self.config['expression']['argument_separator']
+        ).replace(
+            '__dec_sep__',
+            self.config['number']['decimal_separators'][0]
+        )
 
     def calculate(self, expr):
         """Calculate expression exp and store the answer."""
@@ -514,10 +521,10 @@ class Calculator:
         output -- the error / answer (as a string).
         """
         if self.err:
-            if CONFIG['global']['show_debug']:
+            if self.config['global']['show_debug']:
                 raise self.err
             return (True, f'{str(self.err)}')
-        ans = self.vars[CONFIG['system']['answer_name']].calc()
+        ans = self.vars['__ans__'].calc()
         if ans is None:
             return (True, '')
         ans = self.object_to_string(ans)
@@ -528,7 +535,7 @@ def minimal_prompt():
     """A minimal prompt for the calculator."""
     ctor = Calculator()
     while True:
-        exp = input('% ')
+        exp = input('$ ')
         ctor.calculate(exp)
         flag, ans = ctor.get_answer()
         if flag:

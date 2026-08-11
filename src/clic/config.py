@@ -23,11 +23,10 @@ else:
 system_config = {
     'quote': '"',
     'alphabet_extra': '_',
-    'assignment_operator': '=',
-    'answer_name': '_',
-    'implicit_mul_name': 'dot',
+    'assignment_oper': '=',
     'opening_braces': '([{',
     'closing_braces': '}])',
+    'help_text': "Welcome to clic calculator! For the docs, see README.md"
 }
 
 CONFIG = dict()

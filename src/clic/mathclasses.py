@@ -4,8 +4,6 @@ from decimal import Decimal
 import decimal
 from math import asin, acos, atan
 
-from clic.config import CONFIG
-
 
 glob_pi = Decimal('3.1415926535897932384626433833')
 glob_e = Decimal('2.7182818284590452353602874714')
@@ -15,10 +13,7 @@ glob_inf = Decimal('999')
 def normalize_fraction(d):
     a = f'{round(d, 22):f}'
     if '.' in a:
-        return a.rstrip('0').rstrip('.').replace(
-            '.',
-            CONFIG['number']['decimal_separators'][0]
-        )
+        return a.rstrip('0').rstrip('.').replace('.', '__dec_sep__')
     return a
 
 
@@ -233,6 +228,10 @@ class Quantity:
         """Return True if the quantity is an angle."""
         return self.units == radians
 
+    def istemperature(self, kelvins=Multiset({'K': 1})):
+        """Return True if the quantity is an angle."""
+        return self.units == kelvins
+
     @staticmethod
     def cos(x):
         """Return the cosine of the angle."""
@@ -335,7 +334,7 @@ class ArgList:
 
     def __repr__(self):
         """String representation of arglists."""
-        argument_separator = CONFIG['expression']['argument_separator'] + ' '
+        argument_separator = '__arg_sep__ '
         return '(' + argument_separator.join([str(x) for x in self.ls]) + ')'
 
 
@@ -531,7 +530,7 @@ class Array:
 
     def __repr__(self):
         """String representation of arrays."""
-        argument_separator = CONFIG['expression']['argument_separator'] + ' '
+        argument_separator = '__arg_sep__ '
         return '[' + argument_separator.join([str(x) for x in self.ls]) + ']'
 
 

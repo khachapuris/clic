@@ -9,6 +9,14 @@ from clic.calculator import Calculator
 from clic.config import CONFIG
 import sys
 
+CONFIG['system']['help_text'] = '''
+,~~~~~~~~~~~~~~~~ Basic help ~~~~~~~~~~~~~~~~,
+| exit -- exit the calculator                |
+| help -- display this help                  |
+| list -- list available functions & units   |
+| help <NAME> -- help on a specific function |
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
+
 
 def overlap(a, b):
     # print(a, b)
@@ -52,47 +60,8 @@ LINE_UP = '\033[1A'
 LINE_CLEAR = '\x1b[2K'
 
 
-def prompt():
-    """A minimal prompt for the calculator."""
-    helptext = '''
-,~~~~~~~~~~~~~~~~ Basic help ~~~~~~~~~~~~~~~~,
-| exit -- exit the calculator                |
-| help -- display this help                  |
-| list -- list available functions & units   |
-| help <NAME> -- help on a specific function |
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
-    ctor = Calculator(helptext=helptext)
-    print(',~~~~~~~~~~~~~~~~~~~~~~~~~~~~~,')
-    print('| Welcome to clic calculator! |')
-    print("| Type 'help' for basic help, |")
-    print('|    please see README.md     |')
-    print("'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'")
-    while True:
-        try:
-            exp = input(PROMPT)
-        except (KeyboardInterrupt, EOFError):
-            print('exit')
-            sys.exit()
-        ctor.calculate(exp)
-        flag, ans = ctor.get_answer()
-        if flag:
-            print(f'! {ans}')
-        elif ctor.silent:
-            continue
-        else:
-            print(f'= {ans}')
-        print()
-
-
 def create_calculator():
-    helptext = '''
-,~~~~~~~~~~~~~~~~ Basic help ~~~~~~~~~~~~~~~~,
-| exit -- exit the calculator                |
-| help -- display this help                  |
-| list -- list available functions & units   |
-| help <NAME> -- help on a specific function |
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
-    return Calculator(helptext=helptext)
+    return Calculator(config=CONFIG)
 
 
 def single_prompt(ctor):
