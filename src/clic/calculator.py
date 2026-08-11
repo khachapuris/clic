@@ -44,7 +44,7 @@ class Calculator:
         self.silent = False
         self.reset_vars()
         self.update_modules()
-        self.helptext = config['system']['help_text']
+        self.helptext = self.config['system']['help_text']
 
     def reset_vars(self):
         """Reset all variables."""
