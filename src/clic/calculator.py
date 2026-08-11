@@ -40,7 +40,7 @@ class Calculator:
         else:
             self.config = config
         self.err = None
-        self.link = '__ans__'
+        self.link = self.config['expression']['answer_name']
         self.silent = False
         self.reset_vars()
         self.update_modules()
@@ -221,9 +221,11 @@ class Calculator:
         # list all variables
         elif ls[0] == 'list':
             vrs = [str(v) for v in self.vars.values() if v.kind == 'var']
-            vrs = [v for v in vrs if not v.startswith(' ')]
+            vrs = [v for v in vrs if not v.startswith((' ', '__'))]
             fns = [str(v) for v in self.vars.values() if v.kind != 'var']
-            fns = [v for v in fns if not v.startswith(' ')]
+            if '__arg_sep__' in fns:
+                fns.append(self.config['expression']['argument_separator'])
+            fns = [v for v in fns if not v.startswith((' ', '__'))]
             cmp = [f'{self.completion[c]} {c}' for c in self.completion]
             self.assign_ans(
                 '\nFUNCTIONS:\n' + '  '.join(fns)
@@ -246,6 +248,9 @@ class Calculator:
             if len(ls) > 1 and ' ' + arg in self.vars:
                 if self.vars[' ' + arg].closes != arg:
                     ans += self.vars[' ' + arg].get_help()
+            if len(ls) > 1 and \
+                    arg == self.config['expression']['argument_separator']:
+                ans += self.vars['__arg_sep__'].get_help()
             if not ans:
                 ans = f"Could not find help on '{' '.join(ls[1:])}'"
             self.assign_ans(ans)
@@ -271,7 +276,7 @@ class Calculator:
                 raise Calculator.CompilationError('compound assignment error')
             self.link = name
             return ls[:2] + ls[3:]
-        self.link = '__ans__'
+        self.link = self.config['expression']['answer_name']
         return ls
 
     def tokenize(self, ls):
