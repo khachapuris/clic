@@ -29,15 +29,14 @@ def absolute_celcius(celcius, META):
     return META.Quantity(kelvins, units={'K': 1})
 
 
-def delta_fahrenheit(fahrenheits, META):
+def delta_fahrenheit(META):
     """Convert temperature change from degrees Fahrenheit to Kelvins."""
-    kelvins = fahrenheits * Decimal('5') / Decimal('9')
-    return META.Quantity(kelvins, units={'K': 1})
+    return META.Quantity(Decimal('5') / Decimal('9'), units={'K': 1})
 
 
-def delta_celcius(celcius, META):
+def delta_celcius(META):
     """Convert temperature change from degrees Celcius to Kelvins."""
-    return META.Quantity(celcius, units={'K': 1})
+    return META.Quantity(Decimal('1'), units={'K': 1})
 
 
 def to_absolute_fahrenheit(kelvins):
@@ -88,22 +87,22 @@ mile = lazy_quantity(Decimal("1609.344"), units={'m': 1})
 pound = lazy_quantity(Decimal("0.45359237"), units={'kg': 1})
 
 
-exporttokens = [
-    [['degF'], absolute_fahrenheit, 'strong sign',
+CLIC_TOKENS = [
+    [['degF', '°F'], absolute_fahrenheit, 'strong sign',
      'Absolute temperature in degrees Fahrenheit', {'use_meta': True}],
-    [['degC'], absolute_celcius, 'strong sign',
+    [['degC', '°C'], absolute_celcius, 'strong sign',
      'Absolute temperature in degrees Celcius', {'use_meta': True}],
-    [['Fdeg'], delta_fahrenheit, 'strong sign',
+    [['Fdeg', 'F°'], delta_fahrenheit, 'static var',
      'Temperature change in degrees Fahrenheit', {'use_meta': True}],
-    [['Cdeg'], delta_celcius, 'strong sign',
+    [['Cdeg', 'C°'], delta_celcius, 'static var',
      'Temperature change in degrees Celcius', {'use_meta': True}],
-    [['to_degF'], to_absolute_fahrenheit, 'light sign',
+    [['to_degF', 'to°F'], to_absolute_fahrenheit, 'light sign',
      'To absolute temperature in degrees Fahrenheit'],
-    [['to_degC'], to_absolute_celcius, 'light sign',
+    [['to_degC', 'to°C'], to_absolute_celcius, 'light sign',
      'To absolute temperature in degrees Celcius'],
-    [['to_Fdeg'], to_delta_fahrenheit, 'light sign',
+    [['to_Fdeg', 'toF°'], to_delta_fahrenheit, 'light sign',
      'To temperature change in degrees Fahrenheit'],
-    [['to_Cdeg'], to_delta_celcius, 'light sign',
+    [['to_Cdeg', 'toC°'], to_delta_celcius, 'light sign',
      'To temperature change in degrees Celcius'],
     [['in'], inch, 'static var', 'One inch', {'use_meta': True}],
     [['ft'], foot, 'static var', 'One foot', {'use_meta': True}],

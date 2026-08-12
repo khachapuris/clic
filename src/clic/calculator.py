@@ -16,8 +16,8 @@ from clic.mathclasses import decimal_to_string
 from clic.mathclasses import UnknownName
 
 from clic.token import Token
-from clic.setup import exporttokens as default_token_args
-from clic.setup import exportmappings as default_mappings
+from clic.setup import CLIC_TOKENS as default_token_args
+from clic.setup import CLIC_MAPPINGS as default_mappings
 
 import importlib
 import os
@@ -97,13 +97,13 @@ class Calculator:
                     sys.modules[module_name] = module
                     spec.loader.exec_module(module)
 
-                    for token_args in module.exporttokens:
+                    for token_args in module.CLIC_TOKENS:
                         tokens = Token.from_config(*token_args)
                         for token in tokens:
                             token.module = module_name
                             self.vars.update({token.name: token})
-                    if hasattr(module, 'exportmappings'):
-                        self.completion.update(module.exportmappings)
+                    if hasattr(module, 'CLIC_MAPPINGS'):
+                        self.completion.update(module.CLIC_MAPPINGS)
                 except AttributeError:
                     raise Calculator.CompilationError(
                         f"invalid module: '{module}'",

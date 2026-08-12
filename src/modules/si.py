@@ -15,7 +15,7 @@ def lazy_quantity(*args, **kwargs):
     return give_quantity
 
 
-exporttokens = []
+CLIC_TOKENS = []
 
 prefixes = {-9: 'n', -6: 'mc', -3: 'm', -2: 'c', -1: 'd',
             0: '', 1: 'da', 2: 'h', 3: 'k', 6: 'M', 9: 'G'}
@@ -45,7 +45,7 @@ def si(ht, numerical, units, names, exps=None, ht_overwrite=None):
         new_ht = 'One ' + verbal[exp] + ht
         if ht_overwrite:
             new_ht = ht_overwrite
-        exporttokens.append([
+        CLIC_TOKENS.append([
             new_names,
             lazy_quantity(new_numerical, units=units),
             'static var',
@@ -55,7 +55,7 @@ def si(ht, numerical, units, names, exps=None, ht_overwrite=None):
         # Alternative micro prefix
         if exp == -6:
             new_names = ['μ' + name for name in names]
-            exporttokens.append([
+            CLIC_TOKENS.append([
                 new_names,
                 lazy_quantity(new_numerical, units=units),
                 'static var',
@@ -97,6 +97,6 @@ si('hour',   D('3600'),     {'s': 1}, ['hr'],   [0])
 si('day',    D('86400'),    {'s': 1}, ['day'],  [0])
 si('year',   D('31557600'), {'s': 1}, ['year'], [0])
 
-exportmappings = {
+CLIC_MAPPINGS = {
     'ohm': 'Ω', 'micro': 'μ',
 }

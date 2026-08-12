@@ -49,7 +49,7 @@ def radian(META):
     return META.Quantity(Decimal(1), {'rad': 1})
 
 
-exporttokens = [
+CLIC_TOKENS = [
     [['tan', 'tg'], tan, 'normal func', 'Tangent', {'use_meta': True}],
     [['sin'], sin,       'normal func', 'Sine',    {'use_meta': True}],
     [['cos'], cos,       'normal func', 'Cosine',  {'use_meta': True}],
@@ -65,6 +65,6 @@ exporttokens = [
     [['rad'], radian,      'static var', 'Radian', {'use_meta': True}],
 ]
 
-exportmappings = {
+CLIC_MAPPINGS = {
     'deg': '°',
 }

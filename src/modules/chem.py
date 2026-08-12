@@ -220,7 +220,7 @@ def mass_precision(precision=None):
     return wrapper
 
 
-exporttokens = [
+CLIC_TOKENS = [
     [['M'], mass_precision(0), 'normal func', 'Molar mass of compound',
      {'unknown_name_input': True}],
     [['NA', 'N_A'], lambda: N_AVOGADRO, 'static var', "Avogadro's constant"],

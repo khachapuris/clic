@@ -94,7 +94,7 @@ def pretty_prime_factor(n):
     return ans
 
 
-exporttokens = [
+CLIC_TOKENS = [
     [['mod'], lambda a, b: a % b, 'mul-tion oper', 'Modulo'],
     [['!'], factorial, 'strong sign', 'Factorial', {'array_input': True}],
     [['nPr'], permutations, 'normal func', 'Number of permutations',

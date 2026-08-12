@@ -22,8 +22,8 @@ else:
 
 system_config = {
     'quote': '"',
-    'alphabet_extra': '_',
     'assignment_oper': '=',
+    'alphabet_extra': '_μΔ°',
     'opening_braces': '([{',
     'closing_braces': '}])',
     'help_text': "Welcome to clic calculator! For the docs, see README.md"

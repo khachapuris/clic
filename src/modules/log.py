@@ -22,7 +22,7 @@ def ln_exp(a, b):
     raise ValueError('raising function to negative exponent')
 
 
-exporttokens = [
+CLIC_TOKENS = [
     [['log'], logarithm, 'normal func', 'Logarithm'],
     [['log ^'], log_exp, 'normal doub', 'Logarithm'],
     [['ln'], lambda a: a.ln(), 'normal func', ''],

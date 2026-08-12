@@ -85,7 +85,10 @@ def normalcdf(array):
     return abs(normalcdf_phi(maxx) - normalcdf_phi(minx))
 
 
-exporttokens = [
+array_from_range = (lambda a, b, META: META.Array.from_range(a))
+
+
+CLIC_TOKENS = [
     [['±', 'pm'], plus_or_minus, 'addition oper', 'Plus-or-minus',
      {'use_meta': True}],
     [[' ±', ' pm'], plus_or_minus, 'strong func', 'Positive-or-negative',
@@ -107,12 +110,13 @@ exporttokens = [
     [['Variance'], variance, 'normal func', 'Variance'],
     [['σ', 'Deviation'], deviation, 'normal func', 'Standard deviation'],
     [['normalcdf'], normalcdf,      'normal func', 'Cumulative distribution'],
+    [['..'], array_from_range, 'strong oper', 'Create array by range'],
     [['['], create_array, 'static open', 'Array', {'closes': ']',
                                                    'use_meta': True}],
     [[']'], lambda: None, 'static clos', 'Array', {'closes': '['}],
 ]
 
-exportmappings = {
+CLIC_MAPPINGS = {
     'pm': '±',
     'mp': '∓',
 }

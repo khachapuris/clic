@@ -2,13 +2,13 @@
 
 from decimal import Decimal
 
-from clic.mathclasses import ArgList, Array
+from clic.mathclasses import ArgList
 from clic.mathclasses import glob_pi, glob_e, glob_inf
 
 
 sq_root = (lambda a: a ** Decimal('0.5'))
 
-exporttokens = [
+CLIC_TOKENS = [
     [['('], lambda: None, 'static (', 'Opening parenthesis'],
     [[')'], lambda: None, 'static )', 'Closing parenthesis'],
     [['+'], lambda a, b: a + b, 'addition oper', 'Addition'],
@@ -23,7 +23,7 @@ exporttokens = [
      'Implicit multiplication', {'reverse': True}],
     [['__arg_sep__'], ArgList.join, 'light oper', 'Argument separator'],
     [['/'], lambda a, b: a / b,  'light oper', 'Fraction bar'],
-    [['∞', 'INF'], lambda: glob_inf, 'static var', 'Infinity'],
+    [['∞', 'infty'], lambda: glob_inf, 'static var', 'Infinity'],
     [['π', 'pi'], lambda: glob_pi,   'static var', 'The number pi'],
     [['e'], lambda: glob_e,          'static var', 'The number e'],
     [['sqrt'], sq_root,   'strong func', 'Square root'],
@@ -31,10 +31,9 @@ exporttokens = [
     [["'"], lambda: None, 'static clos', 'Square root', {'closes': '√'}],
     [[' |'], abs,         'static open', 'Absolute value', {'closes': '|'}],
     [['|'], lambda: None, 'static clos', 'Absolute value', {'closes': ' |'}],
-    [['..'], Array.from_range, 'strong oper', 'Create array by range'],
 ]
 
-exportmappings = {
+CLIC_MAPPINGS = {
     # Greek alphabet (uppercase)
     'Alpha':   'Α', 'Beta':  'Β', 'Gamma':   'Γ', 'Delta':   'Δ',
     'Epsilon': 'Ε', 'Zeta':  'Ζ', 'Eta':     'Η', 'Theta':   'Θ',
