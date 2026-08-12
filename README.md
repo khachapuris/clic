@@ -187,8 +187,12 @@ semicolon (`;`); however, each one of them can be set individually
 
 ## Writing extensions
 
-CLIC allows you to write custom functions, variables and mappings in Python.
-To begin, go through the following steps:
+CLIC allows you to write custom functions, variables, mappings, etc. using
+Python. For a quick result, see the Overview section below; if you want deep
+customization, also check the Token specialization & Mapping specialization
+sections.
+
+### Overview
 
 1. Create a Python file in `~/.clic/modules`, name it something like
     `mymodule.py` (use any name you like)
@@ -197,7 +201,7 @@ To begin, go through the following steps:
     - `CLIC_TOKENS` lists all functions and variables provided by the module
     - `CLIC_MAPPINGS` lists all mappings provided by the module
 
-Consider the following example:
+Paste this example into your file:
 
 ```python
 # ~/.clic/modules/mymodule.py
@@ -206,6 +210,8 @@ from decimal import Decimal
 
 def double(x):
     """Double the given number."""
+
+    # Always use the `Decimal` type
     return x * Decimal('2')
 
 
@@ -226,6 +232,8 @@ def gravitational_constant(META):
     """Return the gravitational constant as a Quantity."""
 
     # G = 6.67430 m^3 / kg * s^2
+
+    # META.Quantity is used to create a Quantity object
     return META.Quantity(Decimal('6.67430'), {'m': 3, 'kg': -1, 's': -2})
 
 
@@ -241,16 +249,6 @@ CLIC_MAPPINGS = {
 }
 ```
 
-Note, that...
-
-- use `Decimal` type instead of `int` and `float`
-- use `'normal func'` to register functions and `'static var'` for variables
-- when used with multiple arguments, your function will receive a single
-iterable argument of type `ArgList`
-- to use functions and types built into the calculator, list `META` as the
-last argument of the function and add `{'use_meta': True}` in the respective
-token listing
-
 After you save the file, run the calculator and try out its new abilities:
 
 ```
@@ -259,9 +257,94 @@ clic: Sqsum(1; 3; 4) = 26
 clic: G = 6.6743 m^3*kg^-1*s^-2
 ```
 
-Typing `aleph<Tab>` will now insert the aleph character.
+`aleph<Tab>` will render the aleph character.
 
-### Not implemented yet
+### Token specification
+
+Tokens specified in `CLIC_TOKENS` can serve as functions, unary operators,
+variables, normal operators, signs, opening braces, closing braces, and double
+functions. Here is a thorough breakdown of how each of listing should look:
+
+1. Name(s)
+    - a list of names to be used in the calculator
+    - names must be unique
+    - for non-ascii names, consider providing an ascii-only alternative name
+    - if the same name is used both as an unary opearator and a normal
+    operator, the name for the unary token must begin with a space (` `)
+    (e.g. ` -` is unary minus, `-` is normal minus)
+    - if the token is a replacement for two other tokens going one after
+    another, its name must have a space in between their respective names
+    (e.g. `sin ^` is a token that replaces `sin` and `^` when used together)
+
+2. Callable
+    - a function or lambda statement that will be called when the token is
+    executed by clic
+    - callables must always return `Decimal` type and never `int` and `float`
+    - the callable must accept this number of arguments (besides `META`):
+        - function / unary operator: 1
+        - variable: 0
+        - operator: 2
+        - sign: 1
+        - opening brace: 1
+        - closing brace: 0
+        - double function: 2
+    - if the token is a function, and it was called with multiple arguments
+    inside clic, then the callable will receive a single iterable argument of
+    type `ArgList` (e.g. `log(2; 8)` calls `log_callable(ArgList(2, 8))`)
+    - when comparing against a type, do `type(obj).__name__ == '<TypeName>'`
+    - when operating on `Quantity` and `Array` types, use the same operations
+    as with numbers (e.g. addition, subtraction, multiplication & division)
+    - to use static methods or initializers of the classes built into the
+    calculator, list `META` as the last argument of the function;
+        - `META.Quantity.sin`, `META.Quantity.cos`, `META.Quantity.tan`
+        - `META.Quantity.arcsin`,`META.Quantity.arccos`,`META.Quantity.arctan`
+        - `META.Array(*args)` creates a new array with the given elements
+        - `META.Quantity(value, units)` creates a quantity
+            - `value` is a Decimal value
+            - `units` is a dictionary matching units (`str`) to their powers
+            (`int`)
+
+3. Preference & Kind
+    - preference and kind are specified as a single string with two words
+    and a space in between
+    - preference ranges from `light`, `addition`, `mul-tion`, `normal` to
+    `strong`, `strongest` and `static`; every next value will takes precedence
+    over the ones before
+    - the kind is one of the following:
+        - `func`: function or unary operator
+        - `var`: variable
+        - `oper`: normal operator
+        - `sign`: sign (placed after the operand, like `3!`)
+        - `open`: opening brace
+        - `clos`: closing brace
+        - `doub`: double function (takes two arguments without a semicolon)
+    - the most reasonable combinations are `normal func` for a function and
+    `static var` for a variable
+
+4. Help text
+    - the help text will be displayed when `help` is called on the token
+    - avoid specifying the kind inside the help text to avoid duplication
+
+5. Options (optional)
+    - a dictionary for token-specific configuration
+    - consists of the following entries:
+        - `closes` (str) used to provide the related opening or closing token
+        name (required for all opening and closing braces)
+        - `reverse` (bool) calculate multiple tokens of this type in a line
+        in an opposite to logical direction (like `3^3^2`)
+        - `array_input` (bool) extrapolate the token on arrays
+        (use only if arrays are not covered in the callable)
+        - `unknown_name_input` (bool) allow input of unquoted strings that
+        would otherwise raise an unknown name error
+        - `use_meta` (bool) use META inside the callable
+
+### Mappings specification
+
+`CLIC_MAPPINGS` is a dictionary that maps the keystrokes to the resulting
+character(s). Providing custom mappings is useful if some of your token names
+include special symbols that are not already covered in the calculator.
+
+## Not implemented yet
 
 These features are not implemented, but may follow in the future:
 
