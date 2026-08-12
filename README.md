@@ -187,10 +187,79 @@ semicolon (`;`); however, each one of them can be set individually
 
 ## Writing extensions
 
-You can examine the default modules (`src/modules` folder) and try to build a
-simple module on your own. Then, put it into the same folder and try it out.
+CLIC allows you to write custom functions, variables and mappings in Python.
+To begin, go through the following steps:
 
-(TODO: add more info to this section)
+1. Create a Python file in `~/.clic/modules`, name it something like
+    `mymodule.py` (use any name you like)
+2. The calculator will search for two variables in your file;
+    namely `CLIC_TOKENS` (required) and `CLIC_MAPPINGS` (optional):
+    - `CLIC_TOKENS` lists all functions and variables provided by the module
+    - `CLIC_MAPPINGS` lists all mappings provided by the module
+
+Consider the following example:
+
+```python
+# ~/.clic/modules/mymodule.py
+from decimal import Decimal
+
+
+def double(x):
+    """Double the given number."""
+    return x * Decimal('2')
+
+
+def sum_of_squares(args):
+    """Return the sum of squares of all arguments."""
+
+    # Check if we are provided with a list of arguments...
+    if type(args).__name__ == 'ArgList':
+        answer = Decimal('0')
+        for arg in args:
+            answer += arg ** Decimal('2')
+        return answer
+
+    return args ** Decimal('2')
+
+
+def gravitational_constant(META):
+    """Return the gravitational constant as a Quantity."""
+
+    # G = 6.67430 m^3 / kg * s^2
+    return META.Quantity(Decimal('6.67430'), {'m': 3, 'kg': -1, 's': -2})
+
+
+CLIC_TOKENS = [
+    [['double'], double,        'normal func', 'Duplication'],
+    [['Sqsum'], sum_of_squares, 'normal func', 'Sum of squares'],
+    [['G'], gravitational_constant, 'static var', 'Gravitational constant',
+     {'use_meta': True}],
+]
+
+CLIC_MAPPINGS = {
+    'aleph': 'ℵ',
+}
+```
+
+Note, that...
+
+- use `Decimal` type instead of `int` and `float`
+- use `'normal func'` to register functions and `'static var'` for variables
+- when used with multiple arguments, your function will receive a single
+iterable argument of type `ArgList`
+- to use functions and types built into the calculator, list `META` as the
+last argument of the function and add `{'use_meta': True}` in the respective
+token listing
+
+After you save the file, run the calculator and try out its new abilities:
+
+```
+clic: double(4.5) = 9
+clic: Sqsum(1; 3; 4) = 26
+clic: G = 6.6743 m^3*kg^-1*s^-2
+```
+
+Typing `aleph<Tab>` will now insert the aleph character.
 
 ### Not implemented yet
 
