@@ -263,7 +263,7 @@ clic: G = 6.6743 m^3*kg^-1*s^-2
 
 Tokens specified in `CLIC_TOKENS` can serve as functions, unary operators,
 variables, normal operators, signs, opening braces, closing braces, and double
-functions. Here is a thorough breakdown of how each of listing should look:
+functions. Here is a thorough breakdown of how each listing should look:
 
 1. Name(s)
     - a list of names to be used in the calculator
@@ -310,7 +310,7 @@ functions. Here is a thorough breakdown of how each of listing should look:
     - preference ranges from `light`, `addition`, `mul-tion`, `normal` to
     `strong`, `strongest` and `static`; every next value will takes precedence
     over the ones before
-    - the kind is one of the following:
+    - kind is one of the following:
         - `func`: function or unary operator
         - `var`: variable
         - `oper`: normal operator
