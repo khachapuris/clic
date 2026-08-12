@@ -43,7 +43,7 @@ def delta_celcius(celcius, META):
 def to_absolute_fahrenheit(kelvins):
     """Convert absolute temperature from Kelvins to degrees Fahrenheit."""
     if type(kelvins).__name__ == 'Quantity':
-        if kelvins.getpow('K') != 1:
+        if not kelvins.istemperature():
             raise ValueError('Kelvins required for conversion')
         kelvins = kelvins.value
     fahrenheits = kelvins * Decimal('9') / Decimal('5') - Decimal('459.67')
@@ -53,7 +53,7 @@ def to_absolute_fahrenheit(kelvins):
 def to_absolute_celcius(kelvins):
     """Convert absolute temperature from Kelvins to degrees Celcius."""
     if type(kelvins).__name__ == 'Quantity':
-        if kelvins.getpow('K') != 1:
+        if not kelvins.istemperature():
             raise ValueError('Kelvins required for conversion')
         kelvins = kelvins.value
     celcius = kelvins - Decimal('273.15')
@@ -63,7 +63,7 @@ def to_absolute_celcius(kelvins):
 def to_delta_fahrenheit(kelvins):
     """Convert temperature change from Kelvins to degrees Fahrenheit."""
     if type(kelvins).__name__ == 'Quantity':
-        if kelvins.getpow('K') != 1:
+        if not kelvins.istemperature():
             raise ValueError('Kelvins required for conversion')
         kelvins = kelvins.value
     fahrenheits = kelvins * Decimal('9') / Decimal('5')
@@ -73,7 +73,7 @@ def to_delta_fahrenheit(kelvins):
 def to_delta_celcius(kelvins):
     """Convert temperature change from Kelvins to degrees Celcius."""
     if type(kelvins).__name__ == 'Quantity':
-        if kelvins.getpow('K') != 1:
+        if not kelvins.istemperature():
             raise ValueError('Kelvins required for conversion')
         kelvins = kelvins.value
     return kelvins
