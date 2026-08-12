@@ -16,12 +16,13 @@ systems; however, I am sure this can be done similarly on Windows):
 2. Clone the clic package: `git clone https://github.com/khachapuris/clic`
 3. Now we will create a virtual environment and install the calculator with pip
 (this avoids contradictions with the global environment):
+    - stay outside of the `clic` folder
     - `mkdir clic-calculator`
     - `cd clic-calculator`
     - `python3 -m venv .venv` (creates a virtual environment)
     - `source .venv/bin/activate` (activates the virtual environment)
     - `python3 -m pip install --upgrade pip`
-    - `python3 -m pip install -e <the-path-from-step-2>/clic` (installs clic)
+    - `python3 -m pip install -e <the-absolute-path>/clic` (installs clic)
 4. To run the calculator, do `python3 -m clic`
 
 To run the calculator in a single command, create a bash script somewhere in
@@ -31,7 +32,7 @@ your $PATH with the following contents:
 # File called `clic` in your $PATH
 
 # Activate the virtual environment
-cd <the-actual-path>/clic-calculator
+cd <the-absolute-path>/clic-calculator
 source .venv/bin/activate
 
 # Run the calculator with all arguments provided
@@ -152,8 +153,8 @@ and adding the desired module(s) to `modules.load`
 
 ### Number and expression symbols
 
-The usage of periods `.` and commas `,` in numbers varies by area, so I thought
-it would be make sense if one could choose what to use for themselves. Each of
+The usage of periods `.` and commas `,` in numbers varies by area, so clic
+provides a way to configure them based on your personal preferences. Each of
 the following entries in the config signifies a certain role, to which you can
 assign any symbol (or multiple symbols when allowed).
 
