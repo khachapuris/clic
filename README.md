@@ -192,16 +192,16 @@ Python. For a quick result, see the Overview section below; if you want deep
 customization, also check the Token specialization & Mapping specialization
 sections.
 
-### Overview
+### Overview & example
 
 1. Create a Python file in `~/.clic/modules`, name it something like
     `mymodule.py` (use any name you like)
 2. The calculator will search for two variables in your file;
     namely `CLIC_TOKENS` (required) and `CLIC_MAPPINGS` (optional):
     - `CLIC_TOKENS` lists all functions and variables provided by the module
-    - `CLIC_MAPPINGS` lists all mappings provided by the module
+    - `CLIC_MAPPINGS` lists all keyboard mappings provided by the module
 
-Paste this example into your file:
+Consider the example below:
 
 ```python
 # ~/.clic/modules/mymodule.py
@@ -221,6 +221,8 @@ def sum_of_squares(args):
     # Check if we are provided with a list of arguments...
     if type(args).__name__ == 'ArgList':
         answer = Decimal('0')
+
+        # Either iterate over the arguments or use `list(args)`
         for arg in args:
             answer += arg ** Decimal('2')
         return answer
@@ -237,6 +239,7 @@ def gravitational_constant(META):
     return META.Quantity(Decimal('6.67430'), {'m': 3, 'kg': -1, 's': -2})
 
 
+# Register the functions in `CLIC_TOKENS` variable
 CLIC_TOKENS = [
     [['double'], double,        'normal func', 'Duplication'],
     [['Sqsum'], sum_of_squares, 'normal func', 'Sum of squares'],
@@ -244,12 +247,13 @@ CLIC_TOKENS = [
      {'use_meta': True}],
 ]
 
+# Register the keyboard mappings in `CLIC_MAPPINGS` (optional)
 CLIC_MAPPINGS = {
     'aleph': 'ℵ',
 }
 ```
 
-After you save the file, run the calculator and try out its new abilities:
+After the file is saved, you can use the functionality inside clic:
 
 ```
 clic: double(4.5) = 9
@@ -259,57 +263,69 @@ clic: G = 6.6743 m^3*kg^-1*s^-2
 
 `aleph<Tab>` will render the aleph character.
 
-### Token specification
+### Python function (callable)
 
-Tokens specified in `CLIC_TOKENS` can serve as functions, unary operators,
-variables, normal operators, signs, opening braces, closing braces, and double
-functions. Here is a thorough breakdown of how each listing should look:
+The Python callable is the main part for creating a custom clic function,
+variable, operator, sign, or opening/closing brace pair.
 
-1. Name(s)
-    - a list of names to be used in the calculator
-    - names must be unique
-    - for non-ascii names, consider providing an ascii-only alternative name
-    - if the same name is used both as an unary opearator and a normal
-    operator, the name for the unary token must begin with a space (` `)
-    (e.g. ` -` is unary minus, `-` is normal minus)
-    - if the token is a replacement for two other tokens going one after
-    another, its name must have a space in between their respective names
-    (e.g. `sin ^` is a token that replaces `sin` and `^` when used together)
-
-2. Callable
-    - a function or lambda statement that will be called when the token is
-    executed by clic
-    - callables must always return `Decimal` type and never `int` and `float`
-    - the callable must accept this number of arguments (besides `META`):
-        - function / unary operator: 1
+1. Input
+    - depending on the kind of token, the callable must accept a different
+    number of arguments (`META` does not count):
+        - function or unary operator: 1
+        - non-unary operator: 2
         - variable: 0
-        - operator: 2
         - sign: 1
-        - opening brace: 1
-        - closing brace: 0
-        - double function: 2
-    - if the token is a function, and it was called with multiple arguments
-    inside clic, then the callable will receive a single iterable argument of
-    type `ArgList` (e.g. `log(2; 8)` calls `log_callable(ArgList(2, 8))`)
-    - when comparing against a type, do `type(obj).__name__ == '<TypeName>'`
-    - when operating on `Quantity` and `Array` types, use the same operations
-    as with numbers (e.g. addition, subtraction, multiplication & division)
-    - to use static methods or initializers of the classes built into the
-    calculator, list `META` as the last argument of the function;
+        - opening/closing brace pair: 1
+    - functions called with multiple arguments inside clic will receive a
+    single argument that can be iterated over or turned into a Python list
+    (initially type `ArgList`)
+    - if your function uses methods that start with `META` (see .2 for a
+    list), put `META` as the last argument of the function
+
+2. Working with different types
+    - check what kind of numerical data does the argument represent like this:
+        - `isinstance(obj, Decimal)`: number (part of Python standard library)
+        - `type(obj).__name__ == 'Quantity'`: number with units of measurement
+        - `type(obj).__name__ == 'Array'`: array of data (bulk operation)
+    - operate on the numerical data using addition, subtraction,
+    multiplication, division, and exponentiation within Python
+    - create instances of class `Quantity` and class `Array` or perform
+    trigonometric functions with the following methods
         - `META.Quantity.sin`, `META.Quantity.cos`, `META.Quantity.tan`
         - `META.Quantity.arcsin`,`META.Quantity.arccos`,`META.Quantity.arctan`
         - `META.Array(*args)` creates a new array with the given elements
         - `META.Quantity(value, units)` creates a quantity
             - `value` is a Decimal value
-            - `units` is a dictionary matching units (`str`) to their powers
-            (`int`)
+            - `units` is a dictionary matching units of measurement (`str`)
+            to their powers (`int`)
+
+3. Output
+    - the callable must output a number of type `Decimal`, or, alternatively,
+    a `Quantity` or `Array` (see .2)
+
+### Registering the function
+
+Register the Python function as an entry in the `CLIC_TOKENS` list. Each entry
+must be a list of five elements, as follows:
+
+1. Name(s)
+    - a list of strings that represent the token in the calculator
+    - names must be unique
+    - to signify an unary operator that has the same name as a normal
+    operator, prepend its name with a single space (e.g. ` -` is unary minus)
+    - to signify the token as a replacement for two consecutive tokens, compose
+    its name from the two names separated by a space (e.g. `+ -` will always
+    replace `+` and `-` when one is found after another)
+
+2. Callable
+    - the name of the Python function
+    - for a closing brace, use `lambda: None` instad of a callable
 
 3. Preference & Kind
-    - preference and kind are specified as a single string with two words
-    and a space in between
-    - preference ranges from `light`, `addition`, `mul-tion`, `normal` to
-    `strong`, `strongest` and `static`; every next value will takes precedence
-    over the ones before
+    - a single string formatted like `'preference kind'`
+    - preference signifies which operations will be applied first; it ranges
+    from `light`, `addition`, `mul-tion`, `normal` to `strong`, `strongest`
+    and `static`
     - kind is one of the following:
         - `func`: function or unary operator
         - `var`: variable
@@ -317,16 +333,14 @@ functions. Here is a thorough breakdown of how each listing should look:
         - `sign`: sign (placed after the operand, like `3!`)
         - `open`: opening brace
         - `clos`: closing brace
-        - `doub`: double function (takes two arguments without a semicolon)
     - the most reasonable combinations are `normal func` for a function and
     `static var` for a variable
 
 4. Help text
-    - the help text will be displayed when `help` is called on the token
-    - avoid specifying the kind inside the help text to avoid duplication
+    - a short string describing what the function/operator/variable does
 
 5. Options (optional)
-    - a dictionary for token-specific configuration
+    - a dictionary for special information about the token
     - consists of the following entries:
         - `closes` (str) used to provide the related opening or closing token
         name (required for all opening and closing braces)
@@ -338,11 +352,15 @@ functions. Here is a thorough breakdown of how each listing should look:
         would otherwise raise an unknown name error
         - `use_meta` (bool) use META inside the callable
 
-### Mappings specification
+### Registering mappings
 
-`CLIC_MAPPINGS` is a dictionary that maps the keystrokes to the resulting
-character(s). Providing custom mappings is useful if some of your token names
-include special symbols that are not already covered in the calculator.
+If your module has symbols that are not already covered by the calculator,
+register the keyboard mappings as key-value pairs into the `CLIC_MAPPINGS`
+dictionary.
+
+1. Key: the text to type into the calculator
+
+2. Value: the resulting character
 
 ## Not implemented yet
 
