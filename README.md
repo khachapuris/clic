@@ -188,9 +188,8 @@ semicolon (`;`); however, each one of them can be set individually
 ## Writing extensions
 
 CLIC allows you to write custom functions, variables, mappings, etc. using
-Python. For a quick result, see the Overview section below; if you want deep
-customization, also check the Token specialization & Mapping specialization
-sections.
+Python. Below you can see a brief overview with an example, followed by three
+specialization sections.
 
 ### Overview & example
 
@@ -276,11 +275,14 @@ variable, operator, sign, or opening/closing brace pair.
         - variable: 0
         - sign: 1
         - opening/closing brace pair: 1
+        - function with two arguments without semicolon: 2
     - functions called with multiple arguments inside clic will receive a
     single argument that can be iterated over or turned into a Python list
     (initially type `ArgList`)
     - if your function uses methods that start with `META` (see .2 for a
-    list), put `META` as the last argument of the function
+    list), put `META` as the last argument of the function and add
+    `{'use_meta': True}` to the CLIC_TOKENS listing (see Registering the
+    function .5)
 
 2. Working with different types
     - check what kind of numerical data does the argument represent like this:
@@ -333,6 +335,7 @@ must be a list of five elements, as follows:
         - `sign`: sign (placed after the operand, like `3!`)
         - `open`: opening brace
         - `clos`: closing brace
+        - `doub`: function with two arguments without semicolon
     - the most reasonable combinations are `normal func` for a function and
     `static var` for a variable
 
