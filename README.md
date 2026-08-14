@@ -185,7 +185,7 @@ semicolon (`;`); however, each one of them can be set individually
 3. `view.prompt_color`: the ANSI color code used for the prompt
     (green by default)
 
-## Writing extensions
+## Writing custom functions
 
 CLIC allows you to write custom functions, variables, mappings, etc. using
 Python. Below you can see a brief overview with an example, followed by three
