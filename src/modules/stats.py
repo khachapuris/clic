@@ -85,7 +85,7 @@ def normalcdf(array):
     return abs(normalcdf_phi(maxx) - normalcdf_phi(minx))
 
 
-array_from_range = (lambda a, b, META: META.Array.from_range(a))
+array_from_range = (lambda a, b, META: META.Array.from_range(a, b))
 
 
 CLIC_TOKENS = [
@@ -110,7 +110,8 @@ CLIC_TOKENS = [
     [['Variance'], variance, 'normal func', 'Variance'],
     [['σ', 'Deviation'], deviation, 'normal func', 'Standard deviation'],
     [['normalcdf'], normalcdf,      'normal func', 'Cumulative distribution'],
-    [['..'], array_from_range, 'strong oper', 'Create array by range'],
+    [['..'], array_from_range, 'strong oper', 'Create array by range',
+        {'use_meta': True}],
     [['['], create_array, 'static open', 'Array', {'closes': ']',
                                                    'use_meta': True}],
     [[']'], lambda: None, 'static clos', 'Array', {'closes': '['}],

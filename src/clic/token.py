@@ -59,12 +59,12 @@ class Token:
           instead of text input (optional).
         """
         self.name = name
+        if use_meta:
+            calc = define_meta(calc)
         if array_input:
             calc = generalize_array_input(calc)
         if unknown_name_input:
             calc = allow_unknown_name(calc)
-        if use_meta:
-            calc = define_meta(calc)
         self.calc = calc
         if kind in ('func', 'sign', 'open'):
             self.arg_num = 1

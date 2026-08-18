@@ -278,6 +278,16 @@ class Quantity:
         return Quantity.sin(x) / Quantity.cos(x)
 
     @staticmethod
+    def csc(x):
+        """Return the tangent of the angle."""
+        return Decimal('1') / Quantity.sin(x)
+
+    @staticmethod
+    def sec(x):
+        """Return the tangent of the angle."""
+        return Decimal('1') / Quantity.cos(x)
+
+    @staticmethod
     def cot(x):
         """Return the cotangent of the angle."""
         return Quantity.cos(x) / Quantity.sin(x)
@@ -296,6 +306,21 @@ class Quantity:
     def arctan(x):
         """Return an angle with given tangent."""
         return Quantity.angle(Decimal(atan(x)))
+
+    @staticmethod
+    def arccsc(x):
+        """Return an angle with given sine."""
+        return Quantity.angle(Decimal(asin(Decimal('1') / x)))
+
+    @staticmethod
+    def arcsec(x):
+        """Return an angle with given cosine."""
+        return Quantity.angle(Decimal(acos(Decimal('1') / x)))
+
+    @staticmethod
+    def arccot(x):
+        """Return an angle with given tangent."""
+        return Quantity.angle(Decimal(atan(Decimal('1') / x)))
 
 
 class ArgList:
