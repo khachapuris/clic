@@ -100,6 +100,8 @@ def single_prompt(ctor):
 def app():
     parser = argparse.ArgumentParser(
         color=False,
+        usage='%(prog)s [-h|-v] [--debug] [expression]',
+        description='CLIC command line calculator',
     )
     parser.add_argument('-v', '--version', action='version',
                         version=f'%(prog)s {get_version()}')
