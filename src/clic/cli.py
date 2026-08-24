@@ -8,6 +8,10 @@ It runs the calculator with a prompt.
 from clic.calculator import Calculator
 from clic.config import CONFIG
 import sys
+import argparse
+import tomllib
+import os
+
 
 CONFIG['system']['help_text'] = '''
 ,~~~~~~~~~~~~~~~~ Basic help ~~~~~~~~~~~~~~~~,
@@ -16,6 +20,20 @@ CONFIG['system']['help_text'] = '''
 | list -- list available functions & units   |
 | help <NAME> -- help on a specific function |
 '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
+
+PROMPT = f'\033[{CONFIG["view"]["prompt_color"]}mclic:\033[0m '
+LINE_UP = '\033[1A'
+LINE_CLEAR = '\x1b[2K'
+
+
+def get_version():
+    path_to_pyproject = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        'pyproject.toml'
+    )
+    with open(path_to_pyproject, 'rb') as f:
+        pyproject_data = tomllib.load(f)
+        return pyproject_data['project']['version']
 
 
 def overlap(a, b):
@@ -55,15 +73,6 @@ def create_completer(bindings, vocab):
     return completer
 
 
-PROMPT = f'\033[{CONFIG["view"]["prompt_color"]}mclic:\033[0m '
-LINE_UP = '\033[1A'
-LINE_CLEAR = '\x1b[2K'
-
-
-def create_calculator():
-    return Calculator(config=CONFIG)
-
-
 def single_prompt(ctor):
     """A nice single line one-time prompt."""
     try:
@@ -88,37 +97,37 @@ def single_prompt(ctor):
     return ctor
 
 
-def command_line_calc():
-    """Calculate using command line arguments."""
-    if sys.argv[1] == '--help':
-        print('CLIC command-line calculator')
-        print('Usage:  clic [--help,--version] [expression]')
-        sys.exit()
-    elif sys.argv[1] == '--version':
-        print('clic 1')
-        sys.exit()
-    ctor = Calculator()
-    ctor.calculate(' '.join(sys.argv[1:]))
-    flag, ans = ctor.get_answer()
-    if flag:
-        print(ans, file=sys.stderr)
-    elif ctor.silent:
-        pass
-    else:
-        print(ans)
-
-
 def app():
-    if len(sys.argv) > 1:
-        command_line_calc()
+    parser = argparse.ArgumentParser(
+        color=False,
+    )
+    parser.add_argument('-v', '--version', action='version',
+                        version=f'%(prog)s {get_version()}')
+    parser.add_argument('--debug', action='store_true',
+                        help='run with debug options on')
+    parser.add_argument('expression', nargs=argparse.REMAINDER,
+                        help='the expression to calculate')
+    args = parser.parse_args()
+
+    CONFIG['global'].update({'show_debug': args.debug})
+
+    if args.expression:
+        # Non-interactive
+        ctor = Calculator(config=CONFIG)
+        ctor.calculate(' '.join(args.expression))
+        flag, ans = ctor.get_answer()
+        if flag:
+            print(ans, file=sys.stderr)
+        elif ctor.silent:
+            pass
+        else:
+            print(ans)
     else:
-        ctor = create_calculator()
-        # impove standard UX
+        # Interactive
+        ctor = Calculator(config=CONFIG)
+        # Impove standard UX
         import readline
         readline.parse_and_bind('tab: complete')
-        # readline.set_completer_delims(
-        #     '0123456789!@#$%^&*()-+=`~\'"<,.>/?:;| '
-        # )
         readline.set_completer_delims(' ')
         readline.set_completer(create_completer(
             ctor.completion,
