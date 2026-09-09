@@ -21,9 +21,9 @@ CONFIG['system']['help_text'] = '''
 | help <NAME> -- help on a specific function |
 '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
 
-PROMPT = f'\033[{CONFIG["view"]["prompt_color"]}mclic:\033[0m '
-LINE_UP = '\033[1A'
-LINE_CLEAR = '\x1b[2K'
+PROMPT = f'\001\033[{CONFIG["view"]["prompt_color"]}m\002clic:\001\033[0m\002 '
+LINE_UP = '\001\033[1A\002'
+LINE_CLEAR = '\001\x1b[2K\002'
 
 
 def get_version():
@@ -97,6 +97,28 @@ def single_prompt(ctor):
     return ctor
 
 
+def bare_prompt(ctor):
+    """A prompt without any decorations."""
+    try:
+        exp = input()
+    except KeyboardInterrupt:
+        sys.exit(130)
+    except EOFError:
+        sys.exit(0)
+    ctor.calculate(exp)
+    flag, ans = ctor.get_answer()
+    if flag:
+        print(ans, file=sys.stderr)
+    elif ctor.silent:
+        pass
+    else:
+        if CONFIG['view']['oneline']:
+            print(f'{exp} = {ans}')
+        else:
+            print(ans)
+    return ctor
+
+
 def app():
     parser = argparse.ArgumentParser(
         color=False,
@@ -105,6 +127,8 @@ def app():
     )
     parser.add_argument('-v', '--version', action='version',
                         version=f'%(prog)s {get_version()}')
+    parser.add_argument('-b', '--bare', action='store_true',
+                        help='do not prettify output')
     parser.add_argument('--debug', action='store_true',
                         help='run with debug options on')
     parser.add_argument('expression', nargs=argparse.REMAINDER,
@@ -112,6 +136,7 @@ def app():
     args = parser.parse_args()
 
     CONFIG['global'].update({'show_debug': args.debug})
+    prompt_function = bare_prompt if args.bare else single_prompt
 
     if args.expression:
         # Non-interactive
@@ -128,18 +153,23 @@ def app():
         # Interactive
         ctor = Calculator(config=CONFIG)
         # Impove standard UX
-        import readline
-        readline.parse_and_bind('tab: complete')
-        readline.set_completer_delims(' ')
-        readline.set_completer(create_completer(
-            ctor.completion,
-            ctor.vars | {'help': 'help', 'exit': 'exit', 'list': 'list'}
-        ))
+        try:
+            import readline
+            readline.parse_and_bind('tab: complete')
+            readline.set_completer_delims(' ')
+            readline.set_completer(create_completer(
+                ctor.completion,
+                ctor.vars | {'help': 'help', 'exit': 'exit', 'list': 'list'}
+            ))
+        except ImportError:
+            print('WARNING: Could not import the "readline" module. \
+The interface may now be missing some features like completion and history.',
+                  file=sys.stderr)
         if CONFIG['view']['loop']:
             while True:
-                single_prompt(ctor)
+                prompt_function(ctor)
         else:
-            single_prompt(ctor)
+            prompt_function(ctor)
 
 
 if __name__ == '__main__':
