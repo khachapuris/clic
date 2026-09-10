@@ -462,16 +462,19 @@ class Calculator:
         i = self.perform_operations(ls)
         i = self.require_one_answer(i)
         decimal.getcontext().prec += 5
+        if isinstance(a, UnknownName):
+            raise a.raise_error()
         if isinstance(a, ArgList):
+            raise Calculator.CompilationError('compilation error')
+            # new = ArgList()
+            # for a2, i2 in zip(a, i):
+            #     ArgList.join(new, type_test(a2, i2))
+            # ans = new
+        if isinstance(a, Array):
             new = ArgList()
             for a2, i2 in zip(a, i):
                 ArgList.join(new, type_test(a2, i2))
-            ans = new
-        elif isinstance(a, Array):
-            new = Array()
-            for a2, i2 in zip(a, i):
-                Array.join(new, type_test(a2, i2))
-            ans = new
+            ans = Array(*a)
         else:
             ans = type_test(a, i)
         if self.config['global']['show_debug']:

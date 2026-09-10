@@ -8,9 +8,7 @@ import math
 def plus_or_minus(a, b=None, META=None):
     if b is None:
         (a, b) = (Decimal('0'), a)
-    mask = META.Array()
-    META.Array.join(mask, Decimal('1'))
-    META.Array.join(mask, Decimal('-1'))
+    mask = META.Array(Decimal('1'), Decimal('-1'))
     return a + b * mask
 
 
@@ -18,8 +16,7 @@ def minus_or_plus(a, b=None, META=None):
     if b is None:
         (a, b) = (Decimal('0'), a)
     mask = META.Array()
-    META.Array.join(mask, Decimal('-1'))
-    META.Array.join(mask, Decimal('1'))
+    mask = META.Array(Decimal('-1'), Decimal('1'))
     return a + b * mask
 
 
@@ -30,10 +27,7 @@ def create_array(a, META):
 def push(array, element):
     if type(array).__name__ == 'Array':
         Array = type(array)
-        ans = Array()
-        for el in array:
-            Array.join(ans, el)
-        Array.join(ans, element)
+        ans = Array(*[*array, element])
         return ans
 
 
