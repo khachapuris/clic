@@ -89,16 +89,11 @@ array_from_range = (lambda a, b, META: META.Array.from_range(a, b))
 
 
 CLIC_TOKENS = [
-    [['±', 'pm'], plus_or_minus, 'addition oper', 'Plus-or-minus',
-     {'use_meta': True}],
-    [[' ±', ' pm'], plus_or_minus, 'strong func', 'Positive-or-negative',
-     {'use_meta': True}],
-    [['∓', 'mp'], minus_or_plus, 'addition oper', 'Plus-or-minus',
-     {'use_meta': True}],
-    [[' ∓', ' mp'], minus_or_plus, 'strong func', 'Positive-or-negative',
-     {'use_meta': True}],
-    [['SORT'], array_sort,   'normal func', 'Sorted version of array',
-     {'use_meta': True}],
+    [['±', 'pm'], plus_or_minus, 'addition oper', 'Plus-or-minus'],
+    [[' ±', ' pm'], plus_or_minus, 'strong func', 'Positive-or-negative'],
+    [['∓', 'mp'], minus_or_plus, 'addition oper', 'Plus-or-minus'],
+    [[' ∓', ' mp'], minus_or_plus, 'strong func', 'Positive-or-negative'],
+    [['SORT'], array_sort,   'normal func', 'Sorted version of array'],
     [['PUSH'], push,       'mul-tion oper', 'Push element to array'],
     [['Σ', 'Sum'], sum,    'mul-tion func', 'Sum of array elements'],
     [['Π', 'Prod'], prod,  'mul-tion func', 'Product of array elements'],
@@ -110,10 +105,8 @@ CLIC_TOKENS = [
     [['Variance'], variance, 'normal func', 'Variance'],
     [['σ', 'Deviation'], deviation, 'normal func', 'Standard deviation'],
     [['normalcdf'], normalcdf,      'normal func', 'Cumulative distribution'],
-    [['..'], array_from_range, 'strong oper', 'Create array by range',
-        {'use_meta': True}],
-    [['['], create_array, 'static open', 'Array', {'closes': ']',
-                                                   'use_meta': True}],
+    [['..'], array_from_range, 'strong oper', 'Create array by range'],
+    [['['], create_array, 'static open', 'Array', {'closes': ']'}],
     [[']'], lambda: None, 'static clos', 'Array', {'closes': '['}],
 ]
 

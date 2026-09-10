@@ -6,6 +6,7 @@ the list of tokens used in the calculator see functions.py.
 """
 
 import copy
+import inspect
 import clic.mathclasses as mathclasses
 from clic.mathclasses import (
     allow_unknown_name,
@@ -41,8 +42,7 @@ class Token:
     }
 
     def __init__(self, name, calc, pref, kind, ht='', reverse=False,
-                 closes=None, array_input=False, unknown_name_input=False,
-                 use_meta=False):
+                 closes=None, array_input=False, unknown_name_input=False):
         """The initialiser of the class.
 
         Arguments:
@@ -59,8 +59,11 @@ class Token:
           instead of text input (optional).
         """
         self.name = name
-        if use_meta:
-            calc = define_meta(calc)
+        try:
+            if 'META' in list(inspect.signature(calc).parameters.keys()):
+                calc = define_meta(calc)
+        except ValueError:
+            pass
         if array_input:
             calc = generalize_array_input(calc)
         if unknown_name_input:

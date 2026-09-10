@@ -50,7 +50,6 @@ def si(ht, numerical, units, names, exps=None, ht_overwrite=None):
             lazy_quantity(new_numerical, units=units),
             'static var',
             new_ht,
-            {'use_meta': True}
         ])
         # Alternative micro prefix
         if exp == -6:
@@ -60,7 +59,6 @@ def si(ht, numerical, units, names, exps=None, ht_overwrite=None):
                 lazy_quantity(new_numerical, units=units),
                 'static var',
                 new_ht,
-                {'use_meta': True}
             ])
 
 

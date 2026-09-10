@@ -242,8 +242,7 @@ def gravitational_constant(META):
 CLIC_TOKENS = [
     [['double'], double,        'normal func', 'Duplication'],
     [['Sqsum'], sum_of_squares, 'normal func', 'Sum of squares'],
-    [['G'], gravitational_constant, 'static var', 'Gravitational constant',
-     {'use_meta': True}],
+    [['G'], gravitational_constant, 'static var', 'Gravitational constant'],
 ]
 
 # Register the keyboard mappings in `CLIC_MAPPINGS` (optional)
@@ -280,9 +279,7 @@ variable, operator, sign, or opening/closing brace pair.
     single argument that can be iterated over or turned into a Python list
     (initially type `ArgList`)
     - if your function uses methods that start with `META` (see .2 for a
-    list), put `META` as the last argument of the function and add
-    `{'use_meta': True}` to the CLIC_TOKENS listing (see Registering the
-    function .5)
+    list), put `META` as the last argument of the function
 
 2. Working with different types
     - check what kind of numerical data does the argument represent like this:
@@ -348,12 +345,11 @@ must be a list of five elements, as follows:
         - `closes` (str) used to provide the related opening or closing token
         name (required for all opening and closing braces)
         - `reverse` (bool) calculate multiple tokens of this type in a line
-        in an opposite to logical direction (like `3^3^2`)
+        in an opposite to logical direction (as in `3^3^2`)
         - `array_input` (bool) extrapolate the token on arrays
         (use only if arrays are not covered in the callable)
         - `unknown_name_input` (bool) allow input of unquoted strings that
         would otherwise raise an unknown name error
-        - `use_meta` (bool) use META inside the callable
 
 ### Registering mappings
 

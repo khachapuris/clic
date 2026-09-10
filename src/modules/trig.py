@@ -82,7 +82,7 @@ def radian(META):
     return META.Quantity(Decimal(1), {'rad': 1})
 
 
-flag = {'use_meta': True, 'array_input': True}
+flag = {'array_input': True}
 
 
 CLIC_TOKENS = [
