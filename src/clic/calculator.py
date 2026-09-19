@@ -117,8 +117,7 @@ class Calculator:
 
     def isalphaplus(self, x):
         """Return whether x is alphabetical / semi-alphabetical or not."""
-        return (x.isalpha() and x.isascii()) \
-            or x in self.config['system']['alphabet_extra']
+        return x.isalpha() or x in self.config['system']['alphabet_extra']
 
     def split(self, string):
         """Split the given string expression."""
@@ -464,17 +463,17 @@ class Calculator:
         decimal.getcontext().prec += 5
         if isinstance(a, UnknownName):
             raise a.raise_error()
-        if isinstance(a, ArgList):
+        elif isinstance(a, ArgList):
             raise Calculator.CompilationError('compilation error')
             # new = ArgList()
             # for a2, i2 in zip(a, i):
             #     ArgList.join(new, type_test(a2, i2))
             # ans = new
-        if isinstance(a, Array):
+        elif isinstance(a, Array):
             new = ArgList()
             for a2, i2 in zip(a, i):
                 ArgList.join(new, type_test(a2, i2))
-            ans = Array(*a)
+            ans = Array(*new)
         else:
             ans = type_test(a, i)
         if self.config['global']['show_debug']:
